@@ -36,3 +36,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: ${{ secrets.FTP_REMOTE_PATH }}/
+          protocol: ftp
+          port: 21
+          log-level: verbose
