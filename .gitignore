@@ -2,3 +2,14 @@
 .env
 dist.zip
 node_modules
+ADMIN-BOOTSTRAP-GUIDE.md
+FIRESTORE-RULES-DEPLOYMENT.md
+firestore.rules
+md files/SUPABASE-SETUP-GUIDE.md
+.gitignore
+tasks/admin-dashboard-plan.md
+tasks/admin-dashboard-responsive-design-plan.md
+tasks/admin-ux-improvements-plan.md
+tasks/member-admin-registration-plan.md
+md files/SUPABASE-SETUP-GUIDE.md
+tasks/admin-dashboard-plan.md

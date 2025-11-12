@@ -1,26 +1,152 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Container, Section, SEO } from '../../components/common';
 import { useAuth } from '../../hooks/useAuth';
 import { useSubmissions } from '../../hooks/useSubmissions';
+import { useAdminManagement } from '../../hooks/useAdminManagement';
 import SubmissionsList from './SubmissionsList';
+import FilterBar from '../../components/admin/FilterBar';
+import ExportButton from '../../components/admin/ExportButton';
 import { 
   FiLogOut, 
   FiUser, 
   FiMail, 
   FiFileText, 
   FiShield,
-  FiLoader
+  FiLoader,
+  FiUsers
 } from 'react-icons/fi';
 import Button from '../../components/common/Button';
 
 export default function AdminDashboard() {
   const { currentUser, logout } = useAuth();
   const { contactSubmissions, membershipApplications, loading, error } = useSubmissions();
+  const { isSuperAdmin } = useAdminManagement();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('contact'); // 'contact' or 'membership'
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [filters, setFilters] = useState({
+    search: '',
+    status: 'all',
+    dateFrom: '',
+    dateTo: '',
+  });
+
+  // Reset filters when switching tabs
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setFilters({ search: '', status: 'all', dateFrom: '', dateTo: '' });
+  };
+
+  // Filter submissions - must be at top level (Rules of Hooks)
+  const filteredContactSubmissions = useMemo(() => {
+    let filtered = [...contactSubmissions];
+    
+    // Filter by status
+    if (filters.status && filters.status !== 'all') {
+      filtered = filtered.filter(s => s.status === filters.status);
+    }
+    
+    // Filter by search query
+    if (filters.search && filters.search.trim()) {
+      const searchLower = filters.search.toLowerCase().trim();
+      filtered = filtered.filter(s => 
+        s.name?.toLowerCase().includes(searchLower) ||
+        s.email?.toLowerCase().includes(searchLower) ||
+        s.subject?.toLowerCase().includes(searchLower) ||
+        s.message?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Filter by date range
+    if (filters.dateFrom || filters.dateTo) {
+      filtered = filtered.filter(s => {
+        if (!s.created_at) return false;
+        
+        // Convert submission date to Date object
+        let submissionDate = s.created_at instanceof Date 
+          ? new Date(s.created_at) 
+          : s.created_at.toDate 
+            ? s.created_at.toDate() 
+            : new Date(s.created_at);
+        
+        // Create new Date objects to avoid mutation
+        const dateFrom = filters.dateFrom ? new Date(filters.dateFrom + 'T00:00:00') : null;
+        const dateTo = filters.dateTo ? new Date(filters.dateTo + 'T23:59:59') : null;
+        
+        // Normalize submission date to start of day (local time)
+        const submissionDateOnly = new Date(submissionDate.getFullYear(), submissionDate.getMonth(), submissionDate.getDate());
+        
+        // Normalize filter dates to start/end of day (local time)
+        const dateFromOnly = dateFrom ? new Date(dateFrom.getFullYear(), dateFrom.getMonth(), dateFrom.getDate()) : null;
+        const dateToOnly = dateTo ? new Date(dateTo.getFullYear(), dateTo.getMonth(), dateTo.getDate()) : null;
+        
+        // Compare dates (ignoring time)
+        if (dateFromOnly && submissionDateOnly < dateFromOnly) return false;
+        if (dateToOnly && submissionDateOnly > dateToOnly) return false;
+        
+        return true;
+      });
+    }
+    
+    return filtered;
+  }, [contactSubmissions, filters]);
+
+  const filteredMembershipApplications = useMemo(() => {
+    let filtered = [...membershipApplications];
+    
+    // Filter by status
+    if (filters.status && filters.status !== 'all') {
+      filtered = filtered.filter(a => a.status === filters.status);
+    }
+    
+    // Filter by search query
+    if (filters.search && filters.search.trim()) {
+      const searchLower = filters.search.toLowerCase().trim();
+      filtered = filtered.filter(a => 
+        a.name?.toLowerCase().includes(searchLower) ||
+        a.email?.toLowerCase().includes(searchLower) ||
+        a.phone?.toLowerCase().includes(searchLower) ||
+        a.business_name?.toLowerCase().includes(searchLower) ||
+        a.business_type?.toLowerCase().includes(searchLower) ||
+        a.message?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Filter by date range
+    if (filters.dateFrom || filters.dateTo) {
+      filtered = filtered.filter(a => {
+        if (!a.created_at) return false;
+        
+        // Convert application date to Date object
+        let applicationDate = a.created_at instanceof Date 
+          ? new Date(a.created_at) 
+          : a.created_at.toDate 
+            ? a.created_at.toDate() 
+            : new Date(a.created_at);
+        
+        // Create new Date objects to avoid mutation
+        const dateFrom = filters.dateFrom ? new Date(filters.dateFrom + 'T00:00:00') : null;
+        const dateTo = filters.dateTo ? new Date(filters.dateTo + 'T23:59:59') : null;
+        
+        // Normalize application date to start of day (local time)
+        const applicationDateOnly = new Date(applicationDate.getFullYear(), applicationDate.getMonth(), applicationDate.getDate());
+        
+        // Normalize filter dates to start/end of day (local time)
+        const dateFromOnly = dateFrom ? new Date(dateFrom.getFullYear(), dateFrom.getMonth(), dateFrom.getDate()) : null;
+        const dateToOnly = dateTo ? new Date(dateTo.getFullYear(), dateTo.getMonth(), dateTo.getDate()) : null;
+        
+        // Compare dates (ignoring time)
+        if (dateFromOnly && applicationDateOnly < dateFromOnly) return false;
+        if (dateToOnly && applicationDateOnly > dateToOnly) return false;
+        
+        return true;
+      });
+    }
+    
+    return filtered;
+  }, [membershipApplications, filters]);
 
   const handleLogout = async () => {
     try {
@@ -208,10 +334,10 @@ export default function AdminDashboard() {
 
           {/* Tabs Navigation */}
           <div className="mb-6">
-            <div className="border-b border-gray-200">
-              <nav className="flex gap-2" aria-label="Tabs">
+            <div className="border-b border-gray-200 overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+              <nav className="flex gap-2 flex-nowrap min-w-max md:min-w-0" aria-label="Tabs">
                 <button
-                  onClick={() => setActiveTab('contact')}
+                  onClick={() => handleTabChange('contact')}
                   className={`
                     px-6 py-3 text-sm font-medium border-b-2 transition-colors
                     ${
@@ -232,7 +358,7 @@ export default function AdminDashboard() {
                   </div>
                 </button>
                 <button
-                  onClick={() => setActiveTab('membership')}
+                  onClick={() => handleTabChange('membership')}
                   className={`
                     px-6 py-3 text-sm font-medium border-b-2 transition-colors
                     ${
@@ -252,6 +378,17 @@ export default function AdminDashboard() {
                     )}
                   </div>
                 </button>
+                {isSuperAdmin && (
+                  <button
+                    onClick={() => navigate('/admin/management')}
+                    className="px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <FiUsers />
+                      <span>Admin Management</span>
+                    </div>
+                  </button>
+                )}
               </nav>
             </div>
           </div>
@@ -281,14 +418,25 @@ export default function AdminDashboard() {
                       <h2 className="text-xl font-semibold text-gray-900">
                         Contact Submissions
                       </h2>
-                      {contactSubmissions.length > 0 && (
-                        <p className="text-sm text-gray-600">
-                          {contactSubmissions.length} submission{contactSubmissions.length !== 1 ? 's' : ''}
-                        </p>
-                      )}
+                      <div className="flex items-center gap-4">
+                        {contactSubmissions.length > 0 && (
+                          <p className="text-sm text-gray-600">
+                            {filteredContactSubmissions.length} of {contactSubmissions.length} submission{contactSubmissions.length !== 1 ? 's' : ''}
+                          </p>
+                        )}
+                        <ExportButton
+                          data={filteredContactSubmissions}
+                          type="contact"
+                        />
+                      </div>
                     </div>
+                    <FilterBar
+                      type="contact"
+                      filters={filters}
+                      onFilterChange={setFilters}
+                    />
                     <SubmissionsList
-                      submissions={contactSubmissions}
+                      submissions={filteredContactSubmissions}
                       type="contact"
                     />
                   </div>
@@ -298,14 +446,25 @@ export default function AdminDashboard() {
                       <h2 className="text-xl font-semibold text-gray-900">
                         Membership Applications
                       </h2>
-                      {membershipApplications.length > 0 && (
-                        <p className="text-sm text-gray-600">
-                          {membershipApplications.length} application{membershipApplications.length !== 1 ? 's' : ''}
-                        </p>
-                      )}
+                      <div className="flex items-center gap-4">
+                        {membershipApplications.length > 0 && (
+                          <p className="text-sm text-gray-600">
+                            {filteredMembershipApplications.length} of {membershipApplications.length} application{membershipApplications.length !== 1 ? 's' : ''}
+                          </p>
+                        )}
+                        <ExportButton
+                          data={filteredMembershipApplications}
+                          type="membership"
+                        />
+                      </div>
                     </div>
+                    <FilterBar
+                      type="membership"
+                      filters={filters}
+                      onFilterChange={setFilters}
+                    />
                     <SubmissionsList
-                      submissions={membershipApplications}
+                      submissions={filteredMembershipApplications}
                       type="membership"
                     />
                   </div>

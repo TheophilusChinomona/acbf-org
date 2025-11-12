@@ -58,9 +58,10 @@ export default function StatusBadge({ status, className = '' }) {
   return (
     <span
       className={`
-        inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+        inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-medium
         border ${config.borderColor}
         ${config.bgColor} ${config.textColor}
+        whitespace-nowrap
         ${className}
       `.trim().replace(/\s+/g, ' ')}
     >
