@@ -1,0 +1,22 @@
+# robots.txt for ACBF RSA Website
+# This file tells search engines which pages they can and cannot access
+
+User-agent: *
+Allow: /
+
+# Disallow admin and private areas (if any)
+Disallow: /admin/
+Disallow: /api/
+Disallow: /*.json$
+
+# Allow important files
+Allow: /assets/
+Allow: /images/
+Allow: /fonts/
+
+# Sitemap location (update with your actual domain)
+Sitemap: https://www.acbf.org.za/sitemap.xml
+
+# Crawl-delay (optional, adjust as needed)
+# Crawl-delay: 1
+
