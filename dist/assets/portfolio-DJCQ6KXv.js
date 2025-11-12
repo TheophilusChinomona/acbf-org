@@ -1,0 +1,1 @@
+const e=[{id:1,title:"Sample Portfolio Item",slug:"sample-portfolio-item",description:"Description of the portfolio item...",featuredImage:"/assets/images/portfolio-1.jpg",gallery:["/assets/images/portfolio-1.jpg"],clientName:"Client Name",projectDate:"2024-01-15",categories:["Web Design","Development"]}];export{e as p};
