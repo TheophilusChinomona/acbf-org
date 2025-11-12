@@ -34,8 +34,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin deploy
-          git worktree add deploy-temp origin/deploy
+          git fetch origin deploy:deploy
+          git worktree add deploy-temp deploy
 
       - name: Copy build files to deploy branch
         run: |
@@ -50,7 +50,7 @@ jobs:
             echo "No changes to deploy"
           else
             git commit -m "Deploy: $(date +'%Y-%m-%d %H:%M:%S UTC') [from main]"
-            git push -u origin deploy
+            git push origin deploy
           fi
 
       - name: FTP Deploy
