@@ -7,14 +7,12 @@ on:
 
 jobs:
   deploy:
-    name: Build and Deploy to deploy branch
+    name: Build and Deploy to cPanel
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout main branch
+      - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -29,30 +27,6 @@ jobs:
         run: npm run build:prod
         env:
           CI: false
-
-      - name: Checkout deploy branch
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
-          git fetch origin deploy:deploy
-          git worktree add deploy-temp deploy
-
-      - name: Copy build files to deploy branch
-        run: |
-          rm -rf deploy-temp/*
-          cp -r dist/* deploy-temp/
-
-      - name: Commit and push to deploy branch
-        working-directory: deploy-temp
-        run: |
-          git add .
-          if git diff-index --quiet HEAD --; then
-            echo "No changes to deploy"
-          else
-            git commit -m "Deploy: $(date +'%Y-%m-%d %H:%M:%S UTC') [from main]"
-            git push origin deploy
-          fi
 
       - name: FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
