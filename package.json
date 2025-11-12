@@ -1,6 +1,6 @@
 {
-  "name": "acbf-rsa-react",
-  "homepage": "https://dev.acbfrsa.org.za",
+  "name": "acbf-org",
+  "homepage": "https://dev.acbf.org.za",
   "private": true,
   "version": "0.0.0",
   "type": "module",
