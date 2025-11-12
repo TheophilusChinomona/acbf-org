@@ -1,1 +1,0 @@
-import{j as n}from"./ui-vendor-C9NSL-V1.js";function r({children:r,className:e="",hover:o=!1,shadow:a=!0,...s}){const d=`\n    bg-white rounded-lg overflow-hidden\n    ${a?"shadow-md":""}\n    ${o?"transition-all duration-200 hover:shadow-lg hover:-translate-y-1":""}\n    ${e}\n  `.trim().replace(/\s+/g," ");return n.jsx("div",{className:d,...s,children:r})}export{r as C};
