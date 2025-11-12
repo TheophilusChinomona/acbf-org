@@ -61,3 +61,14 @@ jobs:
             git commit -m "Deploy: $(date +'%Y-%m-%d %H:%M:%S UTC') [from ${{ github.event.inputs.branch }}]"
             git push origin deploy
           fi
+
+      - name: Deploy to cPanel via FTP
+        uses: SamKirkland/FTP-Deploy-Action@4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/
+          server-dir: ${{ secrets.FTP_REMOTE_PATH }}
+          state-name: .ftp-deploy-sync-state.json
+          dangerous-clean-slate: false
