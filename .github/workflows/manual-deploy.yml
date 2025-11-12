@@ -1,0 +1,63 @@
+name: Manual Deploy to cPanel
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to deploy'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - main
+          - features
+          - develop
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build React app
+        run: npm run build:prod
+        env:
+          CI: false
+
+      - name: Checkout deploy branch
+        run: |
+          git fetch origin deploy
+          git worktree add deploy-temp origin/deploy
+
+      - name: Copy build files to deploy branch
+        run: |
+          rm -rf deploy-temp/*
+          cp -r dist/* deploy-temp/
+
+      - name: Commit and push to deploy branch
+        working-directory: deploy-temp
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          if git diff-index --quiet HEAD --; then
+            echo "No changes to deploy"
+          else
+            git commit -m "Deploy: $(date +'%Y-%m-%d %H:%M:%S UTC') [from ${{ github.event.inputs.branch }}]"
+            git push origin deploy
+          fi

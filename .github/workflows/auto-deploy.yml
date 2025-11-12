@@ -1,10 +1,9 @@
-name: Deploy to cPanel
+name: Auto Deploy Main to cPanel
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   deploy:
@@ -50,6 +49,6 @@ jobs:
           if git diff-index --quiet HEAD --; then
             echo "No changes to deploy"
           else
-            git commit -m "Deploy: $(date +'%Y-%m-%d %H:%M:%S UTC')"
+            git commit -m "Deploy: $(date +'%Y-%m-%d %H:%M:%S UTC') [from main]"
             git push origin deploy
           fi
