@@ -10,7 +10,8 @@
     "build:prod": "npm run generate:sitemap && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate:sitemap": "node scripts/generate-sitemap.js"
+    "generate:sitemap": "node scripts/generate-sitemap.js",
+    "deploy": "bash deploy.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.81.1",
