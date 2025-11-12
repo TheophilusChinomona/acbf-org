@@ -1,0 +1,148 @@
+[
+  {
+    "id": 1,
+    "name": "Integrated Business Strategies",
+    "slug": "integrated-business-strategies",
+    "businessName": "Integrated Business Strategies",
+    "sector": "Professional services",
+    "description": "We help organisations achieve compliance, performance, and lasting impact. Integrated Business Strategies (IBS) partners with organisations to drive operational excellence, compliance, and sustainable growth. Our team brings deep expertise across SHREQ, engineering, and capability building — delivering hands-on solutions that improve how work gets done. We combine proven methods with local context to help you meet regulatory requirements, streamline processes, and empower your people.",
+    "logo": "/assets/images/members/logos/integrated-business-strategies-logo.png",
+    "companyProfile": "/assets/images/members/profiles/integrated-business-strategies-profile.pdf",
+    "featuredImage": "/assets/images/members/logos/integrated-business-strategies-logo.png",
+    "email": "info@ibstrategies.co.za",
+    "phone": "+27 73 416 3323",
+    "website": "https://www.ibstrategies.co.za",
+    "location": "South Africa",
+    "memberSince": "2020-01-15",
+    "statistics": [
+      {
+        "label": "Industry Experience",
+        "value": "10+ years"
+      },
+      {
+        "label": "ISO Standards Supported",
+        "value": "4"
+      },
+      {
+        "label": "Client Footprint",
+        "value": "SA-wide"
+      }
+    ],
+    "whatGuidesUs": [
+      "Compliance with clarity",
+      "Practical implementation",
+      "Capability building",
+      "Continuous improvement"
+    ],
+    "values": [
+      {
+        "name": "Excellence",
+        "description": "High standards in every engagement and deliverable."
+      },
+      {
+        "name": "Integrity",
+        "description": "Transparent, honest partnerships that earn trust."
+      },
+      {
+        "name": "Innovation",
+        "description": "Practical improvements powered by new ideas."
+      },
+      {
+        "name": "Partnership",
+        "description": "Co-creating outcomes with your teams."
+      }
+    ],
+    "process": [
+      {
+        "step": "01",
+        "title": "Assess",
+        "description": "Baseline current practices and define the outcomes that matter."
+      },
+      {
+        "step": "02",
+        "title": "Enable",
+        "description": "Implement processes, skills, and tools that stick."
+      },
+      {
+        "step": "03",
+        "title": "Improve",
+        "description": "Measure impact and iterate with your teams."
+      }
+    ],
+    "leadership": [
+      {
+        "name": "Givemore Chinomona",
+        "position": "Chief Executive Officer"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Greenfield Resources",
+    "slug": "greenfield-resources",
+    "businessName": "Greenfield Resources",
+    "sector": "Professional services",
+    "description": "Greenfield Resources is an ISO Certified (ISO 9001-2015), B-BBEE Level 1, multi-disciplinary, built environment, consulting firm. We support clients in planning, design, procurement, and implementation of infrastructure and building projects. Established in 2012, we have a track record of excellence, efficiency, and integrity in infrastructure project delivery.",
+    "tagline": "INTEGRITY | EFFICIENCY | AGILITY",
+    "logo": "/assets/images/members/logos/greenfield-resources-logo.png",
+    "companyProfile": "/assets/images/members/profiles/greenfield-resources-profile.pdf",
+    "featuredImage": "/assets/images/members/logos/greenfield-resources-logo.png",
+    "email": "info@gfrsa.co.za",
+    "phone": "+27 12 643 0357",
+    "website": "https://www.gfrsa.co.za",
+    "location": "South Africa",
+    "memberSince": "2019-06-20",
+    "established": "2012",
+    "certifications": [
+      "ISO 9001-2015",
+      "B-BBEE Level 1"
+    ],
+    "services": [
+      "Project & Program Management",
+      "Architecture",
+      "Quantity Surveying",
+      "Engineering Services",
+      "Related Specialist Services"
+    ],
+    "operatingRegions": [
+      "Gauteng",
+      "Mpumalanga",
+      "KZN",
+      "North West Provinces"
+    ],
+    "mission": "To improve the lives of communities through delivering transformative projects.",
+    "purpose": "To enrich, empower and INSPIRE communities through the efficient and effective delivery of infrastructure projects.",
+    "strategicIntent": "To be the leader in the efficient and effective delivery of Infrastructure projects.",
+    "coreValues": [
+      {
+        "name": "INTEGRITY",
+        "description": "We strive to be truthful and honest in our business dealings by producing high-quality work on time, regardless of the tasks at hand."
+      },
+      {
+        "name": "EFFICIENCY",
+        "description": "We utilise resources in a sustainable manner by prioritising tasks in order of importance and urgency and removing non-essential activities and processes."
+      },
+      {
+        "name": "AGILITY",
+        "description": "Our teams are flexible and will collaborate, learn from each other, and graciously accept feedback from clients and stakeholders."
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "RPS Switchgear SA",
+    "slug": "rps-switchgear-sa",
+    "businessName": "RPS Switchgear SA",
+    "sector": "Manufacturing",
+    "description": "Leading manufacturer of reliable, safe, and environmentally friendly electrical switchgear solutions.",
+    "tagline": "Reliable - Safe - Greenhouse Friendly",
+    "logo": "/assets/images/members/logos/rps-switchgear-sa-logo.png",
+    "companyProfile": "/assets/images/members/profiles/rps-switchgear-sa-profile.pdf",
+    "featuredImage": "/assets/images/members/logos/rps-switchgear-sa-logo.png",
+    "email": "sales@rpsswitchgearsa.co.za",
+    "phone": "1800-987-6543",
+    "website": "https://www.rpsswitchgearsa.co.za",
+    "location": "South Africa",
+    "memberSince": "2021-03-10"
+  }
+]

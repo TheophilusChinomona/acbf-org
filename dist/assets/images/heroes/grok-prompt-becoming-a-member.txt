@@ -1,0 +1,41 @@
+Create a professional, inspiring hero background image for a business membership organization website. 
+
+**Style & Mood:**
+- Modern, professional, and welcoming
+- Warm and inviting color palette with deep blues, rich purples, and warm gold accents
+- Subtle gradient effect from darker to lighter tones
+- Clean, minimalist aesthetic with depth and dimension
+- Business-oriented but approachable
+
+**Visual Elements:**
+- Abstract geometric shapes or patterns suggesting connection and community
+- Subtle network or connection lines in the background (representing business networking)
+- Soft light rays or glow effects emanating from the center or top
+- Optional: Very subtle silhouettes of diverse business professionals in the background (blurred, at low opacity)
+- No text or logos - pure background image
+
+**Color Palette:**
+- Primary: Deep navy blue (#1e3a5f) transitioning to royal blue (#2d4a7c)
+- Secondary: Rich purple (#6b46c1) blended subtly
+- Accent: Warm gold/yellow highlights (#f59e0b) for warmth
+- Overall: Professional gradient that works well with white text overlay
+
+**Technical Specifications:**
+- Aspect ratio: 16:9 (1920x1080px minimum, ideally 2560x1440px)
+- Format: High-resolution JPG or PNG
+- Style: Abstract, not photorealistic
+- Depth: Multiple layers creating depth without being distracting
+- Overlay compatibility: Should work well with a semi-transparent dark overlay (40-50% opacity) for text readability
+
+**Avoid:**
+- Busy or cluttered designs
+- High contrast that would compete with text
+- Overly bright or saturated colors
+- Photorealistic people or objects (keep it abstract/symbolic)
+- Text or specific branding elements
+
+**Inspiration Keywords:**
+Business networking, professional community, growth, connection, opportunity, collaboration, success, partnership, unity, progress
+
+The final image should serve as an elegant backdrop that enhances the "Becoming a Member" page hero section, making white text clearly readable when overlaid.
+

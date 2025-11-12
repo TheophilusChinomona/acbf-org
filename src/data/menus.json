@@ -1,0 +1,46 @@
+{
+  "main": [
+    {
+      "label": "Home",
+      "url": "/",
+      "children": []
+    },
+    {
+      "label": "About",
+      "url": "/about",
+      "children": []
+    },
+  
+    {
+      "label": "Posts & Events",
+      "url": "/blog",
+      "children": []
+    },
+    {
+      "label": "Members",
+      "url": "/members",
+      "children": []
+    },
+    {
+      "label": "Contact",
+      "url": "/contact",
+      "children": []
+    },
+    {
+      "label": "Becoming a Member",
+      "url": "/becoming-a-member",
+      "children": []
+    }
+  ],
+  "footer": [
+    {
+      "label": "Privacy Policy",
+      "url": "/privacy"
+    },
+    {
+      "label": "Terms of Service",
+      "url": "/terms"
+    }
+  ]
+}
+

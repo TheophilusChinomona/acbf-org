@@ -1,0 +1,19 @@
+{
+  "siteName": "ACBF RSA",
+  "siteDescription": "ACBF RSA Website",
+  "logo": "/assets/images/logos/acbf logos/acbf-logo-header.png",
+  "colors": {
+    "primary": "#your-primary-color",
+    "secondary": "#your-secondary-color"
+  },
+  "typography": {
+    "fontFamily": "Your Font, sans-serif"
+  },
+  "socialMedia": {
+    "facebook": "",
+    "twitter": "",
+    "instagram": "",
+    "linkedin": ""
+  }
+}
+
