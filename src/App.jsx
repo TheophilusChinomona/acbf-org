@@ -6,6 +6,7 @@ import Layout from './components/layout/Layout';
 import Loading from './components/common/Loading';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import ScrollToTop from './components/common/ScrollToTop';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Lazy load pages for code splitting
 const Home = lazy(() => import('./pages/Home'));
@@ -24,6 +25,34 @@ const DynamicPage = lazy(() => import('./pages/DynamicPage'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const TestAuth = lazy(() => import('./pages/TestAuth'));
 
+// Admin pages (outside Layout wrapper)
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+
+// Wrapper component for public routes with Layout
+function PublicRoutes() {
+  return (
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
+        <Route path="/members" element={<Portfolio />} />
+        <Route path="/members/:slug" element={<MemberItem />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/becoming-a-member" element={<BecomingAMember />} />
+        <Route path="/page/:slug" element={<DynamicPage />} />
+        <Route path="/test-auth" element={<TestAuth />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Layout>
+  );
+}
+
 function App() {
   return (
     <ErrorBoundary>
@@ -31,26 +60,23 @@ function App() {
         <ScrollToTop />
         <AuthProvider>
           <SiteProvider>
-            <Layout>
-              <Suspense fallback={<Loading fullScreen text="Loading..." />}>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/blog/:slug" element={<BlogPost />} />
-                  <Route path="/members" element={<Portfolio />} />
-                  <Route path="/members/:slug" element={<MemberItem />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/search" element={<Search />} />
-                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                  <Route path="/terms-of-service" element={<TermsOfService />} />
-                  <Route path="/becoming-a-member" element={<BecomingAMember />} />
-                  <Route path="/page/:slug" element={<DynamicPage />} />
-                  <Route path="/test-auth" element={<TestAuth />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-            </Layout>
+            <Suspense fallback={<Loading fullScreen text="Loading..." />}>
+              <Routes>
+                {/* Admin routes (outside Layout wrapper) */}
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Public routes (inside Layout wrapper) */}
+                <Route path="/*" element={<PublicRoutes />} />
+              </Routes>
+            </Suspense>
           </SiteProvider>
         </AuthProvider>
       </Router>
