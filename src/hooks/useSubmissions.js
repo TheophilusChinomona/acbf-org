@@ -5,7 +5,8 @@ import {
   orderBy, 
   onSnapshot, 
   doc, 
-  updateDoc
+  updateDoc,
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -172,6 +173,78 @@ export function useSubmissions() {
     return membershipApplications.find((app) => app.id === applicationId) || null;
   };
 
+  /**
+   * Archive a contact submission
+   * @param {string} submissionId - Document ID of the submission
+   * @returns {Promise<void>}
+   */
+  const archiveContactSubmission = async (submissionId) => {
+    try {
+      const submissionRef = doc(db, 'contact_submissions', submissionId);
+      await updateDoc(submissionRef, {
+        archived: true,
+        archived_at: serverTimestamp(),
+      });
+    } catch (err) {
+      console.error('Error archiving contact submission:', err);
+      throw err;
+    }
+  };
+
+  /**
+   * Unarchive a contact submission
+   * @param {string} submissionId - Document ID of the submission
+   * @returns {Promise<void>}
+   */
+  const unarchiveContactSubmission = async (submissionId) => {
+    try {
+      const submissionRef = doc(db, 'contact_submissions', submissionId);
+      await updateDoc(submissionRef, {
+        archived: false,
+        archived_at: null,
+      });
+    } catch (err) {
+      console.error('Error unarchiving contact submission:', err);
+      throw err;
+    }
+  };
+
+  /**
+   * Archive a membership application
+   * @param {string} applicationId - Document ID of the application
+   * @returns {Promise<void>}
+   */
+  const archiveMembershipApplication = async (applicationId) => {
+    try {
+      const applicationRef = doc(db, 'membership_applications', applicationId);
+      await updateDoc(applicationRef, {
+        archived: true,
+        archived_at: serverTimestamp(),
+      });
+    } catch (err) {
+      console.error('Error archiving membership application:', err);
+      throw err;
+    }
+  };
+
+  /**
+   * Unarchive a membership application
+   * @param {string} applicationId - Document ID of the application
+   * @returns {Promise<void>}
+   */
+  const unarchiveMembershipApplication = async (applicationId) => {
+    try {
+      const applicationRef = doc(db, 'membership_applications', applicationId);
+      await updateDoc(applicationRef, {
+        archived: false,
+        archived_at: null,
+      });
+    } catch (err) {
+      console.error('Error unarchiving membership application:', err);
+      throw err;
+    }
+  };
+
   return {
     // Data
     contactSubmissions,
@@ -186,6 +259,10 @@ export function useSubmissions() {
     updateMembershipApplicationStatus,
     getContactSubmission,
     getMembershipApplication,
+    archiveContactSubmission,
+    unarchiveContactSubmission,
+    archiveMembershipApplication,
+    unarchiveMembershipApplication,
   };
 }
 

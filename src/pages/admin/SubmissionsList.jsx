@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { FiMail, FiUser, FiCalendar, FiChevronRight, FiFileText, FiPhone, FiBriefcase } from 'react-icons/fi';
+import { FiMail, FiUser, FiCalendar, FiChevronRight, FiFileText, FiPhone, FiBriefcase, FiArchive, FiRotateCw } from 'react-icons/fi';
 import StatusBadge from '../../components/admin/StatusBadge';
+import Button from '../../components/common/Button';
 
 /**
  * Submissions List Component
@@ -11,8 +12,18 @@ import StatusBadge from '../../components/admin/StatusBadge';
  * @param {Array} props.submissions - Array of submissions/applications
  * @param {string} props.type - Type of submissions ('contact' or 'membership')
  * @param {Function} props.onItemClick - Callback when an item is clicked
+ * @param {boolean} props.showArchived - Whether currently showing archived items
+ * @param {Function} props.onArchive - Callback to archive an item
+ * @param {Function} props.onUnarchive - Callback to unarchive an item
  */
-export default function SubmissionsList({ submissions, type = 'contact', onItemClick }) {
+export default function SubmissionsList({ 
+  submissions, 
+  type = 'contact', 
+  onItemClick,
+  showArchived = false,
+  onArchive,
+  onUnarchive,
+}) {
   const navigate = useNavigate();
 
   const handleItemClick = (item) => {
@@ -45,23 +56,45 @@ export default function SubmissionsList({ submissions, type = 'contact', onItemC
     }
   };
 
+  // Check if item can be archived
+  const canArchive = (item) => {
+    if (type === 'contact') {
+      return item.status === 'resolved' && !item.archived;
+    } else {
+      return (item.status === 'approved' || item.status === 'rejected') && !item.archived;
+    }
+  };
+
+  // Check if item can be unarchived
+  const canUnarchive = (item) => {
+    return item.archived === true;
+  };
+
   if (submissions.length === 0) {
     return (
       <div className="text-center py-12">
         {type === 'contact' ? (
           <>
             <FiMail className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 font-medium">No contact submissions yet</p>
+            <p className="text-gray-600 font-medium">
+              {showArchived ? 'No archived contact submissions' : 'No contact submissions yet'}
+            </p>
             <p className="text-gray-500 text-sm mt-1">
-              Contact form submissions will appear here
+              {showArchived 
+                ? 'Archived contact submissions will appear here'
+                : 'Contact form submissions will appear here'}
             </p>
           </>
         ) : (
           <>
             <FiFileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 font-medium">No membership applications yet</p>
+            <p className="text-gray-600 font-medium">
+              {showArchived ? 'No archived membership applications' : 'No membership applications yet'}
+            </p>
             <p className="text-gray-500 text-sm mt-1">
-              Membership applications will appear here
+              {showArchived
+                ? 'Archived membership applications will appear here'
+                : 'Membership applications will appear here'}
             </p>
           </>
         )}
@@ -76,43 +109,43 @@ export default function SubmissionsList({ submissions, type = 'contact', onItemC
           key={item.id}
           onClick={() => handleItemClick(item)}
           className="
-            bg-white border border-gray-200 rounded-lg p-4
+            bg-white border border-gray-200 rounded-lg p-3 md:p-4
             hover:border-blue-300 hover:shadow-md
             transition-all duration-200 cursor-pointer
-            group
+            group min-h-[44px]
           "
         >
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start justify-between gap-3 md:gap-4">
             {/* Left side - Main info */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-start gap-3 mb-2">
-                <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <div className="flex items-start gap-2 md:gap-3 mb-2">
+                <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-full flex items-center justify-center">
                   {type === 'contact' ? (
-                    <FiMail className="w-5 h-5 text-blue-600" />
+                    <FiMail className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                   ) : (
-                    <FiFileText className="w-5 h-5 text-green-600" />
+                    <FiFileText className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-gray-900 truncate">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
+                    <h3 className="font-semibold text-sm md:text-base text-gray-900 truncate">
                       {item.name || 'Unknown'}
                     </h3>
                     <StatusBadge status={item.status} />
                   </div>
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                  <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-xs md:text-sm text-gray-600">
                     <span className="flex items-center gap-1">
-                      <FiMail className="w-4 h-4" />
+                      <FiMail className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
                       <span className="truncate">{item.email || 'No email'}</span>
                     </span>
                     {type === 'membership' && item.phone && (
                       <span className="flex items-center gap-1">
-                        <FiPhone className="w-4 h-4" />
-                        <span>{item.phone}</span>
+                        <FiPhone className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                        <span className="truncate">{item.phone}</span>
                       </span>
                     )}
                     <span className="flex items-center gap-1">
-                      <FiCalendar className="w-4 h-4" />
+                      <FiCalendar className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
                       <span>{formatDate(item.created_at)}</span>
                     </span>
                   </div>
@@ -121,12 +154,12 @@ export default function SubmissionsList({ submissions, type = 'contact', onItemC
 
               {/* Additional info */}
               {type === 'contact' && item.subject && (
-                <div className="ml-[52px] mt-2">
-                  <p className="text-sm font-medium text-gray-700 mb-1">
+                <div className="ml-0 sm:ml-[36px] md:ml-[52px] mt-2">
+                  <p className="text-xs md:text-sm font-medium text-gray-700 mb-1">
                     {item.subject}
                   </p>
                   {item.message && (
-                    <p className="text-sm text-gray-600 line-clamp-2">
+                    <p className="text-xs md:text-sm text-gray-600 line-clamp-2">
                       {item.message}
                     </p>
                   )}
@@ -134,20 +167,20 @@ export default function SubmissionsList({ submissions, type = 'contact', onItemC
               )}
 
               {type === 'membership' && (
-                <div className="ml-[52px] mt-2 space-y-1">
+                <div className="ml-0 sm:ml-[36px] md:ml-[52px] mt-2 space-y-1">
                   {item.business_name && (
-                    <div className="flex items-center gap-1 text-sm text-gray-600">
-                      <FiBriefcase className="w-4 h-4" />
-                      <span>{item.business_name}</span>
+                    <div className="flex items-center gap-1 text-xs md:text-sm text-gray-600">
+                      <FiBriefcase className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                      <span className="truncate">{item.business_name}</span>
                     </div>
                   )}
                   {item.business_type && (
-                    <div className="text-sm text-gray-600">
-                      <span className="font-medium">Type:</span> {item.business_type}
+                    <div className="text-xs md:text-sm text-gray-600">
+                      <span className="font-medium">Type:</span> <span className="truncate">{item.business_type}</span>
                     </div>
                   )}
                   {item.message && (
-                    <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                    <p className="text-xs md:text-sm text-gray-600 line-clamp-2 mt-1">
                       {item.message}
                     </p>
                   )}
@@ -155,8 +188,37 @@ export default function SubmissionsList({ submissions, type = 'contact', onItemC
               )}
             </div>
 
-            {/* Right side - Arrow */}
-            <div className="flex-shrink-0">
+            {/* Right side - Actions & Arrow */}
+            <div className="flex-shrink-0 flex items-center gap-2 min-h-[44px]">
+              {/* Archive/Unarchive Button */}
+              {canArchive(item) && onArchive && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onArchive(item.id);
+                  }}
+                  className="hidden sm:flex"
+                  title="Archive this item"
+                >
+                  <FiArchive className="w-4 h-4" />
+                </Button>
+              )}
+              {canUnarchive(item) && onUnarchive && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onUnarchive(item.id);
+                  }}
+                  className="hidden sm:flex"
+                  title="Unarchive this item"
+                >
+                  <FiRotateCw className="w-4 h-4" />
+                </Button>
+              )}
               <FiChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
             </div>
           </div>

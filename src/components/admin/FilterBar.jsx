@@ -106,22 +106,22 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
   const hasActiveFilters = searchQuery || statusFilter !== 'all' || dateFrom || dateTo;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
+    <div className="bg-white rounded-lg border border-gray-200 p-3 md:p-4 mb-4">
       {/* Search Bar */}
-      <div className="flex items-center gap-3 mb-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-3">
         <div className="flex-1 relative">
-          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
             type="text"
             placeholder={`Search ${type === 'contact' ? 'submissions' : 'applications'}...`}
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 md:py-2 text-base md:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px] md:min-h-0"
           />
         </div>
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+          className="px-4 py-2.5 md:py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 min-h-[44px] md:min-h-0 w-full sm:w-auto"
         >
           <FiFilter className="w-4 h-4" />
           <span className="text-sm font-medium">Filters</span>
@@ -134,7 +134,7 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
         {hasActiveFilters && (
           <button
             onClick={clearFilters}
-            className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2"
+            className="px-4 py-2.5 md:py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors flex items-center justify-center gap-2 min-h-[44px] md:min-h-0 w-full sm:w-auto border border-gray-300 rounded-lg hover:bg-gray-50 sm:border-0 sm:rounded-none"
           >
             <FiX className="w-4 h-4" />
             Clear
@@ -162,7 +162,7 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
                   handleDateFromChange(todayStr);
                   handleDateToChange(todayStr);
                 }}
-                className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                className="px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors min-h-[44px] md:min-h-0"
               >
                 Today
               </button>
@@ -183,7 +183,7 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
                   handleDateFromChange(formatDate(sevenDaysAgo));
                   handleDateToChange(formatDate(today));
                 }}
-                className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                className="px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors min-h-[44px] md:min-h-0"
               >
                 Last 7 Days
               </button>
@@ -204,7 +204,7 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
                   handleDateFromChange(formatDate(thirtyDaysAgo));
                   handleDateToChange(formatDate(today));
                 }}
-                className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                className="px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors min-h-[44px] md:min-h-0"
               >
                 Last 30 Days
               </button>
@@ -224,7 +224,7 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
                   handleDateFromChange(formatDate(thisMonthStart));
                   handleDateToChange(formatDate(today));
                 }}
-                className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                className="px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors min-h-[44px] md:min-h-0"
               >
                 This Month
               </button>
@@ -245,7 +245,7 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
                   handleDateFromChange(formatDate(lastMonthStart));
                   handleDateToChange(formatDate(lastMonthEnd));
                 }}
-                className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                className="px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors min-h-[44px] md:min-h-0"
               >
                 Last Month
               </button>
@@ -261,7 +261,7 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
               <select
                 value={statusFilter}
                 onChange={(e) => handleStatusChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2.5 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base md:text-sm min-h-[44px] md:min-h-0"
               >
                 {getAvailableStatuses().map((status) => (
                   <option key={status.value} value={status.value}>
@@ -278,13 +278,13 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
                 From Date
               </label>
               <div className="relative">
-                <FiCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <FiCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4" />
                 <input
                   id="dateFrom"
                   type="date"
                   value={dateFrom}
                   onChange={(e) => handleDateFromChange(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 cursor-pointer hover:border-gray-400"
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 cursor-pointer hover:border-gray-400 text-base md:text-sm min-h-[44px] md:min-h-0"
                 />
               </div>
               {dateFrom && (
@@ -301,14 +301,14 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
                 To Date
               </label>
               <div className="relative">
-                <FiCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <FiCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4" />
                 <input
                   id="dateTo"
                   type="date"
                   value={dateTo}
                   onChange={(e) => handleDateToChange(e.target.value)}
                   min={dateFrom || undefined}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 cursor-pointer hover:border-gray-400"
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 cursor-pointer hover:border-gray-400 text-base md:text-sm min-h-[44px] md:min-h-0"
                 />
               </div>
               {dateTo && (
