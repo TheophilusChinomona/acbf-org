@@ -1,10 +1,11 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Container, Section, SEO } from '../../components/common';
+import { Container, Section, SEO, Loading } from '../../components/common';
 import { useAuth } from '../../hooks/useAuth';
 import { useSubmissions } from '../../hooks/useSubmissions';
 import { useAdminManagement } from '../../hooks/useAdminManagement';
+import { useMemberManagement } from '../../hooks/useMemberManagement';
 import SubmissionsList from './SubmissionsList';
 import FilterBar from '../../components/admin/FilterBar';
 import ExportButton from '../../components/admin/ExportButton';
@@ -17,7 +18,11 @@ import {
   FiLoader,
   FiUsers,
   FiArchive,
-  FiRotateCw
+  FiRotateCw,
+  FiUserCheck,
+  FiUserX,
+  FiAlertTriangle,
+  FiSearch,
 } from 'react-icons/fi';
 import Button from '../../components/common/Button';
 import toast from 'react-hot-toast';
@@ -35,8 +40,15 @@ export default function AdminDashboard() {
     unarchiveMembershipApplication,
   } = useSubmissions();
   const { isSuperAdmin } = useAdminManagement();
+  const {
+    pendingMembers,
+    pendingMembersLoading,
+    pendingMembersError,
+    approveMember,
+    rejectMember,
+  } = useMemberManagement({ listenToPendingMembers: true });
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('contact'); // 'contact' or 'membership'
+  const [activeTab, setActiveTab] = useState('contact'); // 'contact', 'membership', 'memberApprovals'
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showArchived, setShowArchived] = useState(false); // Toggle between active and archived view
   const [filters, setFilters] = useState({
@@ -49,12 +61,17 @@ export default function AdminDashboard() {
   const contactTabRef = useRef(null);
   const membershipTabRef = useRef(null);
   const adminTabRef = useRef(null);
+  const memberApprovalsTabRef = useRef(null);
+  const [memberActionLoadingId, setMemberActionLoadingId] = useState(null);
+  const [memberActionType, setMemberActionType] = useState(null);
+  const [memberSearch, setMemberSearch] = useState('');
 
   // Reset filters when switching tabs
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setFilters({ search: '', status: 'all', dateFrom: '', dateTo: '' });
     setShowArchived(false); // Reset archive view when switching tabs
+    setMemberSearch('');
     
     // Scroll active tab into view on mobile
     setTimeout(() => {
@@ -63,6 +80,8 @@ export default function AdminDashboard() {
         tabRef = contactTabRef.current;
       } else if (tab === 'membership') {
         tabRef = membershipTabRef.current;
+      } else if (tab === 'memberApprovals') {
+        tabRef = memberApprovalsTabRef.current;
       }
       
       if (tabRef && window.innerWidth < 768) {
@@ -83,6 +102,8 @@ export default function AdminDashboard() {
         tabRef = contactTabRef.current;
       } else if (activeTab === 'membership') {
         tabRef = membershipTabRef.current;
+      } else if (activeTab === 'memberApprovals') {
+        tabRef = memberApprovalsTabRef.current;
       }
       
       if (tabRef) {
@@ -217,6 +238,91 @@ export default function AdminDashboard() {
     
     return filtered;
   }, [membershipApplications, filters, showArchived]);
+
+  const pendingMemberCount = pendingMembers.length;
+  const filteredPendingMembers = useMemo(() => {
+    if (!memberSearch.trim()) {
+      return pendingMembers;
+    }
+
+    const searchLower = memberSearch.toLowerCase();
+
+    return pendingMembers.filter((member) => {
+      const matchesProfile =
+        (member.name && member.name.toLowerCase().includes(searchLower)) ||
+        (member.email && member.email.toLowerCase().includes(searchLower));
+
+      const application = member.application || {};
+      const matchesApplication =
+        (application.business_name && application.business_name.toLowerCase().includes(searchLower)) ||
+        (application.business_type && application.business_type.toLowerCase().includes(searchLower)) ||
+        (application.phone && application.phone.toLowerCase().includes(searchLower));
+
+      return matchesProfile || matchesApplication;
+    });
+  }, [pendingMembers, memberSearch]);
+
+  const filteredMemberCount = filteredPendingMembers.length;
+
+  const formatDateTime = (value) => {
+    if (!value) return 'Not available';
+
+    try {
+      if (value instanceof Date) {
+        return value.toLocaleString();
+      }
+
+      if (typeof value?.toDate === 'function') {
+        return value.toDate().toLocaleString();
+      }
+
+      return new Date(value).toLocaleString();
+    } catch (error) {
+      console.warn('Failed to format date value:', value, error);
+      return 'Not available';
+    }
+  };
+
+  const handleApproveMemberAccount = async (member) => {
+    setMemberActionLoadingId(member.id);
+    setMemberActionType('approve');
+    try {
+      await approveMember(member.id);
+      toast.success(`Approved ${member.name || member.email}`);
+    } catch (error) {
+      console.error('Error approving member:', error);
+      toast.error(error.message || 'Failed to approve member');
+    } finally {
+      setMemberActionLoadingId(null);
+      setMemberActionType(null);
+    }
+  };
+
+  const handleRejectMemberAccount = async (member) => {
+    let reason = 'Not specified';
+    if (typeof window !== 'undefined') {
+      const input = window.prompt('Provide a rejection reason (optional):', '');
+      if (input === null) {
+        return; // user cancelled
+      }
+      if (input.trim()) {
+        reason = input.trim();
+      }
+    }
+
+    setMemberActionLoadingId(member.id);
+    setMemberActionType('reject');
+    try {
+      await rejectMember(member.id, reason);
+      toast.success(`Rejected ${member.name || member.email}`);
+    } catch (error) {
+      console.error('Error rejecting member:', error);
+      toast.error(error.message || 'Failed to reject member');
+    } finally {
+      setMemberActionLoadingId(null);
+      setMemberActionType(null);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -461,6 +567,22 @@ export default function AdminDashboard() {
               <p className="text-2xl md:text-3xl font-bold text-purple-900">{membershipStats.pending}</p>
               <p className="text-xs text-purple-700 mt-1">Awaiting review</p>
             </motion.div>
+
+          {/* Pending Member Approvals */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.5 }}
+            onClick={() => handleTabChange('memberApprovals')}
+            className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-lg p-4 md:p-6 border border-teal-200 cursor-pointer hover:border-teal-300 hover:shadow-md transition-all duration-200"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs md:text-sm font-medium text-teal-900">Member Approvals</h3>
+              <FiUserCheck className="w-4 h-4 md:w-5 md:h-5 text-teal-600" />
+            </div>
+            <p className="text-2xl md:text-3xl font-bold text-teal-900">{pendingMemberCount}</p>
+            <p className="text-xs text-teal-700 mt-1">Members awaiting activation</p>
+          </motion.div>
           </div>
 
           {/* Tabs Navigation */}
@@ -485,6 +607,28 @@ export default function AdminDashboard() {
                     {contactStats.total > 0 && (
                       <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded-full hidden sm:inline">
                         {contactStats.total}
+                      </span>
+                    )}
+                  </div>
+                </button>
+                <button
+                  ref={memberApprovalsTabRef}
+                  onClick={() => handleTabChange('memberApprovals')}
+                  className={`
+                    px-4 py-2 md:px-6 md:py-3 text-sm font-medium border-b-2 transition-colors min-h-[44px] md:min-h-0
+                    ${
+                      activeTab === 'memberApprovals'
+                        ? 'border-teal-600 text-teal-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2 whitespace-nowrap">
+                    <FiUserCheck className="w-4 h-4" />
+                    <span>Member Approvals</span>
+                    {pendingMemberCount > 0 && (
+                      <span className="bg-teal-100 text-teal-800 text-xs font-semibold px-2 py-0.5 rounded-full hidden sm:inline">
+                        {pendingMemberCount}
                       </span>
                     )}
                   </div>
@@ -595,6 +739,158 @@ export default function AdminDashboard() {
                       onArchive={handleArchiveContact}
                       onUnarchive={handleUnarchiveContact}
                     />
+                  </div>
+                ) : activeTab === 'memberApprovals' ? (
+                  <div>
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                      <div className="space-y-2">
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                          Pending Member Approvals
+                        </h2>
+                        <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+                          <FiAlertTriangle className="text-yellow-500" />
+                          <span>
+                            {pendingMemberCount > 0
+                              ? `${filteredMemberCount} of ${pendingMemberCount} member${pendingMemberCount !== 1 ? 's' : ''} awaiting review`
+                              : 'No members awaiting approval'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {pendingMemberCount > 0 && (
+                        <div className="relative w-full md:w-80">
+                          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                          <input
+                            type="text"
+                            value={memberSearch}
+                            onChange={(event) => setMemberSearch(event.target.value)}
+                            placeholder="Search members by name, email, or business..."
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {pendingMembersLoading ? (
+                      <div className="py-12">
+                        <Loading text="Loading pending members..." />
+                      </div>
+                    ) : pendingMembersError ? (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <p className="text-red-800 font-medium mb-1 text-sm md:text-base">Error loading pending members</p>
+                        <p className="text-red-600 text-xs md:text-sm">{pendingMembersError}</p>
+                      </div>
+                    ) : pendingMemberCount === 0 ? (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center text-green-800">
+                        <FiUserCheck className="w-8 h-8 mx-auto mb-3" />
+                        <p className="text-sm md:text-base">
+                          All member applications have been reviewed. Great job staying up to date!
+                        </p>
+                      </div>
+                    ) : filteredMemberCount === 0 ? (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center text-yellow-800">
+                        <FiSearch className="w-8 h-8 mx-auto mb-3" />
+                        <p className="text-sm md:text-base">
+                          No pending members match your search. Try adjusting your keywords.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {filteredPendingMembers.map((member) => (
+                          <div
+                            key={member.id}
+                            className="border border-gray-200 rounded-lg p-4 md:p-5 bg-white shadow-sm"
+                          >
+                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                              <div className="space-y-2 text-sm md:text-base text-gray-700">
+                                <div>
+                                  <h3 className="text-lg md:text-xl font-semibold text-gray-900">
+                                    {member.name || member.email}
+                                  </h3>
+                                  <p className="text-gray-600">{member.email}</p>
+                                </div>
+                                <div className="flex flex-wrap gap-3 text-xs md:text-sm text-gray-600">
+                                  <span>Status: {member.status || 'pending'}</span>
+                                  {member.created_at && (
+                                    <span>Profile created: {formatDateTime(member.created_at)}</span>
+                                  )}
+                                  {member.application?.created_at && (
+                                    <span>Applied: {formatDateTime(member.application.created_at)}</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div className="flex flex-col sm:flex-row gap-2">
+                                <Button
+                                  variant="outline"
+                                  className="border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300"
+                                  onClick={() => handleRejectMemberAccount(member)}
+                                  disabled={memberActionLoadingId === member.id}
+                                >
+                                  {memberActionLoadingId === member.id && memberActionType === 'reject' ? (
+                                    <FiLoader className="animate-spin mr-2" />
+                                  ) : (
+                                    <FiUserX className="mr-2" />
+                                  )}
+                                  Reject
+                                </Button>
+                                <Button
+                                  variant="primary"
+                                  onClick={() => handleApproveMemberAccount(member)}
+                                  disabled={memberActionLoadingId === member.id}
+                                  className="bg-teal-600 hover:bg-teal-700 focus:ring-teal-500"
+                                >
+                                  {memberActionLoadingId === member.id && memberActionType === 'approve' ? (
+                                    <FiLoader className="animate-spin mr-2" />
+                                  ) : (
+                                    <FiUserCheck className="mr-2" />
+                                  )}
+                                  Approve
+                                </Button>
+                              </div>
+                            </div>
+
+                            {member.application ? (
+                              <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                <h4 className="text-sm font-semibold text-gray-900 mb-3">
+                                  Membership Application
+                                </h4>
+                                <div className="grid gap-3 md:grid-cols-2 text-sm text-gray-700">
+                                  <div>
+                                    <p className="font-medium text-gray-900">Business Name</p>
+                                    <p>{member.application.business_name || 'Not provided'}</p>
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-gray-900">Business Type</p>
+                                    <p>{member.application.business_type || 'Not provided'}</p>
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-gray-900">Phone</p>
+                                    <p>{member.application.phone || 'Not provided'}</p>
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-gray-900">Status</p>
+                                    <p className="capitalize">{member.application.status || 'pending'}</p>
+                                  </div>
+                                </div>
+                                {member.application.message && (
+                                  <div className="mt-3">
+                                    <p className="font-medium text-gray-900">Additional Information</p>
+                                    <p className="mt-1 text-sm text-gray-600 whitespace-pre-wrap">
+                                      {member.application.message}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="mt-4 text-xs md:text-sm text-gray-500 italic">
+                                No linked membership application was found for this member profile.
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div>
