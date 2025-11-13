@@ -204,12 +204,25 @@ Firestore uses **collections** (like tables) and **documents** (like rows). We'l
 
 ### 3.2 Set Up Security Rules
 
-Replace the default rules with these secure rules:
+Replace the default rules with these secure rules that include admin-only access:
+
+> **Note**: For detailed deployment instructions and admin email configuration, see `FIRESTORE-RULES-DEPLOYMENT.md`
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // Helper function to check if user is an admin
+    // Update this list with your admin email addresses
+    function isAdmin() {
+      return request.auth != null 
+        && request.auth.token.email in [
+          'admin@acbf.org.za',
+          // Add more admin emails here, one per line
+          // 'admin2@acbf.org.za',
+        ];
+    }
     
     // Contact Submissions Collection
     match /contact_submissions/{submissionId} {
@@ -221,11 +234,11 @@ service cloud.firestore {
                    && request.resource.data.message is string
                    && request.resource.data.status == 'new';
       
-      // Only authenticated users can read (for admin dashboard later)
-      allow read: if request.auth != null;
+      // Only admins can read submissions
+      allow read: if isAdmin();
       
-      // Only authenticated users can update/delete
-      allow update, delete: if request.auth != null;
+      // Only admins can update/delete submissions
+      allow update, delete: if isAdmin();
     }
     
     // Membership Applications Collection
@@ -238,11 +251,11 @@ service cloud.firestore {
                    && request.resource.data.business_type is string
                    && request.resource.data.status == 'pending';
       
-      // Only authenticated users can read (for admin dashboard later)
-      allow read: if request.auth != null;
+      // Only admins can read applications
+      allow read: if isAdmin();
       
-      // Only authenticated users can update/delete
-      allow update, delete: if request.auth != null;
+      // Only admins can update/delete applications
+      allow update, delete: if isAdmin();
     }
     
     // Deny all other access
@@ -253,17 +266,40 @@ service cloud.firestore {
 }
 ```
 
+**Important**: Before publishing, update the `isAdmin()` function with your actual admin email addresses!
+
 ### 3.3 Publish Security Rules
 
 1. Click **"Publish"** button
 2. Wait a few seconds for rules to deploy
 3. Rules are now active
 
-### 3.4 Verify Rules
+### 3.4 Configure Admin Emails
+
+**Before publishing**, update the admin email whitelist:
+
+1. In the rules above, find the `isAdmin()` function
+2. Replace `'admin@acbf.org.za'` with your actual admin email address
+3. Add additional admin emails as needed (one per line, separated by commas)
+4. Use the **exact email addresses** that admins use for Firebase Authentication
+
+**Example:**
+```javascript
+function isAdmin() {
+  return request.auth != null 
+    && request.auth.token.email in [
+      'your-admin@acbf.org.za',
+      'another-admin@acbf.org.za',
+    ];
+}
+```
+
+### 3.5 Verify Rules
 
 The rules ensure:
-- ✅ Anyone can create (insert) form submissions
-- ✅ Only authenticated users can read submissions
+- ✅ Anyone can create (insert) form submissions (for public forms)
+- ✅ Only admins (via email whitelist) can read submissions
+- ✅ Only admins (via email whitelist) can update/delete submissions
 - ✅ Data validation on create
 - ✅ All other access is denied
 
