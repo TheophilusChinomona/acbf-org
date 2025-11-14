@@ -41,6 +41,9 @@ export default function AdminDashboard() {
     unarchiveMembershipApplication,
     archiveAwardsNomination,
     unarchiveAwardsNomination,
+    batchDeleteContactSubmissions,
+    batchDeleteMembershipApplications,
+    batchDeleteAwardsNominations,
   } = useSubmissions();
   const { isSuperAdmin } = useAdminManagement();
   const {
@@ -691,6 +694,24 @@ export default function AdminDashboard() {
             </motion.div>
           )}
 
+          {/* User Management - Only for super admins */}
+          {isSuperAdmin && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+              onClick={() => navigate('/admin/users')}
+              className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-4 md:p-6 border border-indigo-200 cursor-pointer hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xs md:text-sm font-medium text-indigo-900">User Permissions</h3>
+                <FiShield className="w-4 h-4 md:w-5 md:h-5 text-indigo-600" />
+              </div>
+              <p className="text-2xl md:text-3xl font-bold text-indigo-900">Manage</p>
+              <p className="text-xs text-indigo-700 mt-1">View and edit all user roles</p>
+            </motion.div>
+          )}
+
           {/* Pending Member Approvals */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -803,16 +824,27 @@ export default function AdminDashboard() {
                   </button>
                 )}
                 {isSuperAdmin && (
-                  <button
-                    ref={adminTabRef}
-                    onClick={() => navigate('/admin/management')}
-                    className="px-4 py-2 md:px-6 md:py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors min-h-[44px] md:min-h-0"
-                  >
-                    <div className="flex items-center gap-2 whitespace-nowrap">
-                      <FiUsers className="w-4 h-4" />
-                      <span>Admin Management</span>
-                    </div>
-                  </button>
+                  <>
+                    <button
+                      ref={adminTabRef}
+                      onClick={() => navigate('/admin/management')}
+                      className="px-4 py-2 md:px-6 md:py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors min-h-[44px] md:min-h-0"
+                    >
+                      <div className="flex items-center gap-2 whitespace-nowrap">
+                        <FiUsers className="w-4 h-4" />
+                        <span>Admin Management</span>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => navigate('/admin/users')}
+                      className="px-4 py-2 md:px-6 md:py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors min-h-[44px] md:min-h-0"
+                    >
+                      <div className="flex items-center gap-2 whitespace-nowrap">
+                        <FiShield className="w-4 h-4" />
+                        <span>User Permissions</span>
+                      </div>
+                    </button>
+                  </>
                 )}
               </nav>
             </div>
@@ -885,6 +917,7 @@ export default function AdminDashboard() {
                       showArchived={showArchived}
                       onArchive={handleArchiveContact}
                       onUnarchive={handleUnarchiveContact}
+                      onBatchDelete={batchDeleteContactSubmissions}
                     />
                   </div>
                 ) : activeTab === 'memberApprovals' ? (
@@ -1087,6 +1120,7 @@ export default function AdminDashboard() {
                       showArchived={showArchived}
                       onArchive={handleArchiveAwards}
                       onUnarchive={handleUnarchiveAwards}
+                      onBatchDelete={batchDeleteAwardsNominations}
                     />
                   </div>
                 ) : (
@@ -1137,6 +1171,7 @@ export default function AdminDashboard() {
                       showArchived={showArchived}
                       onArchive={handleArchiveMembership}
                       onUnarchive={handleUnarchiveMembership}
+                      onBatchDelete={batchDeleteMembershipApplications}
                     />
                   </div>
                 )}

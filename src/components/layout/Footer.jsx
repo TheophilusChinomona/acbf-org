@@ -87,8 +87,9 @@ export default function Footer() {
                   })}
                 </div>
               )}
-              <div className="text-gray-300 text-sm">
-                <p>Email: info@acbfrsa.org.za</p>
+              <div className="text-gray-300 text-sm space-y-1">
+                <p>Email: info@acbf.org.za</p>
+                <p>Phone: +27 76 775 0044</p>
               </div>
             </div>
           </div>
