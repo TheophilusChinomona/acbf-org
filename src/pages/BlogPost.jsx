@@ -192,7 +192,7 @@ export default function BlogPost() {
           </div>
         </section>
       ) : (
-        <section className="relative w-full overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 py-12 md:py-16 lg:py-20">
+        <section className="relative w-full overflow-hidden bg-gradient-to-br from-secondary-dark via-secondary to-secondary-light py-12 md:py-16 lg:py-20">
           {/* Decorative Elements */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
@@ -362,7 +362,7 @@ export default function BlogPost() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => handleShare('facebook')}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
                   aria-label="Share on Facebook"
                 >
                   <FiFacebook />
@@ -370,7 +370,7 @@ export default function BlogPost() {
                 </button>
                 <button
                   onClick={() => handleShare('twitter')}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-primary-light text-white rounded-lg hover:bg-primary-dark transition-colors"
                   aria-label="Share on Twitter"
                 >
                   <FiTwitter />
@@ -378,7 +378,7 @@ export default function BlogPost() {
                 </button>
                 <button
                   onClick={() => handleShare('linkedin')}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-primary-dark text-white rounded-lg hover:bg-secondary transition-colors"
                   aria-label="Share on LinkedIn"
                 >
                   <FiLinkedin />

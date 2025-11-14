@@ -1,30 +1,39 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { FiMail, FiUser, FiCalendar, FiChevronRight, FiFileText, FiPhone, FiBriefcase, FiArchive, FiRotateCw } from 'react-icons/fi';
+import { FiMail, FiUser, FiCalendar, FiChevronRight, FiFileText, FiPhone, FiBriefcase, FiArchive, FiRotateCw, FiAward, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import StatusBadge from '../../components/admin/StatusBadge';
 import Button from '../../components/common/Button';
 
 /**
  * Submissions List Component
- * Displays a list of contact submissions or membership applications
- * 
+ * Displays a list of contact submissions, membership applications, or awards nominations
+ *
  * @param {Object} props
- * @param {Array} props.submissions - Array of submissions/applications
- * @param {string} props.type - Type of submissions ('contact' or 'membership')
+ * @param {Array} props.submissions - Array of submissions/applications/nominations
+ * @param {string} props.type - Type of submissions ('contact', 'membership', or 'awards')
  * @param {Function} props.onItemClick - Callback when an item is clicked
  * @param {boolean} props.showArchived - Whether currently showing archived items
  * @param {Function} props.onArchive - Callback to archive an item
  * @param {Function} props.onUnarchive - Callback to unarchive an item
  */
-export default function SubmissionsList({ 
-  submissions, 
-  type = 'contact', 
+export default function SubmissionsList({
+  submissions,
+  type = 'contact',
   onItemClick,
   showArchived = false,
   onArchive,
   onUnarchive,
 }) {
   const navigate = useNavigate();
+  const [expandedItems, setExpandedItems] = useState({});
+
+  const toggleExpanded = (itemId) => {
+    setExpandedItems(prev => ({
+      ...prev,
+      [itemId]: !prev[itemId]
+    }));
+  };
 
   const handleItemClick = (item) => {
     if (onItemClick) {
@@ -60,9 +69,10 @@ export default function SubmissionsList({
   const canArchive = (item) => {
     if (type === 'contact') {
       return item.status === 'resolved' && !item.archived;
-    } else {
+    } else if (type === 'membership' || type === 'awards') {
       return (item.status === 'approved' || item.status === 'rejected') && !item.archived;
     }
+    return false;
   };
 
   // Check if item can be unarchived
@@ -80,12 +90,12 @@ export default function SubmissionsList({
               {showArchived ? 'No archived contact submissions' : 'No contact submissions yet'}
             </p>
             <p className="text-gray-500 text-sm mt-1">
-              {showArchived 
+              {showArchived
                 ? 'Archived contact submissions will appear here'
                 : 'Contact form submissions will appear here'}
             </p>
           </>
-        ) : (
+        ) : type === 'membership' ? (
           <>
             <FiFileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600 font-medium">
@@ -95,6 +105,18 @@ export default function SubmissionsList({
               {showArchived
                 ? 'Archived membership applications will appear here'
                 : 'Membership applications will appear here'}
+            </p>
+          </>
+        ) : (
+          <>
+            <FiAward className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600 font-medium">
+              {showArchived ? 'No archived award nominations' : 'No award nominations yet'}
+            </p>
+            <p className="text-gray-500 text-sm mt-1">
+              {showArchived
+                ? 'Archived award nominations will appear here'
+                : 'Award nominations will appear here'}
             </p>
           </>
         )}
@@ -119,24 +141,30 @@ export default function SubmissionsList({
             {/* Left side - Main info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-start gap-2 md:gap-3 mb-2">
-                <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <div className={`flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center ${
+                  type === 'contact' ? 'bg-blue-100' : type === 'membership' ? 'bg-green-100' : 'bg-yellow-100'
+                }`}>
                   {type === 'contact' ? (
-                    <FiMail className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-                  ) : (
+                    <FiMail className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                  ) : type === 'membership' ? (
                     <FiFileText className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                  ) : (
+                    <FiAward className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
                     <h3 className="font-semibold text-sm md:text-base text-gray-900 truncate">
-                      {item.name || 'Unknown'}
+                      {type === 'awards' ? (item.nominee?.fullName || 'Unknown') : (item.name || 'Unknown')}
                     </h3>
                     <StatusBadge status={item.status} />
                   </div>
                   <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-xs md:text-sm text-gray-600">
                     <span className="flex items-center gap-1">
                       <FiMail className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                      <span className="truncate">{item.email || 'No email'}</span>
+                      <span className="truncate">
+                        {type === 'awards' ? (item.nominee?.email || 'No email') : (item.email || 'No email')}
+                      </span>
                     </span>
                     {type === 'membership' && item.phone && (
                       <span className="flex items-center gap-1">
@@ -146,7 +174,9 @@ export default function SubmissionsList({
                     )}
                     <span className="flex items-center gap-1">
                       <FiCalendar className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                      <span>{formatDate(item.created_at)}</span>
+                      <span>
+                        {type === 'awards' ? formatDate(item.submittedAt) : formatDate(item.created_at)}
+                      </span>
                     </span>
                   </div>
                 </div>
@@ -186,6 +216,79 @@ export default function SubmissionsList({
                   )}
                 </div>
               )}
+
+              {type === 'awards' && (
+                <div className="ml-0 sm:ml-[36px] md:ml-[52px] mt-2 space-y-2">
+                  {/* Category Badge */}
+                  {item.category && (
+                    <div className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded">
+                      <FiAward className="w-3 h-3" />
+                      {item.category}
+                    </div>
+                  )}
+
+                  {/* Organization */}
+                  {item.nominee?.organization && (
+                    <div className="flex items-center gap-1 text-xs md:text-sm text-gray-600">
+                      <FiBriefcase className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                      <span className="truncate">{item.nominee.organization}</span>
+                    </div>
+                  )}
+
+                  {/* Nominator Info */}
+                  {item.nominator?.fullName && (
+                    <div className="text-xs md:text-sm text-gray-600">
+                      <span className="font-medium">Nominated by:</span> {item.nominator.fullName}
+                      {item.nominator.relationship && (
+                        <span className="text-gray-500"> ({item.nominator.relationship})</span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Supporting Statement Preview */}
+                  {item.supportingStatement && (
+                    <div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleExpanded(item.id);
+                        }}
+                        className="text-xs md:text-sm font-medium text-primary hover:text-primary-dark flex items-center gap-1"
+                      >
+                        {expandedItems[item.id] ? (
+                          <>
+                            <FiChevronUp className="w-3 h-3" />
+                            Hide Details
+                          </>
+                        ) : (
+                          <>
+                            <FiChevronDown className="w-3 h-3" />
+                            View Supporting Statement
+                          </>
+                        )}
+                      </button>
+                      {expandedItems[item.id] && (
+                        <div className="mt-2 p-3 bg-gray-50 rounded-md space-y-3">
+                          <div>
+                            <p className="text-xs font-semibold text-gray-700 mb-1">Supporting Statement:</p>
+                            <p className="text-xs md:text-sm text-gray-600 whitespace-pre-wrap">
+                              {item.supportingStatement}
+                            </p>
+                          </div>
+                          {item.achievements && (
+                            <div>
+                              <p className="text-xs font-semibold text-gray-700 mb-1">Key Achievements:</p>
+                              <p className="text-xs md:text-sm text-gray-600 whitespace-pre-wrap">
+                                {item.achievements}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Right side - Actions & Arrow */}
@@ -219,7 +322,7 @@ export default function SubmissionsList({
                   <FiRotateCw className="w-4 h-4" />
                 </Button>
               )}
-              <FiChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
+              <FiChevronRight className="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors" />
             </div>
           </div>
         </div>

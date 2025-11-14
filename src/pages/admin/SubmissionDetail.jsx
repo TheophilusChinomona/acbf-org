@@ -189,7 +189,7 @@ export default function SubmissionDetail() {
       />
 
       {/* Header */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 py-8 md:py-12">
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-secondary-dark via-secondary to-secondary-light py-8 md:py-12">
         <Container>
           <div className="relative z-10">
             <motion.div
@@ -247,7 +247,7 @@ export default function SubmissionDetail() {
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value)}
                     disabled={isUpdating}
-                    className="px-4 py-2 min-w-[140px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed bg-white text-sm font-medium"
+                    className="px-4 py-2 min-w-[140px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed bg-white text-sm font-medium"
                   >
                     {getAvailableStatuses().map((status) => (
                       <option key={status.value} value={status.value}>
@@ -321,7 +321,7 @@ export default function SubmissionDetail() {
                   </label>
                   <a
                     href={`mailto:${submission.email}`}
-                    className="text-blue-600 hover:text-blue-800 hover:underline"
+                    className="text-primary hover:text-secondary hover:underline"
                   >
                     {submission.email || 'N/A'}
                   </a>
@@ -335,7 +335,7 @@ export default function SubmissionDetail() {
                     </label>
                     <a
                       href={`tel:${submission.phone}`}
-                      className="text-blue-600 hover:text-blue-800 hover:underline"
+                      className="text-primary hover:text-secondary hover:underline"
                     >
                       {submission.phone}
                     </a>

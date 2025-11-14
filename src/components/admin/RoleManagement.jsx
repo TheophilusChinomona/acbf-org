@@ -86,9 +86,9 @@ export default function RoleManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Members</p>
-              <p className="text-2xl font-bold text-blue-600">{stats.members}</p>
+              <p className="text-2xl font-bold text-primary">{stats.members}</p>
             </div>
-            <FiUsers className="w-8 h-8 text-blue-400" />
+            <FiUsers className="w-8 h-8 text-primary-light" />
           </div>
         </div>
 
@@ -96,9 +96,9 @@ export default function RoleManagement() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Admins</p>
-              <p className="text-2xl font-bold text-purple-600">{stats.admins}</p>
+              <p className="text-2xl font-bold text-secondary-light">{stats.admins}</p>
             </div>
-            <FiShield className="w-8 h-8 text-purple-400" />
+            <FiShield className="w-8 h-8 text-secondary-light" />
           </div>
         </div>
 
@@ -185,8 +185,8 @@ export default function RoleManagement() {
                           user.role === USER_ROLES.SUPER_ADMIN
                             ? 'bg-red-100 text-red-800'
                             : user.role === USER_ROLES.ADMIN
-                            ? 'bg-purple-100 text-purple-800'
-                            : 'bg-blue-100 text-blue-800'
+                            ? 'bg-secondary-light text-secondary-dark'
+                            : 'bg-primary-light text-secondary'
                         }`}
                       >
                         {user.role === USER_ROLES.SUPER_ADMIN && <FiShield className="w-3 h-3 mr-1" />}

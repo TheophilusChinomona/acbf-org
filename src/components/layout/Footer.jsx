@@ -14,7 +14,7 @@ export default function Footer() {
   ].filter(link => link.url); // Only show social links that have URLs
 
   return (
-    <footer className="bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 text-white mt-auto">
+    <footer className="bg-gradient-to-br from-secondary-dark via-secondary to-secondary-light text-white mt-auto">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* About Section */}

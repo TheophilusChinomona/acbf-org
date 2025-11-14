@@ -35,8 +35,8 @@ export default function BecomingAMember() {
       icon: FiActivity,
       title: 'Networking Opportunities',
       description: 'Connect with like-minded business professionals, entrepreneurs, and industry leaders.',
-      color: 'bg-blue-50 border-blue-200',
-      iconColor: 'text-blue-600',
+      color: 'bg-accent border-primary-light',
+      iconColor: 'text-primary',
     },
     {
       icon: FiTrendingUp,
@@ -50,7 +50,7 @@ export default function BecomingAMember() {
       title: 'Professional Development',
       description: 'Attend workshops, seminars, and training sessions to enhance your skills.',
       color: 'bg-purple-50 border-purple-200',
-      iconColor: 'text-purple-600',
+      iconColor: 'text-secondary-light',
     },
     {
       icon: FiTarget,
@@ -71,7 +71,7 @@ export default function BecomingAMember() {
       title: 'Community Impact',
       description: 'Be part of a community that makes a positive impact in the business world.',
       color: 'bg-indigo-50 border-indigo-200',
-      iconColor: 'text-indigo-600',
+      iconColor: 'text-secondary',
     },
   ];
 
@@ -80,8 +80,8 @@ export default function BecomingAMember() {
       icon: FiUsers,
       title: 'Who Can Join',
       content: 'Africa Christian Business Fellowship is for aspiring business people, and people already in business, and professionals such as accountants, lawyers etc. People are however, encouraged to start, and run their own businesses.',
-      color: 'bg-blue-50 border-blue-200',
-      iconColor: 'text-blue-600',
+      color: 'bg-accent border-primary-light',
+      iconColor: 'text-primary',
     },
     {
       icon: RandIcon,
@@ -95,7 +95,7 @@ export default function BecomingAMember() {
       title: 'Membership Renewal',
       content: 'Membership shall be renewed at the beginning of each year.',
       color: 'bg-purple-50 border-purple-200',
-      iconColor: 'text-purple-600',
+      iconColor: 'text-secondary-light',
     },
     {
       icon: FiXCircle,
@@ -116,7 +116,7 @@ export default function BecomingAMember() {
       title: 'Board Member Qualifications',
       content: 'Any member of the Board who ceases to meet the qualification of a Board member, or is absent from three consecutive meetings of the Board without the permission of the Board without good cause shown to the Board, shall be deemed to have resigned from the Board.',
       color: 'bg-indigo-50 border-indigo-200',
-      iconColor: 'text-indigo-600',
+      iconColor: 'text-secondary',
     },
     {
       icon: FiAward,
@@ -136,7 +136,7 @@ export default function BecomingAMember() {
       />
       
       {/* Hero Section with Gradient Background */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 py-12 md:py-16 lg:py-20">
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-secondary-dark via-secondary to-secondary-light py-12 md:py-16 lg:py-20">
         {/* Decorative Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
@@ -204,7 +204,7 @@ export default function BecomingAMember() {
           >
             <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 md:p-10 border-2 border-blue-100 shadow-sm -mt-12 relative z-10">
               <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary rounded-full mb-6">
                   <FiUsers className="w-8 h-8 text-white" />
                 </div>
                 <p className="text-lg md:text-xl leading-relaxed text-gray-800">
@@ -234,7 +234,7 @@ export default function BecomingAMember() {
                 <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                   Membership Benefits
                 </h2>
-                <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mb-6 rounded-full"></div>
+                <div className="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto mb-6 rounded-full"></div>
                 <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                   Join ACBF and unlock a world of opportunities for your business and professional growth
                 </p>
@@ -284,7 +284,7 @@ export default function BecomingAMember() {
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                 Membership Information
               </h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mb-6 rounded-full"></div>
+              <div className="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto mb-6 rounded-full"></div>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                 Everything you need to know about joining and maintaining your ACBF membership
               </p>
@@ -335,7 +335,7 @@ export default function BecomingAMember() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="max-w-4xl mx-auto"
           >
-            <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 rounded-3xl p-10 md:p-12 text-center text-white shadow-2xl relative overflow-hidden">
+            <div className="bg-gradient-to-br from-primary via-primary-dark to-secondary rounded-3xl p-10 md:p-12 text-center text-white shadow-2xl relative overflow-hidden">
               {/* Decorative background elements */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
               <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -ml-32 -mb-32"></div>
@@ -360,7 +360,7 @@ export default function BecomingAMember() {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                   <button
                     onClick={() => setIsSignupModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-white/50 shadow-lg hover:shadow-xl hover:scale-105 transform"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary font-bold rounded-xl hover:bg-accent transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-white/50 shadow-lg hover:shadow-xl hover:scale-105 transform"
                   >
                     <FiUsers className="w-5 h-5" />
                     Apply for Membership

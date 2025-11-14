@@ -52,7 +52,7 @@ export default function LoginModal() {
           Don't have an account?{' '}
           <button
             onClick={handleSignupClick}
-            className="text-blue-600 hover:text-blue-700 font-semibold hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-1"
+            className="text-primary hover:text-primary-dark font-semibold hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1"
           >
             Sign up
           </button>

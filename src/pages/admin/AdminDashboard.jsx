@@ -29,15 +29,18 @@ import toast from 'react-hot-toast';
 
 export default function AdminDashboard() {
   const { currentUser, logout } = useAuth();
-  const { 
-    contactSubmissions, 
-    membershipApplications, 
-    loading, 
+  const {
+    contactSubmissions,
+    membershipApplications,
+    awardsNominations,
+    loading,
     error,
     archiveContactSubmission,
     unarchiveContactSubmission,
     archiveMembershipApplication,
     unarchiveMembershipApplication,
+    archiveAwardsNomination,
+    unarchiveAwardsNomination,
   } = useSubmissions();
   const { isSuperAdmin } = useAdminManagement();
   const {
@@ -48,7 +51,7 @@ export default function AdminDashboard() {
     rejectMember,
   } = useMemberManagement({ listenToPendingMembers: true });
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('contact'); // 'contact', 'membership', 'memberApprovals'
+  const [activeTab, setActiveTab] = useState('contact'); // 'contact', 'membership', 'awards', 'memberApprovals'
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showArchived, setShowArchived] = useState(false); // Toggle between active and archived view
   const [filters, setFilters] = useState({
@@ -60,6 +63,7 @@ export default function AdminDashboard() {
   const tabNavRef = useRef(null);
   const contactTabRef = useRef(null);
   const membershipTabRef = useRef(null);
+  const awardsTabRef = useRef(null);
   const adminTabRef = useRef(null);
   const memberApprovalsTabRef = useRef(null);
   const [memberActionLoadingId, setMemberActionLoadingId] = useState(null);
@@ -72,7 +76,7 @@ export default function AdminDashboard() {
     setFilters({ search: '', status: 'all', dateFrom: '', dateTo: '' });
     setShowArchived(false); // Reset archive view when switching tabs
     setMemberSearch('');
-    
+
     // Scroll active tab into view on mobile
     setTimeout(() => {
       let tabRef = null;
@@ -80,10 +84,12 @@ export default function AdminDashboard() {
         tabRef = contactTabRef.current;
       } else if (tab === 'membership') {
         tabRef = membershipTabRef.current;
+      } else if (tab === 'awards') {
+        tabRef = awardsTabRef.current;
       } else if (tab === 'memberApprovals') {
         tabRef = memberApprovalsTabRef.current;
       }
-      
+
       if (tabRef && window.innerWidth < 768) {
         tabRef.scrollIntoView({
           behavior: 'smooth',
@@ -102,10 +108,12 @@ export default function AdminDashboard() {
         tabRef = contactTabRef.current;
       } else if (activeTab === 'membership') {
         tabRef = membershipTabRef.current;
+      } else if (activeTab === 'awards') {
+        tabRef = awardsTabRef.current;
       } else if (activeTab === 'memberApprovals') {
         tabRef = memberApprovalsTabRef.current;
       }
-      
+
       if (tabRef) {
         setTimeout(() => {
           tabRef.scrollIntoView({
@@ -238,6 +246,70 @@ export default function AdminDashboard() {
     
     return filtered;
   }, [membershipApplications, filters, showArchived]);
+
+  const filteredAwardsNominations = useMemo(() => {
+    let filtered = [...awardsNominations];
+
+    // Filter by archived status
+    filtered = filtered.filter(n => {
+      const isArchived = n.archived === true;
+      return showArchived ? isArchived : !isArchived;
+    });
+
+    // Filter by status
+    if (filters.status && filters.status !== 'all') {
+      filtered = filtered.filter(n => n.status === filters.status);
+    }
+
+    // Filter by search query
+    if (filters.search && filters.search.trim()) {
+      const searchLower = filters.search.toLowerCase().trim();
+      filtered = filtered.filter(n =>
+        n.category?.toLowerCase().includes(searchLower) ||
+        n.nominee?.fullName?.toLowerCase().includes(searchLower) ||
+        n.nominee?.email?.toLowerCase().includes(searchLower) ||
+        n.nominee?.organization?.toLowerCase().includes(searchLower) ||
+        n.nominator?.fullName?.toLowerCase().includes(searchLower) ||
+        n.nominator?.email?.toLowerCase().includes(searchLower) ||
+        n.nominator?.organization?.toLowerCase().includes(searchLower) ||
+        n.supportingStatement?.toLowerCase().includes(searchLower) ||
+        n.achievements?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Filter by date range
+    if (filters.dateFrom || filters.dateTo) {
+      filtered = filtered.filter(n => {
+        if (!n.submittedAt) return false;
+
+        // Convert nomination date to Date object
+        let nominationDate = n.submittedAt instanceof Date
+          ? new Date(n.submittedAt)
+          : n.submittedAt.toDate
+            ? n.submittedAt.toDate()
+            : new Date(n.submittedAt);
+
+        // Create new Date objects to avoid mutation
+        const dateFrom = filters.dateFrom ? new Date(filters.dateFrom + 'T00:00:00') : null;
+        const dateTo = filters.dateTo ? new Date(filters.dateTo + 'T23:59:59') : null;
+
+        // Normalize nomination date to start of day (local time)
+        const nominationDateOnly = new Date(nominationDate.getFullYear(), nominationDate.getMonth(), nominationDate.getDate());
+
+        // Normalize filter dates to start/end of day (local time)
+        const dateFromOnly = dateFrom ? new Date(dateFrom.getFullYear(), dateFrom.getMonth(), dateFrom.getDate()) : null;
+        const dateToOnly = dateTo ? new Date(dateTo.getFullYear(), dateTo.getMonth(), dateTo.getDate()) : null;
+
+        // Compare dates (ignoring time)
+        if (dateFromOnly && nominationDateOnly < dateFromOnly) return false;
+        if (dateToOnly && nominationDateOnly > dateToOnly) return false;
+
+        return true;
+      });
+    }
+
+    return filtered;
+  }, [awardsNominations, filters, showArchived]);
 
   const pendingMemberCount = pendingMembers.length;
   const filteredPendingMembers = useMemo(() => {
@@ -376,6 +448,26 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleArchiveAwards = async (nominationId) => {
+    try {
+      await archiveAwardsNomination(nominationId);
+      toast.success('Award nomination archived successfully');
+    } catch (error) {
+      console.error('Error archiving nomination:', error);
+      toast.error(error.message || 'Failed to archive nomination');
+    }
+  };
+
+  const handleUnarchiveAwards = async (nominationId) => {
+    try {
+      await unarchiveAwardsNomination(nominationId);
+      toast.success('Award nomination unarchived successfully');
+    } catch (error) {
+      console.error('Error unarchiving nomination:', error);
+      toast.error(error.message || 'Failed to unarchive nomination');
+    }
+  };
+
   // Count submissions by status (excluding archived)
   const contactStats = {
     total: contactSubmissions.filter(s => !s.archived).length,
@@ -391,6 +483,13 @@ export default function AdminDashboard() {
     rejected: membershipApplications.filter(a => a.status === 'rejected' && !a.archived).length,
   };
 
+  const awardsStats = {
+    total: awardsNominations.filter(n => !n.archived).length,
+    pending: awardsNominations.filter(n => n.status === 'pending' && !n.archived).length,
+    approved: awardsNominations.filter(n => n.status === 'approved' && !n.archived).length,
+    rejected: awardsNominations.filter(n => n.status === 'rejected' && !n.archived).length,
+  };
+
   return (
     <>
       <SEO
@@ -401,7 +500,7 @@ export default function AdminDashboard() {
       />
 
       {/* Hero Section with Gradient Background */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 py-4 md:py-8 lg:py-12">
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-secondary-dark via-secondary to-secondary-light py-4 md:py-8 lg:py-12">
         {/* Decorative Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
@@ -492,14 +591,14 @@ export default function AdminDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
               onClick={() => handleTabChange('contact')}
-              className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 md:p-6 border border-blue-200 cursor-pointer hover:border-blue-300 hover:shadow-md transition-all duration-200"
+              className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 md:p-6 border border-primary-light cursor-pointer hover:border-blue-300 hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xs md:text-sm font-medium text-blue-900">Contact Submissions</h3>
-                <FiMail className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                <h3 className="text-xs md:text-sm font-medium text-secondary-dark">Contact Submissions</h3>
+                <FiMail className="w-4 h-4 md:w-5 md:h-5 text-primary" />
               </div>
-              <p className="text-2xl md:text-3xl font-bold text-blue-900 mb-1">{contactStats.total}</p>
-              <div className="flex flex-wrap gap-1 md:gap-2 text-xs text-blue-700">
+              <p className="text-2xl md:text-3xl font-bold text-secondary-dark mb-1">{contactStats.total}</p>
+              <div className="flex flex-wrap gap-1 md:gap-2 text-xs text-primary-dark">
                 <span>{contactStats.new} new</span>
                 <span className="hidden md:inline">•</span>
                 <span>{contactStats.inProgress} in progress</span>
@@ -561,12 +660,36 @@ export default function AdminDashboard() {
               className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 md:p-6 border border-purple-200 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xs md:text-sm font-medium text-purple-900">Pending Applications</h3>
-                <FiFileText className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+                <h3 className="text-xs md:text-sm font-medium text-secondary-dark">Pending Applications</h3>
+                <FiFileText className="w-4 h-4 md:w-5 md:h-5 text-secondary-light" />
               </div>
-              <p className="text-2xl md:text-3xl font-bold text-purple-900">{membershipStats.pending}</p>
-              <p className="text-xs text-purple-700 mt-1">Awaiting review</p>
+              <p className="text-2xl md:text-3xl font-bold text-secondary-dark">{membershipStats.pending}</p>
+              <p className="text-xs text-secondary mt-1">Awaiting review</p>
             </motion.div>
+
+          {/* Award Nominations - Only for regular admins */}
+          {!isSuperAdmin && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.5 }}
+              onClick={() => handleTabChange('awards')}
+              className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-4 md:p-6 border border-yellow-200 cursor-pointer hover:border-yellow-300 hover:shadow-md transition-all duration-200"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xs md:text-sm font-medium text-yellow-900">Award Nominations</h3>
+                <FiFileText className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" />
+              </div>
+              <p className="text-2xl md:text-3xl font-bold text-yellow-900">{awardsStats.total}</p>
+              <div className="flex flex-wrap gap-1 md:gap-2 text-xs text-yellow-700">
+                <span>{awardsStats.pending} pending</span>
+                <span className="hidden md:inline">•</span>
+                <span>{awardsStats.approved} approved</span>
+                <span className="hidden md:inline">•</span>
+                <span>{awardsStats.rejected} rejected</span>
+              </div>
+            </motion.div>
+          )}
 
           {/* Pending Member Approvals */}
           <motion.div
@@ -596,7 +719,7 @@ export default function AdminDashboard() {
                     px-4 py-2 md:px-6 md:py-3 text-sm font-medium border-b-2 transition-colors min-h-[44px] md:min-h-0
                     ${
                       activeTab === 'contact'
-                        ? 'border-blue-600 text-blue-600'
+                        ? 'border-primary text-primary'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }
                   `}
@@ -605,7 +728,7 @@ export default function AdminDashboard() {
                     <FiMail className="w-4 h-4" />
                     <span>Contact Submissions</span>
                     {contactStats.total > 0 && (
-                      <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded-full hidden sm:inline">
+                      <span className="bg-blue-100 text-secondary text-xs font-semibold px-2 py-0.5 rounded-full hidden sm:inline">
                         {contactStats.total}
                       </span>
                     )}
@@ -655,6 +778,30 @@ export default function AdminDashboard() {
                     )}
                   </div>
                 </button>
+                {!isSuperAdmin && (
+                  <button
+                    ref={awardsTabRef}
+                    onClick={() => handleTabChange('awards')}
+                    className={`
+                      px-4 py-2 md:px-6 md:py-3 text-sm font-medium border-b-2 transition-colors min-h-[44px] md:min-h-0
+                      ${
+                        activeTab === 'awards'
+                          ? 'border-yellow-600 text-yellow-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }
+                    `}
+                  >
+                    <div className="flex items-center gap-2 whitespace-nowrap">
+                      <FiFileText className="w-4 h-4" />
+                      <span>Award Nominations</span>
+                      {awardsStats.total > 0 && (
+                        <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full hidden sm:inline">
+                          {awardsStats.total}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                )}
                 {isSuperAdmin && (
                   <button
                     ref={adminTabRef}
@@ -891,6 +1038,56 @@ export default function AdminDashboard() {
                         ))}
                       </div>
                     )}
+                  </div>
+                ) : activeTab === 'awards' ? (
+                  <div>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                      <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                        {showArchived ? 'Archived Award Nominations' : 'Award Nominations'}
+                      </h2>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                        {awardsNominations.length > 0 && (
+                          <p className="text-xs md:text-sm text-gray-600">
+                            {filteredAwardsNominations.length} of {awardsNominations.length} nomination{awardsNominations.length !== 1 ? 's' : ''}
+                          </p>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowArchived(!showArchived)}
+                          className="w-full sm:w-auto"
+                        >
+                          {showArchived ? (
+                            <>
+                              <FiRotateCw className="mr-2" />
+                              Show Active
+                            </>
+                          ) : (
+                            <>
+                              <FiArchive className="mr-2" />
+                              Show Archived
+                            </>
+                          )}
+                        </Button>
+                        <ExportButton
+                          data={filteredAwardsNominations}
+                          type="awards"
+                          className="w-full sm:w-auto"
+                        />
+                      </div>
+                    </div>
+                    <FilterBar
+                      type="awards"
+                      filters={filters}
+                      onFilterChange={setFilters}
+                    />
+                    <SubmissionsList
+                      submissions={filteredAwardsNominations}
+                      type="awards"
+                      showArchived={showArchived}
+                      onArchive={handleArchiveAwards}
+                      onUnarchive={handleUnarchiveAwards}
+                    />
                   </div>
                 ) : (
                   <div>

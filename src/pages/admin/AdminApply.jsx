@@ -52,19 +52,19 @@ export default function AdminApply() {
             </div>
 
             {/* Information Section */}
-            <div className="bg-blue-50 rounded-lg p-6 mb-6">
-              <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
+            <div className="bg-accent rounded-lg p-6 mb-6">
+              <h3 className="text-lg font-semibold text-secondary-dark mb-3 flex items-center gap-2">
                 <FiMail className="w-5 h-5" />
                 How to Get Admin Access
               </h3>
-              <div className="space-y-3 text-blue-800">
+              <div className="space-y-3 text-secondary">
                 <p>
                   To become an administrator, you must be invited by an existing administrator.
                   The invitation system ensures better security and control over who has access to
                   administrative features.
                 </p>
                 <div className="bg-white rounded-lg p-4 mt-4">
-                  <p className="font-medium text-blue-900 mb-2">Steps to request access:</p>
+                  <p className="font-medium text-secondary-dark mb-2">Steps to request access:</p>
                   <ol className="list-decimal list-inside space-y-2 text-sm">
                     <li>Contact an existing administrator via email or phone</li>
                     <li>Explain why you need administrative access</li>
@@ -87,7 +87,7 @@ export default function AdminApply() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   to="/contact"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors duration-200"
                 >
                   <FiMail className="w-5 h-5" />
                   <span>Contact Us</span>

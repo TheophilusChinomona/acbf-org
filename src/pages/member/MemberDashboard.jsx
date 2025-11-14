@@ -55,9 +55,9 @@ export default function MemberDashboard() {
           </header>
 
           {/* Coming Soon Card */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-8 md:p-12 text-center shadow-lg">
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-primary-light rounded-2xl p-8 md:p-12 text-center shadow-lg">
             <div className="max-w-2xl mx-auto space-y-6">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full mb-4">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-full mb-4">
                 <FiSettings className="w-10 h-10 text-white animate-spin" style={{ animationDuration: '3s' }} aria-hidden="true" />
               </div>
 
@@ -88,7 +88,7 @@ export default function MemberDashboard() {
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <FiTrendingUp className="w-6 h-6 text-blue-600" aria-hidden="true" />
+                  <FiTrendingUp className="w-6 h-6 text-primary" aria-hidden="true" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2">Analytics & Insights</h3>
@@ -102,7 +102,7 @@ export default function MemberDashboard() {
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                  <FiUsers className="w-6 h-6 text-indigo-600" aria-hidden="true" />
+                  <FiUsers className="w-6 h-6 text-secondary" aria-hidden="true" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2">Networking</h3>
@@ -115,8 +115,8 @@ export default function MemberDashboard() {
 
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <FiAward className="w-6 h-6 text-purple-600" aria-hidden="true" />
+                <div className="flex-shrink-0 w-12 h-12 bg-secondary-light rounded-lg flex items-center justify-center">
+                  <FiAward className="w-6 h-6 text-secondary-light" aria-hidden="true" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2">Resources & Tools</h3>
@@ -138,7 +138,7 @@ export default function MemberDashboard() {
             </p>
             <a
               href="/contact"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-lg"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white font-medium rounded-lg hover:from-primary-dark hover:to-secondary-dark transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-md hover:shadow-lg"
             >
               Contact Support
             </a>

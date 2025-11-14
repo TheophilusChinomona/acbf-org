@@ -159,8 +159,8 @@ export default function AwardsNominationForm() {
               </p>
             )}
             {selectedCategory && (
-              <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-900">
+              <div className="mt-3 p-3 bg-accent border border-primary-light rounded-lg">
+                <p className="text-sm text-secondary-dark">
                   {awardCategories.find(cat => cat.name === selectedCategory)?.description}
                 </p>
               </div>
