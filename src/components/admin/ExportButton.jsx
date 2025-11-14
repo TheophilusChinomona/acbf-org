@@ -4,15 +4,16 @@ import toast from 'react-hot-toast';
 import {
   exportContactSubmissions,
   exportMembershipApplications,
+  exportAwardsNominations,
 } from '../../utils/exportData';
 
 /**
  * Export Button Component
  * Provides Excel export functionality for submissions
- * 
+ *
  * @param {Object} props
  * @param {Array} props.data - Array of submissions/applications to export
- * @param {string} props.type - Type of data ('contact' or 'membership')
+ * @param {string} props.type - Type of data ('contact', 'membership', or 'awards')
  * @param {string} props.className - Additional CSS classes
  * @param {Object} props.options - Export options (filename, includeTimestamp)
  */
@@ -45,6 +46,12 @@ export default function ExportButton({
           includeTimestamp: options.includeTimestamp !== false,
         });
         toast.success(`Exported ${data.length} membership application${data.length !== 1 ? 's' : ''} to Excel`);
+      } else if (type === 'awards') {
+        exportAwardsNominations(data, {
+          filename: options.filename || 'awards-nominations',
+          includeTimestamp: options.includeTimestamp !== false,
+        });
+        toast.success(`Exported ${data.length} award nomination${data.length !== 1 ? 's' : ''} to Excel`);
       } else {
         throw new Error('Invalid export type');
       }
@@ -62,8 +69,8 @@ export default function ExportButton({
       disabled={isExporting || !data || data.length === 0}
       className={`
         inline-flex items-center justify-center gap-2 px-4 py-2.5 md:py-2
-        bg-blue-600 text-white font-medium rounded-lg text-sm md:text-base
-        hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+        bg-primary text-white font-medium rounded-lg text-sm md:text-base
+        hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
         disabled:opacity-50 disabled:cursor-not-allowed
         transition-colors duration-200
         min-h-[44px] md:min-h-0
@@ -72,7 +79,7 @@ export default function ExportButton({
       title={
         !data || data.length === 0
           ? 'No data to export'
-          : `Export ${data.length} ${type === 'contact' ? 'submission' : 'application'}${data.length !== 1 ? 's' : ''} to Excel`
+          : `Export ${data.length} ${type === 'contact' ? 'submission' : type === 'awards' ? 'nomination' : 'application'}${data.length !== 1 ? 's' : ''} to Excel`
       }
     >
       {isExporting ? (

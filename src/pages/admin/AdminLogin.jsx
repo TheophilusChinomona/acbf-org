@@ -26,7 +26,7 @@ export default function AdminLogin() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -48,7 +48,7 @@ export default function AdminLogin() {
       />
 
       {/* Hero Section with Gradient Background */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 py-12 md:py-16 lg:py-20 min-h-[40vh]">
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-secondary-dark via-secondary to-secondary-light py-12 md:py-16 lg:py-20 min-h-[40vh]">
         {/* Decorative Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
@@ -115,11 +115,11 @@ export default function AdminLogin() {
             className="max-w-md mx-auto"
           >
             {/* Security Notice */}
-            <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
-              <FiLock className="text-blue-600 text-xl flex-shrink-0 mt-0.5" />
+            <div className="mb-8 p-4 bg-accent border border-primary-light rounded-lg flex items-start gap-3">
+              <FiLock className="text-primary text-xl flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-blue-900 mb-1">Secure Access</h3>
-                <p className="text-sm text-blue-700">
+                <h3 className="font-semibold text-secondary-dark mb-1">Secure Access</h3>
+                <p className="text-sm text-primary-dark">
                   This is a restricted area. Only authorized administrators can access this section.
                 </p>
               </div>

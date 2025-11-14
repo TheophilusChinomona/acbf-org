@@ -133,13 +133,13 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            <ul className="flex items-center space-x-6" role="list">
+          <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
+            <ul className="flex items-center space-x-4 xl:space-x-6" role="list">
               {menusData.main.map((item) => (
                 <li key={item.url} role="listitem">
                   <Link
                     to={item.url}
-                    className="text-gray-700 hover:text-primary transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-2 py-1"
+                    className="text-gray-700 hover:text-primary transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-2 py-1 text-sm lg:text-base whitespace-nowrap"
                   >
                     {item.label}
                   </Link>
@@ -152,12 +152,13 @@ export default function Header() {
               <div className="relative user-menu-container">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-lg"
+                  className="inline-flex items-center gap-2 px-3 lg:px-4 py-2 bg-gradient-to-r from-primary to-secondary text-white font-medium rounded-lg hover:from-primary-dark hover:to-secondary-dark transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-md hover:shadow-lg text-sm lg:text-base whitespace-nowrap"
                   aria-label="User Menu"
                   aria-expanded={showUserMenu}
                 >
                   <FiUser className="w-4 h-4" />
-                  <span>{userProfile?.name || 'Account'}</span>
+                  <span className="hidden xl:inline">{userProfile?.name || 'Account'}</span>
+                  <span className="xl:hidden">Account</span>
                 </button>
 
                 {showUserMenu && (
@@ -182,7 +183,7 @@ export default function Header() {
             ) : (
               <button
                 onClick={handleLoginClick}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-lg"
+                className="inline-flex items-center gap-2 px-3 lg:px-4 py-2 bg-gradient-to-r from-primary to-secondary text-white font-medium rounded-lg hover:from-primary-dark hover:to-secondary-dark transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-md hover:shadow-lg text-sm lg:text-base whitespace-nowrap"
                 aria-label="Login"
               >
                 <FiUser className="w-4 h-4" />
@@ -202,7 +203,7 @@ export default function Header() {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center space-x-2">
+          <div className="lg:hidden flex items-center space-x-2">
             <button
               onClick={handleSearchIconClick}
               className="p-2 text-gray-700 hover:text-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
@@ -228,7 +229,7 @@ export default function Header() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4" role="menu">
+          <div className="lg:hidden border-t border-gray-200 py-4" role="menu">
             <ul className="flex flex-col space-y-4" role="list">
               {menusData.main.map((item) => (
                 <li key={item.url} role="listitem">
@@ -250,7 +251,7 @@ export default function Header() {
                 <div className="space-y-2">
                   <button
                     onClick={() => handleUserNavigation(getDashboardLink())}
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-lg"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-secondary text-white font-medium rounded-lg hover:from-primary-dark hover:to-secondary-dark transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-md hover:shadow-lg"
                     aria-label="Dashboard"
                   >
                     <FiUser className="w-4 h-4" />
@@ -271,7 +272,7 @@ export default function Header() {
                     handleLoginClick();
                     closeMobileMenu();
                   }}
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-lg"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-secondary text-white font-medium rounded-lg hover:from-primary-dark hover:to-secondary-dark transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-md hover:shadow-lg"
                   aria-label="Login"
                 >
                   <FiUser className="w-4 h-4" />

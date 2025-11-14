@@ -213,11 +213,11 @@ export default function MemberRegisterForm({ applicationId = null }) {
 
   if (accountAlreadyCreated) {
     return (
-      <div className="w-full p-6 bg-blue-50 border border-blue-200 rounded-lg">
-        <div className="flex items-start gap-3 text-blue-700">
+      <div className="w-full p-6 bg-accent border border-primary-light rounded-lg">
+        <div className="flex items-start gap-3 text-primary-dark">
           <FiInfo className="text-xl flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-semibold text-blue-900 mb-1">Account Already Created</h3>
+            <h3 className="font-semibold text-secondary-dark mb-1">Account Already Created</h3>
             <p className="text-sm">
               An account has already been created for this membership application. If you need help accessing your account,
               please try resetting your password or contact support.

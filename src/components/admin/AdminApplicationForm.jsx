@@ -95,18 +95,18 @@ export default function AdminApplicationForm({ onSuccess }) {
         </div>
       </div>
 
-      <div className="bg-blue-50 rounded-lg p-6 mb-6">
-        <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
+      <div className="bg-accent rounded-lg p-6 mb-6">
+        <h3 className="text-lg font-semibold text-secondary-dark mb-3 flex items-center gap-2">
           <FiMail className="w-5 h-5" />
           How to Get Admin Access
         </h3>
-        <p className="text-blue-800 mb-4">
+        <p className="text-secondary mb-4">
           To become an administrator, you must be invited by an existing administrator.
           Please contact an existing admin to request an invitation.
         </p>
         <div className="bg-white rounded-lg p-4">
-          <p className="font-medium text-blue-900 mb-2">Steps:</p>
-          <ol className="list-decimal list-inside space-y-2 text-sm text-blue-800">
+          <p className="font-medium text-secondary-dark mb-2">Steps:</p>
+          <ol className="list-decimal list-inside space-y-2 text-sm text-secondary">
             <li>Contact an existing administrator</li>
             <li>Explain why you need admin access</li>
             <li>Wait for the invitation link via email</li>
@@ -117,7 +117,7 @@ export default function AdminApplicationForm({ onSuccess }) {
 
       <Link
         to="/contact"
-        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors duration-200"
       >
         <FiMail className="w-5 h-5" />
         <span>Contact Us</span>

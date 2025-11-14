@@ -66,6 +66,32 @@ function prepareMembershipApplications(applications) {
 }
 
 /**
+ * Prepare awards nominations data for Excel export
+ * @param {Array} nominations - Array of awards nominations
+ * @returns {Array} Array of formatted objects ready for Excel
+ */
+function prepareAwardsNominations(nominations) {
+  return nominations.map((nomination) => ({
+    'ID': nomination.id || '',
+    'Category': nomination.category || '',
+    'Nominee Name': nomination.nominee?.fullName || '',
+    'Nominee Email': nomination.nominee?.email || '',
+    'Nominee Organization': nomination.nominee?.organization || '',
+    'Nominee Phone': nomination.nominee?.phone || '',
+    'Nominee Website': nomination.nominee?.website || '',
+    'Nominator Name': nomination.nominator?.fullName || '',
+    'Nominator Email': nomination.nominator?.email || '',
+    'Nominator Organization': nomination.nominator?.organization || '',
+    'Relationship': nomination.nominator?.relationship || '',
+    'Supporting Statement': nomination.supportingStatement || '',
+    'Key Achievements': nomination.achievements || '',
+    'Nomination Year': nomination.nominationYear || '',
+    'Status': nomination.status || '',
+    'Submitted At': formatDateForExport(nomination.submittedAt),
+  }));
+}
+
+/**
  * Export data to Excel file
  * @param {Array} data - Array of data objects to export
  * @param {string} filename - Name of the file (without extension)
@@ -146,12 +172,34 @@ export function exportMembershipApplications(applications, options = {}) {
   } = options;
 
   const preparedData = prepareMembershipApplications(applications);
-  
+
   const finalFilename = includeTimestamp
     ? `${filename}-${format(new Date(), 'yyyy-MM-dd-HHmmss')}`
     : filename;
 
   exportToExcel(preparedData, finalFilename, 'Membership Applications');
+}
+
+/**
+ * Export awards nominations to Excel
+ * @param {Array} nominations - Array of awards nominations
+ * @param {Object} options - Export options
+ * @param {string} options.filename - Custom filename (default: 'awards-nominations')
+ * @param {boolean} options.includeTimestamp - Include timestamp in filename (default: true)
+ */
+export function exportAwardsNominations(nominations, options = {}) {
+  const {
+    filename = 'awards-nominations',
+    includeTimestamp = true,
+  } = options;
+
+  const preparedData = prepareAwardsNominations(nominations);
+
+  const finalFilename = includeTimestamp
+    ? `${filename}-${format(new Date(), 'yyyy-MM-dd-HHmmss')}`
+    : filename;
+
+  exportToExcel(preparedData, finalFilename, 'Awards Nominations');
 }
 
 /**

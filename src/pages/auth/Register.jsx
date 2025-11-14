@@ -38,7 +38,7 @@ export default function Register() {
       <Section bgColor="gray" padding="lg">
         <Container className="max-w-4xl">
           <div className="bg-white shadow-xl border border-gray-200 rounded-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-10 text-white">
+            <div className="bg-gradient-to-r from-primary to-secondary px-6 py-10 text-white">
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
                   <FiUserPlus className="w-6 h-6" />
@@ -53,10 +53,10 @@ export default function Register() {
             </div>
 
             <div className="px-6 py-8 space-y-6">
-              <div className="flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-xl p-4">
-                <FiShield className="text-blue-600 mt-0.5 flex-shrink-0" />
-                <div className="text-sm text-blue-700">
-                  <p className="font-medium text-blue-900">Secure Registration</p>
+              <div className="flex items-start gap-3 bg-accent border border-blue-100 rounded-xl p-4">
+                <FiShield className="text-primary mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-primary-dark">
+                  <p className="font-medium text-secondary-dark">Secure Registration</p>
                   <p className="mt-1">{pageContent.helper}</p>
                 </div>
               </div>

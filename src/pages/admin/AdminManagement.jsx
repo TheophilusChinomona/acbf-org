@@ -287,23 +287,23 @@ export default function AdminManagement() {
               className="bg-indigo-50 border border-indigo-200 rounded-lg p-4"
             >
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-indigo-900">Active Invitations</h3>
-                <FiSend className="w-5 h-5 text-indigo-600" />
+                <h3 className="text-sm font-medium text-secondary-dark">Active Invitations</h3>
+                <FiSend className="w-5 h-5 text-secondary" />
               </div>
-              <p className="text-2xl font-bold text-indigo-900">{pendingInvitations.length}</p>
+              <p className="text-2xl font-bold text-secondary-dark">{pendingInvitations.length}</p>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="bg-blue-50 border border-blue-200 rounded-lg p-4"
+              className="bg-accent border border-primary-light rounded-lg p-4"
             >
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-blue-900">Active Admins</h3>
-                <FiUsers className="w-5 h-5 text-blue-600" />
+                <h3 className="text-sm font-medium text-secondary-dark">Active Admins</h3>
+                <FiUsers className="w-5 h-5 text-primary" />
               </div>
-              <p className="text-2xl font-bold text-blue-900">{activeAdmins.length}</p>
+              <p className="text-2xl font-bold text-secondary-dark">{activeAdmins.length}</p>
             </motion.div>
 
             <motion.div

@@ -4,9 +4,9 @@ import { FiSearch, FiFilter, FiX, FiCalendar } from 'react-icons/fi';
 /**
  * Filter Bar Component
  * Provides filtering and search functionality for submissions
- * 
+ *
  * @param {Object} props
- * @param {string} props.type - Type of submissions ('contact' or 'membership')
+ * @param {string} props.type - Type of submissions ('contact', 'membership', or 'awards')
  * @param {Function} props.onFilterChange - Callback when filters change
  * @param {Object} props.filters - Current filter values
  */
@@ -26,12 +26,16 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
         { value: 'in-progress', label: 'In Progress' },
         { value: 'resolved', label: 'Resolved' },
       ];
-    } else {
+    } else if (type === 'membership' || type === 'awards') {
       return [
         { value: 'all', label: 'All Statuses' },
         { value: 'pending', label: 'Pending' },
         { value: 'approved', label: 'Approved' },
         { value: 'rejected', label: 'Rejected' },
+      ];
+    } else {
+      return [
+        { value: 'all', label: 'All Statuses' },
       ];
     }
   };
@@ -113,10 +117,10 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
           <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
             type="text"
-            placeholder={`Search ${type === 'contact' ? 'submissions' : 'applications'}...`}
+            placeholder={`Search ${type === 'contact' ? 'submissions' : type === 'awards' ? 'nominations' : 'applications'}...`}
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 md:py-2 text-base md:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px] md:min-h-0"
+            className="w-full pl-10 pr-4 py-2.5 md:py-2 text-base md:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-h-[44px] md:min-h-0"
           />
         </div>
         <button
@@ -126,7 +130,7 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
           <FiFilter className="w-4 h-4" />
           <span className="text-sm font-medium">Filters</span>
           {hasActiveFilters && (
-            <span className="bg-blue-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+            <span className="bg-primary text-white text-xs font-semibold px-2 py-0.5 rounded-full">
               Active
             </span>
           )}
@@ -261,7 +265,7 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
               <select
                 value={statusFilter}
                 onChange={(e) => handleStatusChange(e.target.value)}
-                className="w-full px-3 py-2.5 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base md:text-sm min-h-[44px] md:min-h-0"
+                className="w-full px-3 py-2.5 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base md:text-sm min-h-[44px] md:min-h-0"
               >
                 {getAvailableStatuses().map((status) => (
                   <option key={status.value} value={status.value}>
@@ -284,7 +288,7 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
                   type="date"
                   value={dateFrom}
                   onChange={(e) => handleDateFromChange(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 cursor-pointer hover:border-gray-400 text-base md:text-sm min-h-[44px] md:min-h-0"
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors bg-white text-gray-900 cursor-pointer hover:border-gray-400 text-base md:text-sm min-h-[44px] md:min-h-0"
                 />
               </div>
               {dateFrom && (
@@ -308,7 +312,7 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
                   value={dateTo}
                   onChange={(e) => handleDateToChange(e.target.value)}
                   min={dateFrom || undefined}
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 cursor-pointer hover:border-gray-400 text-base md:text-sm min-h-[44px] md:min-h-0"
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors bg-white text-gray-900 cursor-pointer hover:border-gray-400 text-base md:text-sm min-h-[44px] md:min-h-0"
                 />
               </div>
               {dateTo && (

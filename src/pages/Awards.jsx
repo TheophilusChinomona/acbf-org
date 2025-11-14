@@ -1,12 +1,16 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import SEO from '../components/common/SEO';
 import Container from '../components/common/Container';
+import Modal from '../components/common/Modal';
+import Button from '../components/common/Button';
 import AwardsNominationForm from '../components/forms/AwardsNominationForm';
 import awardCategories from '../data/award-categories.json';
 import * as FiIcons from 'react-icons/fi';
-import { FiAward, FiStar, FiTrendingUp } from 'react-icons/fi';
+import { FiAward, FiStar, FiTrendingUp, FiEdit } from 'react-icons/fi';
 
 export default function Awards() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -77,6 +81,35 @@ export default function Awards() {
               Nominate outstanding individuals and organizations who have demonstrated exceptional contributions
               to their industries, communities, and the broader business ecosystem.
             </p>
+          </motion.div>
+        </Container>
+      </section>
+
+      {/* Nomination CTA Section */}
+      <section className="py-16 bg-white">
+        <Container>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-3xl mx-auto"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Ready to Nominate?
+            </h2>
+            <p className="text-lg text-gray-600 mb-8">
+              Know someone deserving of recognition? Submit your nomination today.
+              All submissions are reviewed by our awards committee.
+            </p>
+            <Button
+              size="lg"
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center gap-2"
+            >
+              <FiEdit className="w-5 h-5" />
+              Submit a Nomination
+            </Button>
           </motion.div>
         </Container>
       </section>
@@ -195,36 +228,6 @@ export default function Awards() {
         </Container>
       </section>
 
-      {/* Nomination Form Section */}
-      <section className="py-16 bg-gray-50">
-        <Container>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-3xl mx-auto mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Submit Your Nomination
-            </h2>
-            <p className="text-lg text-gray-600">
-              Know someone deserving of recognition? Complete the form below to submit your nomination.
-              All submissions are reviewed by our awards committee.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <AwardsNominationForm />
-          </motion.div>
-        </Container>
-      </section>
-
       {/* FAQ Section */}
       <section className="py-16 bg-white">
         <Container>
@@ -309,6 +312,16 @@ export default function Awards() {
           },
         })}
       </script>
+
+      {/* Nomination Form Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Submit Your Nomination"
+        size="xl"
+      >
+        <AwardsNominationForm onSuccess={() => setIsModalOpen(false)} />
+      </Modal>
     </>
   );
 }

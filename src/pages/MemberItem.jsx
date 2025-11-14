@@ -49,7 +49,7 @@ export default function MemberItem() {
       />
       
       {/* Hero Section with Gradient Background */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 py-12 md:py-16 lg:py-20">
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-secondary-dark via-secondary to-secondary-light py-12 md:py-16 lg:py-20">
         {/* Decorative Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
@@ -248,7 +248,7 @@ export default function MemberItem() {
           {(member.mission || member.purpose || member.strategicIntent) && (
             <div className="mb-12 space-y-6">
               {member.mission && (
-                <div className="p-6 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="p-6 bg-accent rounded-lg border border-primary-light">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">
                     Our Mission
                   </h3>
@@ -314,7 +314,7 @@ export default function MemberItem() {
                 {member.statistics.map((stat, idx) => (
                   <div
                     key={idx}
-                    className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 text-center"
+                    className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-primary-light text-center"
                   >
                     <div className="text-3xl font-bold text-primary mb-2">
                       {stat.value}
@@ -468,7 +468,7 @@ export default function MemberItem() {
 
           {/* Company Profile PDF */}
           {member.companyProfile && (
-            <div className="mb-12 p-6 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="mb-12 p-6 bg-accent rounded-lg border border-primary-light">
               <h3 className="text-xl font-bold text-gray-900 mb-4">
                 Company Profile
               </h3>

@@ -11,9 +11,9 @@ export default function StatusBadge({ status, className = '' }) {
     // Contact submission statuses
     'new': {
       label: 'New',
-      bgColor: 'bg-blue-100',
-      textColor: 'text-blue-800',
-      borderColor: 'border-blue-200',
+      bgColor: 'bg-primary-light',
+      textColor: 'text-secondary',
+      borderColor: 'border-primary-light',
     },
     'in-progress': {
       label: 'In Progress',

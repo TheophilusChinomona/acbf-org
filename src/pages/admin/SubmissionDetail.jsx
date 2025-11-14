@@ -18,8 +18,11 @@ import {
   FiCheckCircle,
   FiAlertCircle,
   FiLoader,
-  FiSave
+  FiSave,
+  FiAward,
+  FiTrash2
 } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 export default function SubmissionDetail() {
   const { type, id } = useParams(); // type: 'contact' or 'membership', id: submission ID
@@ -27,10 +30,16 @@ export default function SubmissionDetail() {
   const {
     contactSubmissions,
     membershipApplications,
+    awardsNominations,
     updateContactSubmissionStatus,
     updateMembershipApplicationStatus,
+    updateAwardsNominationStatus,
     getContactSubmission,
     getMembershipApplication,
+    getAwardsNomination,
+    deleteContactSubmission,
+    deleteMembershipApplication,
+    deleteAwardsNomination,
   } = useSubmissions();
 
   const [submission, setSubmission] = useState(null);
@@ -38,6 +47,8 @@ export default function SubmissionDetail() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateStatus, setUpdateStatus] = useState(null); // 'success', 'error', or null
   const [updateMessage, setUpdateMessage] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Get the submission based on type
   useEffect(() => {
@@ -59,8 +70,17 @@ export default function SubmissionDetail() {
           setSelectedStatus(app.status || 'pending');
         }
       }
+    } else if (type === 'awards') {
+      const nom = getAwardsNomination(id);
+      if (nom) {
+        setSubmission(nom);
+        // Only update selectedStatus if it's different (to preserve user's selection)
+        if (selectedStatus === '' || selectedStatus === nom.status) {
+          setSelectedStatus(nom.status || 'pending');
+        }
+      }
     }
-  }, [type, id, contactSubmissions, membershipApplications, getContactSubmission, getMembershipApplication]);
+  }, [type, id, contactSubmissions, membershipApplications, awardsNominations, getContactSubmission, getMembershipApplication, getAwardsNomination]);
 
   const handleStatusUpdate = async () => {
     if (!submission) {
@@ -88,11 +108,13 @@ export default function SubmissionDetail() {
 
     try {
       console.log('Updating status:', { id, type, oldStatus: submission.status, newStatus: selectedStatus });
-      
+
       if (type === 'contact') {
         await updateContactSubmissionStatus(id, selectedStatus);
-      } else {
+      } else if (type === 'membership') {
         await updateMembershipApplicationStatus(id, selectedStatus);
+      } else if (type === 'awards') {
+        await updateAwardsNominationStatus(id, selectedStatus);
       }
 
       console.log('Status update successful');
@@ -113,6 +135,37 @@ export default function SubmissionDetail() {
       setUpdateMessage(error.message || 'Failed to update status. Please try again.');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!submission) {
+      toast.error('Submission not found');
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      // Delete based on type
+      if (type === 'contact') {
+        await deleteContactSubmission(id);
+        toast.success('Contact submission deleted successfully');
+        navigate('/admin');
+      } else if (type === 'membership') {
+        await deleteMembershipApplication(id);
+        toast.success('Membership application deleted successfully');
+        navigate('/admin');
+      } else if (type === 'awards') {
+        await deleteAwardsNomination(id);
+        toast.success('Awards nomination deleted successfully');
+        navigate('/admin');
+      }
+    } catch (error) {
+      console.error('Error deleting submission:', error);
+      toast.error(error.message || 'Failed to delete submission. Please try again.');
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -144,13 +197,14 @@ export default function SubmissionDetail() {
         { value: 'in-progress', label: 'In Progress' },
         { value: 'resolved', label: 'Resolved' },
       ];
-    } else {
+    } else if (type === 'membership' || type === 'awards') {
       return [
         { value: 'pending', label: 'Pending' },
         { value: 'approved', label: 'Approved' },
         { value: 'rejected', label: 'Rejected' },
       ];
     }
+    return [];
   };
 
   if (!submission) {
@@ -183,13 +237,13 @@ export default function SubmissionDetail() {
   return (
     <>
       <SEO
-        title={`${type === 'contact' ? 'Contact Submission' : 'Membership Application'} Details`}
-        description={`View details for ${type === 'contact' ? 'contact submission' : 'membership application'}`}
+        title={`${type === 'contact' ? 'Contact Submission' : type === 'membership' ? 'Membership Application' : 'Awards Nomination'} Details`}
+        description={`View details for ${type === 'contact' ? 'contact submission' : type === 'membership' ? 'membership application' : 'awards nomination'}`}
         noindex={true}
       />
 
       {/* Header */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 py-8 md:py-12">
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-secondary-dark via-secondary to-secondary-light py-8 md:py-12">
         <Container>
           <div className="relative z-10">
             <motion.div
@@ -208,15 +262,17 @@ export default function SubmissionDetail() {
               <div className="flex items-center gap-3 mb-2">
                 {type === 'contact' ? (
                   <FiMail className="w-8 h-8 text-white" />
-                ) : (
+                ) : type === 'membership' ? (
                   <FiFileText className="w-8 h-8 text-white" />
+                ) : (
+                  <FiAward className="w-8 h-8 text-white" />
                 )}
                 <h1 className="text-3xl md:text-4xl font-bold text-white">
-                  {type === 'contact' ? 'Contact Submission' : 'Membership Application'}
+                  {type === 'contact' ? 'Contact Submission' : type === 'membership' ? 'Membership Application' : 'Awards Nomination'}
                 </h1>
               </div>
               <p className="text-white/90">
-                Submitted on {formatDateTime(submission.created_at)}
+                Submitted on {formatDateTime(type === 'awards' ? submission.submittedAt : submission.created_at)}
               </p>
             </motion.div>
           </div>
@@ -247,7 +303,7 @@ export default function SubmissionDetail() {
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value)}
                     disabled={isUpdating}
-                    className="px-4 py-2 min-w-[140px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed bg-white text-sm font-medium"
+                    className="px-4 py-2 min-w-[140px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed bg-white text-sm font-medium"
                   >
                     {getAvailableStatuses().map((status) => (
                       <option key={status.value} value={status.value}>
@@ -271,6 +327,15 @@ export default function SubmissionDetail() {
                         Update Status
                       </>
                     )}
+                  </Button>
+                  <Button
+                    onClick={() => setShowDeleteConfirm(true)}
+                    disabled={isDeleting || !submission}
+                    variant="outline"
+                    className="border-red-500 text-red-600 hover:bg-red-50"
+                  >
+                    <FiTrash2 className="mr-2" />
+                    Delete
                   </Button>
                 </div>
               </div>
@@ -302,96 +367,213 @@ export default function SubmissionDetail() {
               transition={{ duration: 0.4, delay: 0.1 }}
               className="bg-white rounded-lg border border-gray-200 p-6 space-y-6"
             >
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Submission Details</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                {type === 'awards' ? 'Nomination Details' : 'Submission Details'}
+              </h2>
 
-              {/* Contact Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    <FiUser className="inline mr-2" />
-                    Name
-                  </label>
-                  <p className="text-gray-900">{submission.name || 'N/A'}</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    <FiMail className="inline mr-2" />
-                    Email
-                  </label>
-                  <a
-                    href={`mailto:${submission.email}`}
-                    className="text-blue-600 hover:text-blue-800 hover:underline"
-                  >
-                    {submission.email || 'N/A'}
-                  </a>
-                </div>
-
-                {type === 'membership' && submission.phone && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <FiPhone className="inline mr-2" />
-                      Phone
-                    </label>
-                    <a
-                      href={`tel:${submission.phone}`}
-                      className="text-blue-600 hover:text-blue-800 hover:underline"
-                    >
-                      {submission.phone}
-                    </a>
+              {type === 'awards' ? (
+                // Awards Nomination Display
+                <>
+                  {/* Award Category & Year */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <FiAward className="inline mr-2" />
+                        Award Category
+                      </label>
+                      <p className="text-gray-900 font-medium">{submission.category || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <FiCalendar className="inline mr-2" />
+                        Nomination Year
+                      </label>
+                      <p className="text-gray-900">{submission.nominationYear || 'N/A'}</p>
+                    </div>
                   </div>
-                )}
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    <FiCalendar className="inline mr-2" />
-                    Submitted
-                  </label>
-                  <p className="text-gray-900">{formatDateTime(submission.created_at)}</p>
-                </div>
-
-                {type === 'membership' && submission.business_name && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      <FiBriefcase className="inline mr-2" />
-                      Business Name
-                    </label>
-                    <p className="text-gray-900">{submission.business_name}</p>
+                  {/* Nominee Information */}
+                  <div className="border-t border-gray-200 pt-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Nominee Information</h3>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <FiBriefcase className="inline mr-2" />
+                        Company Name
+                      </label>
+                      <p className="text-gray-900 font-medium">{submission.nominee?.organization || 'N/A'}</p>
+                    </div>
                   </div>
-                )}
 
-                {type === 'membership' && submission.business_type && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Business Type
-                    </label>
-                    <p className="text-gray-900">{submission.business_type}</p>
+                  {/* Nominator Information */}
+                  <div className="border-t border-gray-200 pt-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Nominator Information</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <FiUser className="inline mr-2" />
+                          Full Name
+                        </label>
+                        <p className="text-gray-900">{submission.nominator?.fullName || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <FiMail className="inline mr-2" />
+                          Email
+                        </label>
+                        <a
+                          href={`mailto:${submission.nominator?.email}`}
+                          className="text-primary hover:text-secondary hover:underline"
+                        >
+                          {submission.nominator?.email || 'N/A'}
+                        </a>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <FiBriefcase className="inline mr-2" />
+                          Organization
+                        </label>
+                        <p className="text-gray-900">{submission.nominator?.organization || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Relationship to Nominee
+                        </label>
+                        <p className="text-gray-900">{submission.nominator?.relationship || 'N/A'}</p>
+                      </div>
+                    </div>
                   </div>
-                )}
 
-                {type === 'contact' && submission.subject && (
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Subject
-                    </label>
-                    <p className="text-gray-900">{submission.subject}</p>
-                  </div>
-                )}
-              </div>
+                  {/* Supporting Statement */}
+                  {submission.supportingStatement && (
+                    <div className="border-t border-gray-200 pt-6">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <FiMessageSquare className="inline mr-2" />
+                        Supporting Statement
+                      </label>
+                      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <p className="text-gray-900 whitespace-pre-wrap">
+                          {submission.supportingStatement}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
-              {/* Message */}
-              {(submission.message || (type === 'contact' && submission.subject)) && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <FiMessageSquare className="inline mr-2" />
-                    {type === 'contact' ? 'Message' : 'Additional Information'}
-                  </label>
-                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <p className="text-gray-900 whitespace-pre-wrap">
-                      {submission.message || 'No message provided'}
+                  {/* Key Achievements */}
+                  {submission.achievements && (
+                    <div className="border-t border-gray-200 pt-6">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <FiCheckCircle className="inline mr-2" />
+                        Key Achievements & Contributions
+                      </label>
+                      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <p className="text-gray-900 whitespace-pre-wrap">
+                          {submission.achievements}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Submission Timestamp */}
+                  <div className="border-t border-gray-200 pt-4">
+                    <p className="text-sm text-gray-600">
+                      <FiCalendar className="inline mr-2" />
+                      Submitted on {formatDateTime(submission.submittedAt)}
                     </p>
                   </div>
-                </div>
+                </>
+              ) : (
+                // Contact & Membership Display
+                <>
+                  {/* Contact Information */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <FiUser className="inline mr-2" />
+                        Name
+                      </label>
+                      <p className="text-gray-900">{submission.name || 'N/A'}</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <FiMail className="inline mr-2" />
+                        Email
+                      </label>
+                      <a
+                        href={`mailto:${submission.email}`}
+                        className="text-primary hover:text-secondary hover:underline"
+                      >
+                        {submission.email || 'N/A'}
+                      </a>
+                    </div>
+
+                    {type === 'membership' && submission.phone && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <FiPhone className="inline mr-2" />
+                          Phone
+                        </label>
+                        <a
+                          href={`tel:${submission.phone}`}
+                          className="text-primary hover:text-secondary hover:underline"
+                        >
+                          {submission.phone}
+                        </a>
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <FiCalendar className="inline mr-2" />
+                        Submitted
+                      </label>
+                      <p className="text-gray-900">{formatDateTime(submission.created_at)}</p>
+                    </div>
+
+                    {type === 'membership' && submission.business_name && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <FiBriefcase className="inline mr-2" />
+                          Business Name
+                        </label>
+                        <p className="text-gray-900">{submission.business_name}</p>
+                      </div>
+                    )}
+
+                    {type === 'membership' && submission.business_type && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Business Type
+                        </label>
+                        <p className="text-gray-900">{submission.business_type}</p>
+                      </div>
+                    )}
+
+                    {type === 'contact' && submission.subject && (
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Subject
+                        </label>
+                        <p className="text-gray-900">{submission.subject}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Message */}
+                  {(submission.message || (type === 'contact' && submission.subject)) && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <FiMessageSquare className="inline mr-2" />
+                        {type === 'contact' ? 'Message' : 'Additional Information'}
+                      </label>
+                      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <p className="text-gray-900 whitespace-pre-wrap">
+                          {submission.message || 'No message provided'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
 
               {/* Submission ID (for reference) */}
@@ -404,6 +586,66 @@ export default function SubmissionDetail() {
           </div>
         </Container>
       </Section>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                <FiAlertCircle className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Delete Submission
+                </h3>
+                <p className="text-sm text-gray-600">This action cannot be undone</p>
+              </div>
+            </div>
+
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to delete this{' '}
+              {type === 'contact'
+                ? 'contact submission'
+                : type === 'membership'
+                ? 'membership application'
+                : 'awards nomination'}
+              ? All associated data will be permanently removed from the system.
+            </p>
+
+            <div className="flex gap-3 justify-end">
+              <Button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                variant="outline"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                {isDeleting ? (
+                  <>
+                    <FiLoader className="animate-spin mr-2" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <FiTrash2 className="mr-2" />
+                    Delete Permanently
+                  </>
+                )}
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </>
   );
 }

@@ -115,7 +115,7 @@ export default function Invite() {
           </div>
 
           <div className="bg-white shadow-xl border border-gray-200 rounded-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-10 text-white">
+            <div className="bg-gradient-to-r from-primary to-secondary-light px-6 py-10 text-white">
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
                   <FiUsers className="w-6 h-6" />
@@ -194,10 +194,10 @@ export default function Invite() {
               )}
 
               {!loading && invitation && invitation.status === 'pending' && !isExpired && (
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3 text-xs text-blue-700">
+                <div className="p-4 bg-accent border border-primary-light rounded-lg flex items-start gap-3 text-xs text-primary-dark">
                   <FiClock className="text-sm flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-blue-900">Need more time?</p>
+                    <p className="font-semibold text-secondary-dark">Need more time?</p>
                     <p>
                       If you are unable to complete this now, keep this page bookmarked. The invitation will remain valid until it expires.
                     </p>
