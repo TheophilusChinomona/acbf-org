@@ -27,12 +27,21 @@
       "children": []
     },
     {
+      "label": "Awards",
+      "url": "/awards",
+      "children": []
+    },
+    {
       "label": "Becoming a Member",
       "url": "/becoming-a-member",
       "children": []
     }
   ],
   "footer": [
+    {
+      "label": "Awards",
+      "url": "/awards"
+    },
     {
       "label": "Privacy Policy",
       "url": "/privacy"

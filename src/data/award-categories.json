@@ -1,0 +1,170 @@
+[
+  {
+    "id": "lifetime-achievement",
+    "name": "Lifetime Achievement Award",
+    "description": "Recognizing exceptional career-long contributions and lasting impact in the business community.",
+    "icon": "FiAward"
+  },
+  {
+    "id": "ceo-award",
+    "name": "Chief Executive Officer",
+    "description": "Honoring outstanding leadership and vision in executive management.",
+    "icon": "FiTrendingUp"
+  },
+  {
+    "id": "corporate-leader",
+    "name": "Corporate Leader of the Year",
+    "description": "Celebrating exemplary corporate leadership and strategic excellence.",
+    "icon": "FiBriefcase"
+  },
+  {
+    "id": "entrepreneur",
+    "name": "Entrepreneur of the Year",
+    "description": "Recognizing exceptional entrepreneurial achievement and business innovation.",
+    "icon": "FiZap"
+  },
+  {
+    "id": "young-christian-entrepreneur",
+    "name": "Young Christian Entrepreneur Award",
+    "description": "Honoring young entrepreneurs who exemplify Christian values in business.",
+    "icon": "FiStar"
+  },
+  {
+    "id": "women-leadership",
+    "name": "Women in Business Leadership Award",
+    "description": "Celebrating outstanding women leaders making significant business impact.",
+    "icon": "FiUsers"
+  },
+  {
+    "id": "best-startup",
+    "name": "Best Start-up of the Year",
+    "description": "Recognizing innovative new businesses showing exceptional growth potential.",
+    "icon": "FiRocket"
+  },
+  {
+    "id": "innovation-technology",
+    "name": "Business Innovation & Technology Award",
+    "description": "Honoring breakthrough innovation and technological advancement in business.",
+    "icon": "FiCpu"
+  },
+  {
+    "id": "family-business",
+    "name": "Best Family-Owned Business Award",
+    "description": "Celebrating excellence in family-owned business operations and legacy.",
+    "icon": "FiHome"
+  },
+  {
+    "id": "social-impact",
+    "name": "Social Impact Award",
+    "description": "Recognizing businesses making significant positive social contributions.",
+    "icon": "FiHeart"
+  },
+  {
+    "id": "small-basket-business",
+    "name": "Small Basket Business Award",
+    "description": "Honoring excellence in small-scale business operations and community impact.",
+    "icon": "FiShoppingBag"
+  },
+  {
+    "id": "agriculture-mining",
+    "name": "Excellence in Agriculture & Mining",
+    "description": "Recognizing outstanding achievement in agricultural and mining sectors.",
+    "icon": "FiTool"
+  },
+  {
+    "id": "education",
+    "name": "Excellence in Education",
+    "description": "Celebrating excellence in educational services and institutions.",
+    "icon": "FiBook"
+  },
+  {
+    "id": "music-arts",
+    "name": "Excellence in Music & Arts",
+    "description": "Honoring exceptional contributions to music and artistic industries.",
+    "icon": "FiMusic"
+  },
+  {
+    "id": "financial-services",
+    "name": "Excellence in Financial Services",
+    "description": "Recognizing outstanding achievement in financial services and banking.",
+    "icon": "FiDollarSign"
+  },
+  {
+    "id": "healthcare",
+    "name": "Excellence in Healthcare",
+    "description": "Celebrating excellence in healthcare delivery and medical services.",
+    "icon": "FiActivity"
+  },
+  {
+    "id": "logistics",
+    "name": "Excellence in Logistics",
+    "description": "Honoring outstanding logistics and supply chain management.",
+    "icon": "FiTruck"
+  },
+  {
+    "id": "beauty-fashion",
+    "name": "Excellence in Beauty & Fashion",
+    "description": "Recognizing excellence in beauty and fashion industries.",
+    "icon": "FiEye"
+  },
+  {
+    "id": "construction-realestate",
+    "name": "Excellence in Construction & Real Estate",
+    "description": "Celebrating outstanding achievement in construction and real estate development.",
+    "icon": "FiLayers"
+  },
+  {
+    "id": "food-industry",
+    "name": "Excellence in Food Industry",
+    "description": "Honoring excellence in food production, processing, and services.",
+    "icon": "FiShoppingCart"
+  },
+  {
+    "id": "media-entertainment",
+    "name": "Excellence in Media & Entertainment",
+    "description": "Recognizing outstanding contributions to media and entertainment sectors.",
+    "icon": "FiMonitor"
+  },
+  {
+    "id": "manufacturing",
+    "name": "Excellence in Manufacturing",
+    "description": "Celebrating excellence in manufacturing and industrial production.",
+    "icon": "FiSettings"
+  },
+  {
+    "id": "furniture-interiors",
+    "name": "Excellence in Furniture & Interiors",
+    "description": "Honoring outstanding achievement in furniture and interior design.",
+    "icon": "FiPackage"
+  },
+  {
+    "id": "tourism-events",
+    "name": "Excellence in Tourism & Events",
+    "description": "Recognizing excellence in tourism and event management services.",
+    "icon": "FiMap"
+  },
+  {
+    "id": "built-environment",
+    "name": "Excellence in Built Environment Consulting",
+    "description": "Celebrating outstanding built environment consulting and advisory services.",
+    "icon": "FiGrid"
+  },
+  {
+    "id": "information-technology",
+    "name": "Excellence in Information Technology",
+    "description": "Honoring excellence in IT services and technology solutions.",
+    "icon": "FiCode"
+  },
+  {
+    "id": "services",
+    "name": "Excellence in Services",
+    "description": "Recognizing outstanding achievement in professional services delivery.",
+    "icon": "FiTarget"
+  },
+  {
+    "id": "cleaning-detergents",
+    "name": "Excellence in Cleaning & Detergents",
+    "description": "Celebrating excellence in cleaning and detergent products/services.",
+    "icon": "FiDroplet"
+  }
+]

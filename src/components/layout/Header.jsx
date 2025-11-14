@@ -1,17 +1,23 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSite } from '../../context/SiteContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useUserManagement } from '../../hooks/useUserManagement';
 import { HiMenu, HiX, HiSearch } from 'react-icons/hi';
-import { FiUsers } from 'react-icons/fi';
+import { FiUsers, FiLogOut, FiUser } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
 import menusData from '../../data/menus.json';
 import settingsData from '../../data/settings.json';
-import { openSignupModal } from '../modals/SignupModal';
+import { openLoginModal } from '../modals/LoginModal';
 import Image from '../common/Image';
+import toast from 'react-hot-toast';
 
 export default function Header() {
   const { mobileMenuOpen, setMobileMenuOpen, searchOpen, setSearchOpen } = useSite();
+  const { currentUser, logout } = useAuth();
+  const { userProfile } = useUserManagement();
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -22,6 +28,17 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showUserMenu && !event.target.closest('.user-menu-container')) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showUserMenu]);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -54,14 +71,46 @@ export default function Header() {
     }
   };
 
-  const handleJoinNowClick = () => {
-    // If on becoming-a-member page, dispatch event for that page's modal
-    if (location.pathname === '/becoming-a-member') {
-      window.dispatchEvent(new CustomEvent('openBecomingAMemberModal'));
-    } else {
-      // Otherwise, use the global signup modal
-      openSignupModal();
+  const handleLoginClick = () => {
+    // Open the login modal
+    openLoginModal();
+  };
+
+  const handleLogout = async () => {
+    try {
+      setShowUserMenu(false);
+      closeMobileMenu();
+      await logout();
+      toast.success('Logged out successfully');
+      // Navigate to home page after logout
+      navigate('/', { replace: true });
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Failed to logout');
     }
+  };
+
+  const handleUserNavigation = (path) => {
+    navigate(path);
+    setShowUserMenu(false);
+    closeMobileMenu();
+  };
+
+  // Get appropriate dashboard link based on user role
+  const getDashboardLink = () => {
+    if (!userProfile) return '/member/pending';
+
+    const role = userProfile.role;
+    if (role === 'admin' || role === 'super_admin') {
+      return '/admin';
+    }
+
+    // For members, show pending page if not approved, otherwise show dashboard
+    if (userProfile.status === 'pending') {
+      return '/member/pending';
+    }
+
+    return '/member/dashboard';
   };
 
   return (
@@ -98,15 +147,48 @@ export default function Header() {
               ))}
             </ul>
 
-            {/* Join Now Button */}
-            <button
-              onClick={handleJoinNowClick}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-lg"
-              aria-label="Join Now"
-            >
-              <FiUsers className="w-4 h-4" />
-              <span>Join Now</span>
-            </button>
+            {/* User Menu (when logged in) or Join Now Button (when logged out) */}
+            {currentUser ? (
+              <div className="relative user-menu-container">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-lg"
+                  aria-label="User Menu"
+                  aria-expanded={showUserMenu}
+                >
+                  <FiUser className="w-4 h-4" />
+                  <span>{userProfile?.name || 'Account'}</span>
+                </button>
+
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <button
+                      onClick={() => handleUserNavigation(getDashboardLink())}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150"
+                    >
+                      <FiUser className="inline w-4 h-4 mr-2" />
+                      Dashboard
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150"
+                    >
+                      <FiLogOut className="inline w-4 h-4 mr-2" />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={handleLoginClick}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-lg"
+                aria-label="Login"
+              >
+                <FiUser className="w-4 h-4" />
+                <span>Login</span>
+              </button>
+            )}
 
             {/* Search Icon */}
             <button
@@ -161,19 +243,41 @@ export default function Header() {
                 </li>
               ))}
             </ul>
-            {/* Join Now Button for Mobile */}
+
+            {/* User Menu or Join Now Button for Mobile */}
             <div className="mt-4 pt-4 border-t border-gray-200">
-              <button
-                onClick={() => {
-                  handleJoinNowClick();
-                  closeMobileMenu();
-                }}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-lg"
-                aria-label="Join Now"
-              >
-                <FiUsers className="w-4 h-4" />
-                <span>Join Now</span>
-              </button>
+              {currentUser ? (
+                <div className="space-y-2">
+                  <button
+                    onClick={() => handleUserNavigation(getDashboardLink())}
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-lg"
+                    aria-label="Dashboard"
+                  >
+                    <FiUser className="w-4 h-4" />
+                    <span>{userProfile?.name || 'Account'}</span>
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                    aria-label="Logout"
+                  >
+                    <FiLogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    handleLoginClick();
+                    closeMobileMenu();
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-lg"
+                  aria-label="Login"
+                >
+                  <FiUser className="w-4 h-4" />
+                  <span>Login</span>
+                </button>
+              )}
             </div>
           </div>
         )}

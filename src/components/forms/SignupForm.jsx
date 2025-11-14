@@ -2,6 +2,7 @@ import { db } from '../../lib/firebase'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 import { FiUser, FiMail, FiPhone, FiBriefcase, FiAlertCircle, FiCheckCircle, FiSend } from 'react-icons/fi';
 import Button from '../common/Button';
 
@@ -12,6 +13,7 @@ import Button from '../common/Button';
 export default function SignupForm() {
   const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', or null
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createdApplicationId, setCreatedApplicationId] = useState(null);
   
   const {
     register,
@@ -27,6 +29,7 @@ export default function SignupForm() {
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     setSubmitStatus(null);
+    setCreatedApplicationId(null);
   
     try {
       // Add document to Firestore
@@ -43,6 +46,7 @@ export default function SignupForm() {
   
       if (docRef.id) {
         setSubmitStatus('success');
+        setCreatedApplicationId(docRef.id);
         reset(); // Clear form on success
       }
     } catch (error) {
@@ -63,6 +67,22 @@ export default function SignupForm() {
             <p className="text-sm text-green-700">
               Thank you for your interest in joining ACBF. We'll review your application and get back to you soon.
             </p>
+
+            {createdApplicationId && (
+              <div className="mt-4 space-y-3">
+                <p className="text-sm text-green-800">
+                  Create your member account now so you can track your approval status and access the portal once approved.
+                </p>
+                <Link to={`/register/${createdApplicationId}`} className="inline-block">
+                  <Button variant="primary" size="md">
+                    Create Account
+                  </Button>
+                </Link>
+                <p className="text-xs text-green-700">
+                  You can also create your account later using the link sent to your email.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}

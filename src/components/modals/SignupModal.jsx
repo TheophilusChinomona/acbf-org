@@ -1,32 +1,18 @@
-import { useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Modal } from '../common';
 import SignupForm from '../forms/SignupForm';
 
 /**
- * Reusable Signup Modal Component
- * Automatically hides on the becoming-a-member page
+ * Signup Modal Component
+ * Shows membership application form only
  */
 export default function SignupModal() {
   const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
-
-  // Don't show modal on becoming-a-member page
-  const isBecomingAMemberPage = location.pathname === '/becoming-a-member';
-
-  // Close modal if navigating to becoming-a-member page
-  useEffect(() => {
-    if (isBecomingAMemberPage && isOpen) {
-      setIsOpen(false);
-    }
-  }, [isBecomingAMemberPage, isOpen]);
 
   // Listen for custom event to open modal
   useEffect(() => {
     const handleOpenModal = () => {
-      if (!isBecomingAMemberPage) {
-        setIsOpen(true);
-      }
+      setIsOpen(true);
     };
 
     window.addEventListener('openSignupModal', handleOpenModal);
@@ -34,16 +20,16 @@ export default function SignupModal() {
     return () => {
       window.removeEventListener('openSignupModal', handleOpenModal);
     };
-  }, [isBecomingAMemberPage]);
+  }, []);
 
-  if (isBecomingAMemberPage) {
-    return null;
-  }
+  const handleClose = () => {
+    setIsOpen(false);
+  };
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={() => setIsOpen(false)}
+      onClose={handleClose}
       title="Membership Application"
       size="lg"
     >

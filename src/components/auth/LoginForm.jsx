@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { FiMail, FiLock, FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
@@ -6,11 +6,14 @@ import { useAuth } from '../../hooks/useAuth';
 import Button from '../common/Button';
 
 /**
- * Login Form Component for Admin Authentication
+ * Login Form Component for Authentication
  * Uses React Hook Form for validation and Firebase Auth for authentication
+ * Redirects to home page after successful login
+ *
+ * @param {Function} onSuccess - Optional callback called after successful login
  */
-export default function LoginForm() {
-  const { login, error: authError } = useAuth();
+export default function LoginForm({ onSuccess }) {
+  const { login, error: authError, currentUser } = useAuth();
   const navigate = useNavigate();
   const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', or null
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,6 +26,18 @@ export default function LoginForm() {
     reset,
   } = useForm();
 
+  // Navigate to home page after successful login
+  useEffect(() => {
+    if (submitStatus === 'success' && currentUser) {
+      setTimeout(() => {
+        if (onSuccess) {
+          onSuccess();
+        }
+        navigate('/');
+      }, 1000);
+    }
+  }, [submitStatus, currentUser, navigate, onSuccess]);
+
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     setSubmitStatus(null);
@@ -32,11 +47,7 @@ export default function LoginForm() {
       await login(data.email, data.password);
       setSubmitStatus('success');
       reset();
-      
-      // Redirect to admin dashboard after successful login
-      setTimeout(() => {
-        navigate('/admin');
-      }, 1000);
+      // Navigation happens in useEffect after profile loads
     } catch (error) {
       console.error('Login error:', error);
       setSubmitStatus('error');
@@ -69,7 +80,7 @@ export default function LoginForm() {
           <div>
             <h3 className="font-semibold text-green-900 mb-1">Login Successful!</h3>
             <p className="text-sm text-green-700">
-              Redirecting to admin dashboard...
+              Redirecting to home page...
             </p>
           </div>
         </div>

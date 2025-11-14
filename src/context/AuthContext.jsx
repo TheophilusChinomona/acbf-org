@@ -2,7 +2,9 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { 
   onAuthStateChanged, 
   signInWithEmailAndPassword, 
-  signOut as firebaseSignOut 
+  signOut as firebaseSignOut,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
@@ -48,6 +50,31 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Register function
+  const register = async (email, password, options = {}) => {
+    const { sendVerification = false } = options;
+    try {
+      setError(null);
+      setLoading(true);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+      if (sendVerification) {
+        try {
+          await sendEmailVerification(userCredential.user);
+        } catch (verificationError) {
+          console.warn('Failed to send verification email:', verificationError);
+        }
+      }
+
+      return userCredential.user;
+    } catch (error) {
+      setError(error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Logout function
   const logout = async () => {
     try {
@@ -62,6 +89,7 @@ export function AuthProvider({ children }) {
   const value = {
     currentUser,
     login,
+    register,
     logout,
     loading,
     error,

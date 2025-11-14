@@ -41,32 +41,46 @@ export function useAdminManagement() {
       return;
     }
 
-    const checkAdminStatus = async () => {
-      try {
-        // Check if user is super admin
-        const isSuper = currentUser.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
-        setIsSuperAdmin(isSuper);
-        
-        // Check if user is an approved admin
-        const adminDocRef = doc(db, 'approved_admins', currentUser.email);
-        const adminDoc = await getDoc(adminDocRef);
-        
-        if (adminDoc.exists() && adminDoc.data().status === 'approved') {
+    // Check if user is super admin (this doesn't need real-time updates)
+    const isSuper = currentUser.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
+    console.log('[useAdminManagement] Super admin check:', {
+      email: currentUser.email,
+      superAdminEmail: SUPER_ADMIN_EMAIL,
+      isSuperAdmin: isSuper,
+    });
+    setIsSuperAdmin(isSuper);
+
+    // Set up real-time listener for approved_admins status
+    const adminDocRef = doc(db, 'approved_admins', currentUser.email);
+
+    const unsubscribe = onSnapshot(
+      adminDocRef,
+      (snapshot) => {
+        console.log('[useAdminManagement] Admin status snapshot received:', {
+          email: currentUser.email,
+          exists: snapshot.exists(),
+          data: snapshot.exists() ? snapshot.data() : null,
+        });
+
+        if (snapshot.exists() && snapshot.data().status === 'approved') {
+          console.log('[useAdminManagement] Setting isAdmin to TRUE');
           setIsAdmin(true);
         } else {
+          console.log('[useAdminManagement] Setting isAdmin to FALSE');
           setIsAdmin(false);
         }
         setLoading(false);
-      } catch (err) {
-        console.error('Error checking admin status:', err);
+        setError(null);
+      },
+      (err) => {
+        console.error('[useAdminManagement] Error checking admin status:', err);
         setError(err.message || 'Failed to check admin status');
         setIsAdmin(false);
-        setIsSuperAdmin(false);
         setLoading(false);
       }
-    };
+    );
 
-    checkAdminStatus();
+    return () => unsubscribe();
   }, [currentUser]);
 
   // Fetch admin applications with real-time listener (only super admin can see these)
@@ -150,48 +164,19 @@ export function useAdminManagement() {
 
   /**
    * Apply for admin access
+   * @deprecated This function is deprecated. Admin access is now granted via invitation only.
    * @param {string} name - Applicant's name
    * @param {string} reason - Reason for requesting admin access
    * @returns {Promise<string>} Application ID
    */
   const applyForAdminAccess = async (name, reason) => {
-    if (!currentUser?.email) {
-      throw new Error('You must be logged in to apply for admin access');
-    }
-
-    try {
-      // Check if user already has an application
-      const existingApps = adminApplications.filter(
-        (app) => app.email === currentUser.email && app.status === 'pending'
-      );
-      
-      if (existingApps.length > 0) {
-        throw new Error('You already have a pending admin application');
-      }
-
-      // Check if user is already an admin
-      if (isAdmin) {
-        throw new Error('You are already an approved admin');
-      }
-
-      const applicationData = {
-        email: currentUser.email,
-        name: name || currentUser.displayName || currentUser.email,
-        reason,
-        status: 'pending',
-        created_at: serverTimestamp(),
-      };
-
-      const docRef = await addDoc(collection(db, 'admin_applications'), applicationData);
-      return docRef.id;
-    } catch (err) {
-      console.error('Error applying for admin access:', err);
-      throw err;
-    }
+    throw new Error('Admin applications are no longer accepted. Admin access is now granted via invitation only. Please contact an existing administrator for an invitation.');
   };
 
   /**
    * Approve an admin application
+   * @note This function is kept for migration purposes to handle existing applications.
+   *       New admin access should use the invitation system instead.
    * @param {string} applicationId - Application document ID
    * @returns {Promise<void>}
    */
@@ -237,6 +222,8 @@ export function useAdminManagement() {
 
   /**
    * Deny an admin application
+   * @note This function is kept for migration purposes to handle existing applications.
+   *       New admin access should use the invitation system instead.
    * @param {string} applicationId - Application document ID
    * @param {string} reason - Optional reason for denial
    * @returns {Promise<void>}
