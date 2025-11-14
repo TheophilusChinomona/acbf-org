@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Container, Section, SEO, Modal } from '../components/common';
 import SignupForm from '../components/forms/SignupForm';
+import SignupModal from '../components/modals/SignupModal';
 import {
   FiUsers, FiRefreshCw, FiXCircle, FiFileText, FiUserCheck, FiAward,
   FiActivity, FiTrendingUp, FiBriefcase, FiTarget, FiZap, FiGlobe, FiCreditCard
@@ -386,6 +387,9 @@ export default function BecomingAMember() {
       >
         <SignupForm />
       </Modal>
+
+      {/* Global Signup Modal (responds to openSignupModal event) */}
+      <SignupModal />
     </>
   );
 }

@@ -2,7 +2,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { BackToTop } from '../common';
 import ContactModal from '../modals/ContactModal';
-import SignupModal from '../modals/SignupModal';
+import LoginModal from '../modals/LoginModal';
 
 export default function Layout({ children }) {
   return (
@@ -18,7 +18,7 @@ export default function Layout({ children }) {
       <Footer />
       <BackToTop />
       <ContactModal />
-      <SignupModal />
+      <LoginModal />
     </div>
   );
 }

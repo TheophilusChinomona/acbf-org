@@ -115,14 +115,46 @@ export function useUserManagement(targetUserId = null) {
         throw new Error('A valid role is required');
       }
 
+      // Get user profile to retrieve email
+      const userProfile = await getUserProfile(uid);
+      if (!userProfile || !userProfile.email) {
+        throw new Error('User profile or email not found');
+      }
+
+      // Update user role in users collection
       const profileRef = doc(db, 'users', uid);
       await updateDoc(profileRef, {
         role: normalizedRole,
         ...additionalUpdates,
         updated_at: serverTimestamp(),
       });
+
+      // Sync with approved_admins collection
+      const adminDocRef = doc(db, 'approved_admins', userProfile.email);
+
+      if (normalizedRole === USER_ROLES.ADMIN || normalizedRole === USER_ROLES.SUPER_ADMIN) {
+        // User is being promoted to admin - add to approved_admins collection
+        await setDoc(adminDocRef, {
+          email: userProfile.email,
+          name: userProfile.name || userProfile.email,
+          role: normalizedRole,
+          approved_by: currentUser?.email || 'system',
+          approved_at: serverTimestamp(),
+          status: 'approved',
+        }, { merge: true });
+      } else {
+        // User is being demoted from admin - update status in approved_admins
+        const adminDoc = await getDoc(adminDocRef);
+        if (adminDoc.exists()) {
+          await updateDoc(adminDocRef, {
+            status: 'revoked',
+            revoked_by: currentUser?.email || 'system',
+            revoked_at: serverTimestamp(),
+          });
+        }
+      }
     },
-    [],
+    [currentUser?.email, getUserProfile],
   );
 
   const checkUserRole = useCallback(

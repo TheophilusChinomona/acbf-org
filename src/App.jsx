@@ -26,6 +26,15 @@ const BecomingAMember = lazy(() => import('./pages/BecomingAMember'));
 const DynamicPage = lazy(() => import('./pages/DynamicPage'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const TestAuth = lazy(() => import('./pages/TestAuth'));
+const Awards = lazy(() => import('./pages/Awards'));
+
+// Auth pages
+const Register = lazy(() => import('./pages/auth/Register'));
+const Invite = lazy(() => import('./pages/auth/Invite'));
+
+// Member pages
+const PendingApproval = lazy(() => import('./pages/member/PendingApproval'));
+const MemberDashboard = lazy(() => import('./pages/member/MemberDashboard'));
 
 // Admin pages (outside Layout wrapper)
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
@@ -46,12 +55,24 @@ function PublicRoutes() {
         <Route path="/members" element={<Portfolio />} />
         <Route path="/members/:slug" element={<MemberItem />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/awards" element={<Awards />} />
         <Route path="/search" element={<Search />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/becoming-a-member" element={<BecomingAMember />} />
         <Route path="/page/:slug" element={<DynamicPage />} />
         <Route path="/test-auth" element={<TestAuth />} />
+
+        {/* Member Dashboard - Protected route with Layout (includes navbar) */}
+        <Route
+          path="/member/dashboard"
+          element={
+            <ProtectedRoute redirectTo="/admin/login">
+              <MemberDashboard />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>
@@ -72,6 +93,21 @@ function App() {
           <SiteProvider>
             <Suspense fallback={<Loading fullScreen text="Loading..." />}>
               <Routes>
+                {/* Auth routes (outside Layout wrapper) */}
+                <Route path="/register" element={<Register />} />
+                <Route path="/register/:applicationId" element={<Register />} />
+                <Route path="/invite/:token" element={<Invite />} />
+
+                {/* Member routes (outside Layout wrapper) */}
+                <Route
+                  path="/member/pending"
+                  element={
+                    <ProtectedRoute redirectTo="/admin/login">
+                      <PendingApproval />
+                    </ProtectedRoute>
+                  }
+                />
+
                 {/* Admin routes (outside Layout wrapper) */}
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route

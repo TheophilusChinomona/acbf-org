@@ -22,6 +22,7 @@ import {
 import toast from 'react-hot-toast';
 import Button from '../../components/common/Button';
 import AdminInviteForm from '../../components/admin/AdminInviteForm';
+import RoleManagement from '../../components/admin/RoleManagement';
 import { isInvitationExpired } from '../../utils/invitationToken';
 
 export default function AdminManagement() {
@@ -552,6 +553,17 @@ export default function AdminManagement() {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Role Management Section */}
+          <div className="mt-12">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">User Role Management</h2>
+              <p className="text-gray-600">
+                Manage user roles across the system. Promote members to admins or demote admins to members.
+              </p>
+            </div>
+            <RoleManagement />
           </div>
         </Container>
       </Section>

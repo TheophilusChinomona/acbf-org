@@ -1,42 +1,21 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { FiUser, FiMail, FiFileText, FiSend, FiLoader, FiCheckCircle } from 'react-icons/fi';
+import { FiUser, FiMail, FiFileText, FiSend, FiLoader, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import { useAdminManagement } from '../../hooks/useAdminManagement';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
 /**
  * Admin Application Form Component
- * Allows users to apply for admin access
- * 
+ * @deprecated Admin applications are no longer accepted. Use invitation system instead.
+ * This component is kept for displaying existing application status only.
+ *
  * @param {Object} props
  * @param {Function} props.onSuccess - Callback when application is submitted successfully
  */
 export default function AdminApplicationForm({ onSuccess }) {
-  const { applyForAdminAccess, getMyApplication, loading } = useAdminManagement();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm();
-
+  const { getMyApplication, loading } = useAdminManagement();
   const myApplication = getMyApplication();
-
-  const onSubmit = async (data) => {
-    try {
-      setIsSubmitting(true);
-      await applyForAdminAccess(data.name, data.reason);
-      toast.success('Admin application submitted successfully! An admin will review your request.');
-      reset();
-      if (onSuccess) onSuccess();
-    } catch (error) {
-      console.error('Error submitting admin application:', error);
-      toast.error(error.message || 'Failed to submit application. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   // If user already has an application, show status
   if (myApplication) {
@@ -97,87 +76,52 @@ export default function AdminApplicationForm({ onSuccess }) {
     );
   }
 
+  // Show deprecation notice - applications no longer accepted
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Apply for Admin Access</h2>
-        <p className="text-gray-600">
-          Request administrative access to manage submissions and applications. Your request will be reviewed by an existing administrator.
-        </p>
+      <div className="flex items-start gap-4 mb-6">
+        <div className="flex-shrink-0">
+          <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+            <FiAlertCircle className="w-6 h-6 text-amber-600" />
+          </div>
+        </div>
+        <div className="flex-1">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Admin Applications No Longer Accepted
+          </h2>
+          <p className="text-gray-600">
+            Admin access is now granted via invitation only for improved security.
+          </p>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Name Field */}
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-            <FiUser className="inline mr-1 w-4 h-4" />
-            Full Name
-          </label>
-          <input
-            id="name"
-            type="text"
-            {...register('name', {
-              required: 'Name is required',
-              minLength: {
-                value: 2,
-                message: 'Name must be at least 2 characters',
-              },
-            })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Enter your full name"
-          />
-          {errors.name && (
-            <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-          )}
+      <div className="bg-blue-50 rounded-lg p-6 mb-6">
+        <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2">
+          <FiMail className="w-5 h-5" />
+          How to Get Admin Access
+        </h3>
+        <p className="text-blue-800 mb-4">
+          To become an administrator, you must be invited by an existing administrator.
+          Please contact an existing admin to request an invitation.
+        </p>
+        <div className="bg-white rounded-lg p-4">
+          <p className="font-medium text-blue-900 mb-2">Steps:</p>
+          <ol className="list-decimal list-inside space-y-2 text-sm text-blue-800">
+            <li>Contact an existing administrator</li>
+            <li>Explain why you need admin access</li>
+            <li>Wait for the invitation link via email</li>
+            <li>Complete your registration using the invitation link</li>
+          </ol>
         </div>
+      </div>
 
-        {/* Reason Field */}
-        <div>
-          <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-2">
-            <FiFileText className="inline mr-1 w-4 h-4" />
-            Reason for Request
-          </label>
-          <textarea
-            id="reason"
-            rows={6}
-            {...register('reason', {
-              required: 'Please provide a reason for requesting admin access',
-              minLength: {
-                value: 20,
-                message: 'Reason must be at least 20 characters',
-              },
-              maxLength: {
-                value: 1000,
-                message: 'Reason must be less than 1000 characters',
-              },
-            })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-            placeholder="Explain why you need admin access and how you will use it responsibly..."
-          />
-          {errors.reason && (
-            <p className="mt-1 text-sm text-red-600">{errors.reason.message}</p>
-          )}
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isSubmitting || loading}
-          className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-        >
-          {isSubmitting ? (
-            <>
-              <FiLoader className="w-5 h-5 animate-spin" />
-              <span>Submitting...</span>
-            </>
-          ) : (
-            <>
-              <FiSend className="w-5 h-5" />
-              <span>Submit Application</span>
-            </>
-          )}
-        </button>
-      </form>
+      <Link
+        to="/contact"
+        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+      >
+        <FiMail className="w-5 h-5" />
+        <span>Contact Us</span>
+      </Link>
     </div>
   );
 }
