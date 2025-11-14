@@ -42,9 +42,7 @@ const nominationSchema = z.object({
     .max(100, 'Your name must be less than 100 characters'),
   nominatorEmail: z.string()
     .email('Please enter a valid email address'),
-  nominatorOrganization: z.string()
-    .min(2, 'Organization name must be at least 2 characters')
-    .max(100, 'Organization name must be less than 100 characters'),
+  nominatorOrganization: z.string().optional(),
   relationship: z.string().min(1, 'Please select your relationship'),
 });
 
@@ -256,7 +254,7 @@ export default function AwardsNominationForm({ onSuccess }) {
             {/* Nominator Organization */}
             <div>
               <label htmlFor="nominatorOrganization" className="block text-sm font-medium text-gray-700 mb-2">
-                Your Organization/Company <span className="text-red-500">*</span>
+                Your Organization/Company <span className="text-gray-500 text-xs">(optional)</span>
               </label>
               <div className="relative">
                 <FiBriefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -264,7 +262,7 @@ export default function AwardsNominationForm({ onSuccess }) {
                   {...register('nominatorOrganization')}
                   type="text"
                   id="nominatorOrganization"
-                  placeholder="Your company or organization"
+                  placeholder="Your company or organization (optional)"
                   className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
                     errors.nominatorOrganization ? 'border-red-500' : 'border-gray-300'
                   }`}

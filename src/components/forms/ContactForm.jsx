@@ -24,7 +24,7 @@ export default function ContactForm() {
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     setSubmitStatus(null);
-  
+
     try {
       // Add document to Firestore
       const docRef = await addDoc(collection(db, 'contact_submissions'), {
@@ -35,8 +35,29 @@ export default function ContactForm() {
         status: 'new',
         created_at: serverTimestamp(),
       });
-  
+
       if (docRef.id) {
+        // Also send email notification via PHP API
+        try {
+          const response = await fetch('/api/contact-email.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          });
+
+          const result = await response.json();
+
+          if (!result.success) {
+            console.error('Email notification failed:', result.error);
+            // Don't show error to user since Firestore save succeeded
+          }
+        } catch (emailError) {
+          console.error('Email API error:', emailError);
+          // Don't show error to user since Firestore save succeeded
+        }
+
         setSubmitStatus('success');
         reset(); // Clear form on success
       }

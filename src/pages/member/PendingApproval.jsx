@@ -139,7 +139,7 @@ export default function PendingApproval() {
               <div className="space-y-2 text-sm text-gray-700">
                 <p className="flex items-center gap-2">
                   <FiMail className="text-primary" />
-                  <span>support@acbfrsa.org.za</span>
+                  <span>admin@acbf.org.za</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <FiPhone className="text-primary" />

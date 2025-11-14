@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration - Update with your actual domain
-const SITE_URL = 'https://dev.acbf.org.za'; // UPDATE THIS!
+const SITE_URL = 'https://acbf.org.za'; // UPDATE THIS!
 const OUTPUT_FILE = path.join(__dirname, '../public/sitemap.xml');
 
 // Import data

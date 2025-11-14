@@ -1,10 +1,13 @@
 import { db } from '../../lib/firebase'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
-import { useState } from 'react';
+import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore'
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import { FiUser, FiMail, FiPhone, FiBriefcase, FiAlertCircle, FiCheckCircle, FiSend } from 'react-icons/fi';
+import { FiUser, FiMail, FiPhone, FiBriefcase, FiAlertCircle, FiCheckCircle, FiSend, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import Button from '../common/Button';
+import { useAuth } from '../../hooks/useAuth';
+import { useUserManagement } from '../../hooks/useUserManagement';
+import { USER_ROLES } from '../../utils/userRoles';
 
 /**
  * Signup Form Component for Membership Application
@@ -14,44 +17,142 @@ export default function SignupForm() {
   const [submitStatus, setSubmitStatus] = useState(null); // 'success', 'error', or null
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdApplicationId, setCreatedApplicationId] = useState(null);
-  
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const { register: registerUser } = useAuth();
+  const { createUserProfile } = useUserManagement();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
     watch,
+    setError,
+    clearErrors,
   } = useForm();
-  
+
   // Watch the businessType field to show/hide "Other" input
   const businessType = watch('businessType');
 
+  // Watch password fields for matching validation
+  const passwordValue = watch('password');
+  const confirmPasswordValue = watch('confirmPassword');
+
+  // Real-time password match validation
+  useEffect(() => {
+    if (passwordValue && confirmPasswordValue) {
+      if (passwordValue !== confirmPasswordValue) {
+        setError('confirmPassword', {
+          type: 'manual',
+          message: 'Passwords do not match',
+        });
+      } else if (errors.confirmPassword?.type === 'manual') {
+        clearErrors('confirmPassword');
+      }
+    }
+  }, [passwordValue, confirmPasswordValue, setError, clearErrors, errors.confirmPassword]);
+
   const onSubmit = async (data) => {
+    // Validate passwords match
+    if (data.password !== data.confirmPassword) {
+      setError('confirmPassword', {
+        type: 'manual',
+        message: 'Passwords do not match',
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus(null);
     setCreatedApplicationId(null);
-  
+    setErrorMessage('');
+
     try {
-      // Add document to Firestore
-      const docRef = await addDoc(collection(db, 'membership_applications'), {
+      // Step 1: Create Firebase Auth account
+      const user = await registerUser(data.email.trim(), data.password);
+
+      // Step 2: Prepare membership application data
+      const applicationData = {
         name: data.name,
-        email: data.email,
+        email: data.email.trim(),
         phone: data.phone,
         business_name: data.businessName || null,
         business_type: data.businessType === 'other' ? data.otherBusinessType : data.businessType,
         message: data.message || null,
         status: 'pending',
+        user_id: user.uid,
+        account_created: true,
+        account_created_at: serverTimestamp(),
         created_at: serverTimestamp(),
+      };
+
+      // Step 3: Add membership application to Firestore
+      const docRef = await addDoc(collection(db, 'membership_applications'), applicationData);
+
+      // Step 4: Create user profile linked to application
+      await createUserProfile(user.uid, {
+        email: data.email.trim(),
+        name: data.name,
+        phone: data.phone,
+        role: USER_ROLES.MEMBER,
+        status: 'pending',
+        member_application_id: docRef.id,
       });
-  
-      if (docRef.id) {
-        setSubmitStatus('success');
-        setCreatedApplicationId(docRef.id);
-        reset(); // Clear form on success
+
+      // Step 5: Send email notification (non-blocking)
+      try {
+        const response = await fetch('/api/membership-email.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            business_name: data.businessName || '',
+            business_type: data.businessType === 'other' ? data.otherBusinessType : data.businessType,
+            message: data.message || '',
+          }),
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+          console.error('Email notification failed:', result.error);
+          // Don't show error to user since critical operations succeeded
+        }
+      } catch (emailError) {
+        console.error('Email API error:', emailError);
+        // Don't show error to user since critical operations succeeded
       }
+
+      setSubmitStatus('success');
+      setCreatedApplicationId(docRef.id);
+      reset(); // Clear form on success
     } catch (error) {
       console.error('Form submission error:', error);
+
+      // Provide user-friendly error messages
+      let friendlyMessage = 'An error occurred while creating your account. Please try again.';
+
+      if (error.code === 'auth/email-already-in-use') {
+        friendlyMessage = 'An account with this email already exists. Try logging in instead.';
+      } else if (error.code === 'auth/invalid-email') {
+        friendlyMessage = 'Please enter a valid email address.';
+      } else if (error.code === 'auth/weak-password') {
+        friendlyMessage = 'Password must be at least 6 characters.';
+      } else if (error.code === 'auth/network-request-failed') {
+        friendlyMessage = 'Network error. Please check your connection and try again.';
+      } else if (error.message) {
+        friendlyMessage = error.message;
+      }
+
       setSubmitStatus('error');
+      setErrorMessage(friendlyMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -63,26 +164,16 @@ export default function SignupForm() {
         <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
           <FiCheckCircle className="text-green-600 text-xl flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-semibold text-green-900 mb-1">Application Submitted Successfully!</h3>
-            <p className="text-sm text-green-700">
-              Thank you for your interest in joining ACBF. We'll review your application and get back to you soon.
+            <h3 className="font-semibold text-green-900 mb-1">Account Created Successfully!</h3>
+            <p className="text-sm text-green-700 mb-2">
+              Thank you for your interest in joining ACBF. Your membership application and account have been created.
             </p>
-
-            {createdApplicationId && (
-              <div className="mt-4 space-y-3">
-                <p className="text-sm text-green-800">
-                  Create your member account now so you can track your approval status and access the portal once approved.
-                </p>
-                <Link to={`/register/${createdApplicationId}`} className="inline-block">
-                  <Button variant="primary" size="md">
-                    Create Account
-                  </Button>
-                </Link>
-                <p className="text-xs text-green-700">
-                  You can also create your account later using the link sent to your email.
-                </p>
-              </div>
-            )}
+            <p className="text-sm text-green-700 mb-2">
+              Your application is currently under review. Once approved by our admin team, you'll be able to login and access the member portal.
+            </p>
+            <p className="text-xs text-green-600 font-medium">
+              You can try logging in after approval using the email and password you just created.
+            </p>
           </div>
         </div>
       )}
@@ -91,9 +182,9 @@ export default function SignupForm() {
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
           <FiAlertCircle className="text-red-600 text-xl flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="font-semibold text-red-900 mb-1">Error Submitting Application</h3>
+            <h3 className="font-semibold text-red-900 mb-1">Error Creating Account</h3>
             <p className="text-sm text-red-700">
-              There was an error submitting your application. Please try again later or contact us directly.
+              {errorMessage || 'There was an error creating your account. Please try again later or contact us directly.'}
             </p>
           </div>
         </div>
@@ -149,6 +240,7 @@ export default function SignupForm() {
               type="email"
               id="email"
               placeholder="your.email@example.com"
+              autoComplete="email"
               className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
                 errors.email ? 'border-red-500' : 'border-gray-300'
               }`}
@@ -158,6 +250,82 @@ export default function SignupForm() {
             <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
               <FiAlertCircle className="text-xs" />
               {errors.email.message}
+            </p>
+          )}
+        </div>
+
+        {/* Password Field */}
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            Password <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              {...register('password', {
+                required: 'Password is required',
+                minLength: {
+                  value: 6,
+                  message: 'Password must be at least 6 characters',
+                },
+              })}
+              type={showPassword ? 'text' : 'password'}
+              id="password"
+              placeholder="Create a password (min 6 characters)"
+              autoComplete="new-password"
+              className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
+                errors.password ? 'border-red-500' : 'border-gray-300'
+              }`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <FiEyeOff /> : <FiEye />}
+            </button>
+          </div>
+          {errors.password && (
+            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+              <FiAlertCircle className="text-xs" />
+              {errors.password.message}
+            </p>
+          )}
+        </div>
+
+        {/* Confirm Password Field */}
+        <div>
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+            Confirm Password <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              {...register('confirmPassword', {
+                required: 'Please confirm your password',
+              })}
+              type={showConfirmPassword ? 'text' : 'password'}
+              id="confirmPassword"
+              placeholder="Re-enter your password"
+              autoComplete="new-password"
+              className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
+                errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+              }`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+            >
+              {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+            </button>
+          </div>
+          {errors.confirmPassword && (
+            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+              <FiAlertCircle className="text-xs" />
+              {errors.confirmPassword.message}
             </p>
           )}
         </div>

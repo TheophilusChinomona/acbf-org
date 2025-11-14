@@ -13,3 +13,12 @@ tasks/admin-ux-improvements-plan.md
 tasks/member-admin-registration-plan.md
 md files/SUPABASE-SETUP-GUIDE.md
 tasks/admin-dashboard-plan.md
+
+# Firebase Functions
+functions/node_modules
+functions/.env
+functions/lib
+functions/.runtimeconfig.json
+
+# PHP API
+api/config.php

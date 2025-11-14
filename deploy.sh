@@ -11,30 +11,34 @@ echo "🚀 Starting deployment process..."
 echo "📦 Building React app..."
 npm run build:prod
 
-# 2. Navigate to dist worktree
+# 2. Copy API directory to dist
+echo "📧 Copying PHP email API..."
+cp -r api dist/api
+
+# 3. Navigate to dist worktree
 cd dist
 
-# 3. Stage all changes
+# 4. Stage all changes
 echo "📝 Staging changes..."
 git add .
 
-# 4. Check if there are changes to commit
+# 5. Check if there are changes to commit
 if git diff-index --quiet HEAD --; then
   echo "✅ No changes to deploy"
 else
-  # 5. Create commit with timestamp
+  # 6. Create commit with timestamp
   TIMESTAMP=$(date +'%Y-%m-%d %H:%M:%S')
   echo "💾 Creating commit..."
   git commit -m "Deploy: $TIMESTAMP"
 
-  # 6. Push to GitHub
+  # 7. Push to GitHub
   echo "🌐 Pushing to GitHub..."
   git push origin deploy
 
   echo "✅ Deployment successful!"
 fi
 
-# 7. Return to project root
+# 8. Return to project root
 cd ..
 
 echo "✨ Done! Your site is ready for cPanel deployment."

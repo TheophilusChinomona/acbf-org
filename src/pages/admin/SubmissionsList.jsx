@@ -251,17 +251,19 @@ export default function SubmissionsList({
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
                     <h3 className="font-semibold text-sm md:text-base text-gray-900 truncate">
-                      {type === 'awards' ? (item.nominee?.fullName || 'Unknown') : (item.name || 'Unknown')}
+                      {type === 'awards' ? (item.nominee?.organization || 'No company name') : (item.name || 'Unknown')}
                     </h3>
                     <StatusBadge status={item.status} />
                   </div>
                   <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-xs md:text-sm text-gray-600">
-                    <span className="flex items-center gap-1">
-                      <FiMail className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                      <span className="truncate">
-                        {type === 'awards' ? (item.nominee?.email || 'No email') : (item.email || 'No email')}
+                    {type !== 'awards' && (
+                      <span className="flex items-center gap-1">
+                        <FiMail className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                        <span className="truncate">
+                          {item.email || 'No email'}
+                        </span>
                       </span>
-                    </span>
+                    )}
                     {type === 'membership' && item.phone && (
                       <span className="flex items-center gap-1">
                         <FiPhone className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
