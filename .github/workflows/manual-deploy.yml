@@ -52,7 +52,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
-          server-dir: ./
+          server-dir: /home/executu1/public_html/acbf.org.za/
           protocol: ftp
           port: 21
           log-level: verbose
