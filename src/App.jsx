@@ -41,6 +41,7 @@ const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminApply = lazy(() => import('./pages/admin/AdminApply'));
 const AdminManagement = lazy(() => import('./pages/admin/AdminManagement'));
+const UserManagement = lazy(() => import('./pages/admin/UserManagement'));
 const SubmissionDetail = lazy(() => import('./pages/admin/SubmissionDetail'));
 
 // Wrapper component for public routes with Layout
@@ -131,6 +132,14 @@ function App() {
                   element={
                     <AdminProtectedRoute>
                       <AdminManagement />
+                    </AdminProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/users"
+                  element={
+                    <AdminProtectedRoute>
+                      <UserManagement />
                     </AdminProtectedRoute>
                   }
                 />

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { 
-  collection, 
-  query, 
-  orderBy, 
-  onSnapshot, 
-  doc, 
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
   updateDoc,
+  deleteDoc,
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -357,6 +358,114 @@ export function useSubmissions() {
     }
   };
 
+  /**
+   * Delete a contact submission
+   * @param {string} submissionId - Document ID of the contact submission
+   * @returns {Promise<void>}
+   */
+  const deleteContactSubmission = async (submissionId) => {
+    try {
+      const submissionRef = doc(db, 'contact_submissions', submissionId);
+      await deleteDoc(submissionRef);
+    } catch (err) {
+      console.error('Error deleting contact submission:', err);
+      throw err;
+    }
+  };
+
+  /**
+   * Delete a membership application
+   * @param {string} applicationId - Document ID of the membership application
+   * @returns {Promise<void>}
+   */
+  const deleteMembershipApplication = async (applicationId) => {
+    try {
+      const applicationRef = doc(db, 'membership_applications', applicationId);
+      await deleteDoc(applicationRef);
+    } catch (err) {
+      console.error('Error deleting membership application:', err);
+      throw err;
+    }
+  };
+
+  /**
+   * Delete an awards nomination
+   * @param {string} nominationId - Document ID of the awards nomination
+   * @returns {Promise<void>}
+   */
+  const deleteAwardsNomination = async (nominationId) => {
+    try {
+      const nominationRef = doc(db, 'awards_nominations', nominationId);
+      await deleteDoc(nominationRef);
+    } catch (err) {
+      console.error('Error deleting awards nomination:', err);
+      throw err;
+    }
+  };
+
+  /**
+   * Batch delete contact submissions
+   * @param {string[]} submissionIds - Array of document IDs to delete
+   * @returns {Promise<{success: number, failed: number, errors: Array}>}
+   */
+  const batchDeleteContactSubmissions = async (submissionIds) => {
+    const results = { success: 0, failed: 0, errors: [] };
+
+    for (const id of submissionIds) {
+      try {
+        await deleteContactSubmission(id);
+        results.success++;
+      } catch (err) {
+        results.failed++;
+        results.errors.push({ id, error: err.message });
+      }
+    }
+
+    return results;
+  };
+
+  /**
+   * Batch delete membership applications
+   * @param {string[]} applicationIds - Array of document IDs to delete
+   * @returns {Promise<{success: number, failed: number, errors: Array}>}
+   */
+  const batchDeleteMembershipApplications = async (applicationIds) => {
+    const results = { success: 0, failed: 0, errors: [] };
+
+    for (const id of applicationIds) {
+      try {
+        await deleteMembershipApplication(id);
+        results.success++;
+      } catch (err) {
+        results.failed++;
+        results.errors.push({ id, error: err.message });
+      }
+    }
+
+    return results;
+  };
+
+  /**
+   * Batch delete awards nominations
+   * @param {string[]} nominationIds - Array of document IDs to delete
+   * @returns {Promise<{success: number, failed: number, errors: Array}>}
+   */
+  const batchDeleteAwardsNominations = async (nominationIds) => {
+    const results = { success: 0, failed: 0, errors: [] };
+
+    for (const id of nominationIds) {
+      try {
+        await deleteAwardsNomination(id);
+        results.success++;
+      } catch (err) {
+        results.failed++;
+        results.errors.push({ id, error: err.message });
+      }
+    }
+
+    return results;
+  };
+
   return {
     // Data
     contactSubmissions,
@@ -380,6 +489,12 @@ export function useSubmissions() {
     unarchiveMembershipApplication,
     archiveAwardsNomination,
     unarchiveAwardsNomination,
+    deleteContactSubmission,
+    deleteMembershipApplication,
+    deleteAwardsNomination,
+    batchDeleteContactSubmissions,
+    batchDeleteMembershipApplications,
+    batchDeleteAwardsNominations,
   };
 }
 

@@ -17,7 +17,7 @@ export default function AboutPreview() {
     <Section id="about-preview" padding="lg">
       <Container>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Image */}
+          {/* Video */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -26,11 +26,22 @@ export default function AboutPreview() {
             className="order-2 lg:order-1"
           >
             <div className="relative rounded-lg overflow-hidden shadow-xl">
-              <Image
-                src="/assets/images/about-preview.svg"
-                alt="About ACBF RSA"
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
                 className="w-full h-[400px] object-cover"
-              />
+                poster="/assets/images/about-preview.svg"
+              >
+                <source src="/assets/videos/about-preview.mp4" type="video/mp4" />
+                {/* Fallback to image if video fails to load */}
+                <Image
+                  src="/assets/images/about-preview.svg"
+                  alt="About ACBF RSA"
+                  className="w-full h-[400px] object-cover"
+                />
+              </video>
             </div>
           </motion.div>
 

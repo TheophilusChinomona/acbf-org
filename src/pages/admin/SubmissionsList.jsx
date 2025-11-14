@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { FiMail, FiUser, FiCalendar, FiChevronRight, FiFileText, FiPhone, FiBriefcase, FiArchive, FiRotateCw, FiAward, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiMail, FiUser, FiCalendar, FiChevronRight, FiFileText, FiPhone, FiBriefcase, FiArchive, FiRotateCw, FiAward, FiChevronDown, FiChevronUp, FiTrash2, FiLoader, FiAlertCircle } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 import StatusBadge from '../../components/admin/StatusBadge';
 import Button from '../../components/common/Button';
+import toast from 'react-hot-toast';
 
 /**
  * Submissions List Component
@@ -16,6 +18,7 @@ import Button from '../../components/common/Button';
  * @param {boolean} props.showArchived - Whether currently showing archived items
  * @param {Function} props.onArchive - Callback to archive an item
  * @param {Function} props.onUnarchive - Callback to unarchive an item
+ * @param {Function} props.onBatchDelete - Callback for batch delete
  */
 export default function SubmissionsList({
   submissions,
@@ -24,9 +27,13 @@ export default function SubmissionsList({
   showArchived = false,
   onArchive,
   onUnarchive,
+  onBatchDelete,
 }) {
   const navigate = useNavigate();
   const [expandedItems, setExpandedItems] = useState({});
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const toggleExpanded = (itemId) => {
     setExpandedItems(prev => ({
@@ -41,6 +48,52 @@ export default function SubmissionsList({
     } else {
       // Default: navigate to detail view
       navigate(`/admin/submissions/${type}/${item.id}`);
+    }
+  };
+
+  // Handle checkbox selection
+  const handleSelectItem = (itemId, e) => {
+    e.stopPropagation();
+    setSelectedItems(prev =>
+      prev.includes(itemId)
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    );
+  };
+
+  // Handle select all
+  const handleSelectAll = (e) => {
+    e.stopPropagation();
+    if (selectedItems.length === submissions.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(submissions.map(item => item.id));
+    }
+  };
+
+  // Handle batch delete
+  const handleBatchDelete = async () => {
+    if (!onBatchDelete || selectedItems.length === 0) return;
+
+    setIsDeleting(true);
+    try {
+      const results = await onBatchDelete(selectedItems);
+
+      if (results.success > 0) {
+        toast.success(`Successfully deleted ${results.success} item${results.success > 1 ? 's' : ''}`);
+      }
+
+      if (results.failed > 0) {
+        toast.error(`Failed to delete ${results.failed} item${results.failed > 1 ? 's' : ''}`);
+      }
+
+      setSelectedItems([]);
+      setShowDeleteConfirm(false);
+    } catch (error) {
+      console.error('Error batch deleting:', error);
+      toast.error('Failed to delete items');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -125,21 +178,64 @@ export default function SubmissionsList({
   }
 
   return (
-    <div className="space-y-3">
-      {submissions.map((item) => (
-        <div
-          key={item.id}
-          onClick={() => handleItemClick(item)}
-          className="
-            bg-white border border-gray-200 rounded-lg p-3 md:p-4
-            hover:border-blue-300 hover:shadow-md
-            transition-all duration-200 cursor-pointer
-            group min-h-[44px]
-          "
-        >
-          <div className="flex items-start justify-between gap-3 md:gap-4">
-            {/* Left side - Main info */}
-            <div className="flex-1 min-w-0">
+    <>
+      {/* Batch Actions Header */}
+      {onBatchDelete && submissions.length > 0 && (
+        <div className="mb-4 flex items-center justify-between gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={selectedItems.length === submissions.length && submissions.length > 0}
+              onChange={handleSelectAll}
+              className="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded cursor-pointer"
+            />
+            <span className="text-sm font-medium text-gray-700">
+              {selectedItems.length > 0
+                ? `${selectedItems.length} selected`
+                : `Select all (${submissions.length})`}
+            </span>
+          </div>
+          {selectedItems.length > 0 && (
+            <Button
+              onClick={() => setShowDeleteConfirm(true)}
+              size="sm"
+              variant="outline"
+              className="border-red-500 text-red-600 hover:bg-red-50"
+            >
+              <FiTrash2 className="mr-2" />
+              Delete Selected ({selectedItems.length})
+            </Button>
+          )}
+        </div>
+      )}
+
+      <div className="space-y-3">
+        {submissions.map((item) => (
+          <div
+            key={item.id}
+            className={`
+              bg-white border rounded-lg p-3 md:p-4
+              hover:border-blue-300 hover:shadow-md
+              transition-all duration-200 cursor-pointer
+              group min-h-[44px]
+              ${selectedItems.includes(item.id) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}
+            `}
+          >
+            <div className="flex items-start justify-between gap-3 md:gap-4">
+              {/* Checkbox */}
+              {onBatchDelete && (
+                <div className="flex-shrink-0 pt-1" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.includes(item.id)}
+                    onChange={(e) => handleSelectItem(item.id, e)}
+                    className="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded cursor-pointer"
+                  />
+                </div>
+              )}
+
+              {/* Left side - Main info */}
+              <div className="flex-1 min-w-0" onClick={() => handleItemClick(item)}>
               <div className="flex items-start gap-2 md:gap-3 mb-2">
                 <div className={`flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center ${
                   type === 'contact' ? 'bg-blue-100' : type === 'membership' ? 'bg-green-100' : 'bg-yellow-100'
@@ -328,6 +424,66 @@ export default function SubmissionsList({
         </div>
       ))}
     </div>
+
+    {/* Batch Delete Confirmation Modal */}
+    {showDeleteConfirm && (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+              <FiAlertCircle className="w-6 h-6 text-red-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Delete Multiple Items</h3>
+              <p className="text-sm text-gray-600">This action cannot be undone</p>
+            </div>
+          </div>
+
+          <p className="text-gray-700 mb-6">
+            Are you sure you want to delete <strong>{selectedItems.length}</strong> selected{' '}
+            {type === 'contact'
+              ? 'submission'
+              : type === 'membership'
+              ? 'application'
+              : 'nomination'}
+            {selectedItems.length > 1 ? 's' : ''}
+            ? All associated data will be permanently removed.
+          </p>
+
+          <div className="flex gap-3 justify-end">
+            <Button
+              onClick={() => setShowDeleteConfirm(false)}
+              disabled={isDeleting}
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleBatchDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isDeleting ? (
+                <>
+                  <FiLoader className="animate-spin mr-2" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <FiTrash2 className="mr-2" />
+                  Delete {selectedItems.length} Item{selectedItems.length > 1 ? 's' : ''}
+                </>
+              )}
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    )}
+  </>
   );
 }
 

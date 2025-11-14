@@ -26,16 +26,15 @@ const nominationSchema = z.object({
   category: z.string().min(1, 'Please select an award category'),
 
   // Nominee information
-  nomineeName: z.string()
-    .min(2, 'Nominee name must be at least 2 characters')
-    .max(100, 'Nominee name must be less than 100 characters'),
-  nomineeEmail: z.string()
-    .email('Please enter a valid email address'),
   nomineeOrganization: z.string()
-    .min(2, 'Organization name must be at least 2 characters')
-    .max(100, 'Organization name must be less than 100 characters'),
-  nomineePhone: z.string().optional(),
-  nomineeWebsite: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
+    .min(2, 'Company name must be at least 2 characters')
+    .max(100, 'Company name must be less than 100 characters'),
+
+  // Nomination details
+  supportingStatement: z.string()
+    .min(1, 'Supporting statement is required'),
+  achievements: z.string()
+    .min(1, 'Key achievements are required'),
 
   // Nominator information
   nominatorName: z.string()
@@ -47,17 +46,9 @@ const nominationSchema = z.object({
     .min(2, 'Organization name must be at least 2 characters')
     .max(100, 'Organization name must be less than 100 characters'),
   relationship: z.string().min(1, 'Please select your relationship'),
-
-  // Nomination details
-  supportingStatement: z.string()
-    .min(100, 'Supporting statement must be at least 100 characters')
-    .max(1000, 'Supporting statement must be less than 1000 characters'),
-  achievements: z.string()
-    .min(100, 'Key achievements must be at least 100 characters')
-    .max(1000, 'Key achievements must be less than 1000 characters'),
 });
 
-export default function AwardsNominationForm() {
+export default function AwardsNominationForm({ onSuccess }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -88,12 +79,12 @@ export default function AwardsNominationForm() {
 
         // Nominee information
         nominee: {
-          fullName: data.nomineeName,
-          email: data.nomineeEmail,
           organization: data.nomineeOrganization,
-          phone: data.nomineePhone || null,
-          website: data.nomineeWebsite || null,
         },
+
+        // Nomination details
+        supportingStatement: data.supportingStatement,
+        achievements: data.achievements,
 
         // Nominator information
         nominator: {
@@ -102,10 +93,6 @@ export default function AwardsNominationForm() {
           organization: data.nominatorOrganization,
           relationship: data.relationship,
         },
-
-        // Nomination details
-        supportingStatement: data.supportingStatement,
-        achievements: data.achievements,
       };
 
       // Submit to Firestore
@@ -114,6 +101,11 @@ export default function AwardsNominationForm() {
       if (docRef.id) {
         toast.success('Nomination submitted successfully! Thank you for your submission.');
         reset(); // Clear form
+
+        // Call onSuccess callback if provided (e.g., to close modal)
+        if (onSuccess) {
+          onSuccess();
+        }
       }
     } catch (error) {
       console.error('Nomination submission error:', error);
@@ -171,65 +163,15 @@ export default function AwardsNominationForm() {
         {/* Nominee Information */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <FiUser className="text-primary" />
+            <FiBriefcase className="text-primary" />
             Nominee Information
           </h3>
 
-          <div className="space-y-4">
-            {/* Nominee Name */}
-            <div>
-              <label htmlFor="nomineeName" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  {...register('nomineeName')}
-                  type="text"
-                  id="nomineeName"
-                  placeholder="Nominee's full name"
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
-                    errors.nomineeName ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-              </div>
-              {errors.nomineeName && (
-                <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                  <FiAlertCircle className="flex-shrink-0" />
-                  {errors.nomineeName.message}
-                </p>
-              )}
-            </div>
-
-            {/* Nominee Email */}
-            <div>
-              <label htmlFor="nomineeEmail" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  {...register('nomineeEmail')}
-                  type="email"
-                  id="nomineeEmail"
-                  placeholder="nominee@example.com"
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
-                    errors.nomineeEmail ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-              </div>
-              {errors.nomineeEmail && (
-                <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                  <FiAlertCircle className="flex-shrink-0" />
-                  {errors.nomineeEmail.message}
-                </p>
-              )}
-            </div>
-
-            {/* Nominee Organization */}
+          <div>
+            {/* Company Name */}
             <div>
               <label htmlFor="nomineeOrganization" className="block text-sm font-medium text-gray-700 mb-2">
-                Organization/Company <span className="text-red-500">*</span>
+                Company Name <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <FiBriefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -249,50 +191,6 @@ export default function AwardsNominationForm() {
                   {errors.nomineeOrganization.message}
                 </p>
               )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Nominee Phone (Optional) */}
-              <div>
-                <label htmlFor="nomineePhone" className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone Number <span className="text-gray-500 text-xs">(Optional)</span>
-                </label>
-                <div className="relative">
-                  <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    {...register('nomineePhone')}
-                    type="tel"
-                    id="nomineePhone"
-                    placeholder="+27 12 345 6789"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
-                  />
-                </div>
-              </div>
-
-              {/* Nominee Website (Optional) */}
-              <div>
-                <label htmlFor="nomineeWebsite" className="block text-sm font-medium text-gray-700 mb-2">
-                  Website <span className="text-gray-500 text-xs">(Optional)</span>
-                </label>
-                <div className="relative">
-                  <FiGlobe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    {...register('nomineeWebsite')}
-                    type="url"
-                    id="nomineeWebsite"
-                    placeholder="https://example.com"
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
-                      errors.nomineeWebsite ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  />
-                </div>
-                {errors.nomineeWebsite && (
-                  <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                    <FiAlertCircle className="flex-shrink-0" />
-                    {errors.nomineeWebsite.message}
-                  </p>
-                )}
-              </div>
             </div>
           </div>
         </div>
@@ -424,14 +322,14 @@ export default function AwardsNominationForm() {
                 Supporting Statement <span className="text-red-500">*</span>
               </label>
               <p className="text-sm text-gray-600 mb-2">
-                Explain why this nominee deserves this award (100-1000 characters)
+                Explain why this nominee deserves this award
               </p>
               <textarea
                 {...register('supportingStatement')}
                 id="supportingStatement"
                 rows="6"
                 placeholder="Describe why you believe this nominee deserves recognition..."
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors resize-none ${
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
                   errors.supportingStatement ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
@@ -441,9 +339,6 @@ export default function AwardsNominationForm() {
                   {errors.supportingStatement.message}
                 </p>
               )}
-              <p className="mt-1 text-xs text-gray-500">
-                {watch('supportingStatement')?.length || 0} / 1000 characters
-              </p>
             </div>
 
             {/* Key Achievements */}
@@ -452,14 +347,14 @@ export default function AwardsNominationForm() {
                 Key Achievements <span className="text-red-500">*</span>
               </label>
               <p className="text-sm text-gray-600 mb-2">
-                List the nominee's key achievements and contributions (100-1000 characters)
+                List the nominee's key achievements and contributions
               </p>
               <textarea
                 {...register('achievements')}
                 id="achievements"
                 rows="6"
                 placeholder="Highlight specific achievements, projects, or contributions..."
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors resize-none ${
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
                   errors.achievements ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
@@ -469,9 +364,6 @@ export default function AwardsNominationForm() {
                   {errors.achievements.message}
                 </p>
               )}
-              <p className="mt-1 text-xs text-gray-500">
-                {watch('achievements')?.length || 0} / 1000 characters
-              </p>
             </div>
           </div>
         </div>

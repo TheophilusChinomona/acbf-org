@@ -6,6 +6,10 @@ import {
   updateDoc,
   onSnapshot,
   serverTimestamp,
+  collection,
+  query,
+  orderBy,
+  deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from './useAuth';
@@ -177,6 +181,69 @@ export function useUserManagement(targetUserId = null) {
     [activeUserId, getUserProfile],
   );
 
+  const updateUserStatus = useCallback(
+    async (uid, status, additionalUpdates = {}) => {
+      if (!uid) {
+        throw new Error('User ID is required to update status');
+      }
+
+      const validStatuses = ['pending', 'approved', 'rejected'];
+      if (!validStatuses.includes(status)) {
+        throw new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+      }
+
+      const profileRef = doc(db, 'users', uid);
+      const updateData = {
+        status,
+        ...additionalUpdates,
+        updated_at: serverTimestamp(),
+      };
+
+      // Add timestamp based on status
+      if (status === 'approved') {
+        updateData.approved_at = serverTimestamp();
+        updateData.approved_by = currentUser?.email || 'system';
+      } else if (status === 'rejected') {
+        updateData.rejected_at = serverTimestamp();
+        updateData.rejected_by = currentUser?.email || 'system';
+      }
+
+      await updateDoc(profileRef, updateData);
+    },
+    [currentUser?.email],
+  );
+
+  const deleteUser = useCallback(
+    async (uid) => {
+      if (!uid) {
+        throw new Error('User ID is required to delete user');
+      }
+
+      // Prevent deleting yourself
+      if (uid === currentUser?.uid) {
+        throw new Error('You cannot delete your own account');
+      }
+
+      const userRef = doc(db, 'users', uid);
+
+      // Get user email to potentially remove from approved_admins
+      const userProfile = await getUserProfile(uid);
+
+      // Delete user
+      await deleteDoc(userRef);
+
+      // If user was an admin, also remove from approved_admins collection
+      if (userProfile?.email) {
+        const adminDocRef = doc(db, 'approved_admins', userProfile.email);
+        const adminDoc = await getDoc(adminDocRef);
+        if (adminDoc.exists()) {
+          await deleteDoc(adminDocRef);
+        }
+      }
+    },
+    [currentUser?.uid, getUserProfile],
+  );
+
   return {
     userProfile,
     profileLoading,
@@ -185,6 +252,71 @@ export function useUserManagement(targetUserId = null) {
     getUserProfile,
     updateUserRole,
     checkUserRole,
+    updateUserStatus,
+    deleteUser,
+  };
+}
+
+/**
+ * Hook to fetch all users (Super Admin only)
+ * @returns {Object} Object containing all users, loading state, and error
+ */
+export function useAllUsers() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    try {
+      const q = query(
+        collection(db, 'users'),
+        orderBy('created_at', 'desc')
+      );
+
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const usersList = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+            // Convert Firestore Timestamp to Date if it exists
+            created_at: doc.data().created_at?.toDate
+              ? doc.data().created_at.toDate()
+              : doc.data().created_at,
+            approved_at: doc.data().approved_at?.toDate
+              ? doc.data().approved_at.toDate()
+              : doc.data().approved_at,
+            rejected_at: doc.data().rejected_at?.toDate
+              ? doc.data().rejected_at.toDate()
+              : doc.data().rejected_at,
+            updated_at: doc.data().updated_at?.toDate
+              ? doc.data().updated_at.toDate()
+              : doc.data().updated_at,
+          }));
+          setUsers(usersList);
+          setLoading(false);
+          setError(null);
+        },
+        (err) => {
+          console.error('Error fetching users:', err);
+          setError(err.message || 'Failed to fetch users');
+          setLoading(false);
+        }
+      );
+
+      // Cleanup listener on unmount
+      return () => unsubscribe();
+    } catch (err) {
+      console.error('Error setting up user listener:', err);
+      setError(err.message || 'Failed to setup user listener');
+      setLoading(false);
+    }
+  }, []);
+
+  return {
+    users,
+    loading,
+    error,
   };
 }
 
