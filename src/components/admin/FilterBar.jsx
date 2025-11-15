@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FiSearch, FiFilter, FiX, FiCalendar } from 'react-icons/fi';
+import awardCategories from '../../data/award-categories.json';
 
 /**
  * Filter Bar Component
@@ -13,6 +14,7 @@ import { FiSearch, FiFilter, FiX, FiCalendar } from 'react-icons/fi';
 export default function FilterBar({ type = 'contact', onFilterChange, filters = {} }) {
   const [searchQuery, setSearchQuery] = useState(filters.search || '');
   const [statusFilter, setStatusFilter] = useState(filters.status || 'all');
+  const [categoryFilter, setCategoryFilter] = useState(filters.category || 'all');
   const [dateFrom, setDateFrom] = useState(filters.dateFrom || '');
   const [dateTo, setDateTo] = useState(filters.dateTo || '');
   const [showFilters, setShowFilters] = useState(false);
@@ -47,6 +49,7 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
         ...filters,
         search: value,
         status: statusFilter,
+        category: categoryFilter,
         dateFrom,
         dateTo,
       });
@@ -60,6 +63,21 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
         ...filters,
         search: searchQuery,
         status: value,
+        categoryFilter,
+        dateFrom,
+        dateTo,
+      });
+    }
+  };
+
+  const handleCategoryChange = (value) => {
+    setCategoryFilter(value);
+    if (onFilterChange) {
+      onFilterChange({
+        ...filters,
+        search: searchQuery,
+        status: statusFilter,
+        category: value,
         dateFrom,
         dateTo,
       });
@@ -73,6 +91,7 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
         ...filters,
         search: searchQuery,
         status: statusFilter,
+        category: categoryFilter,
         dateFrom: value,
         dateTo,
       });
@@ -86,6 +105,7 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
         ...filters,
         search: searchQuery,
         status: statusFilter,
+        category: categoryFilter,
         dateFrom,
         dateTo: value,
       });
@@ -95,19 +115,21 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
   const clearFilters = () => {
     setSearchQuery('');
     setStatusFilter('all');
+    setCategoryFilter('all');
     setDateFrom('');
     setDateTo('');
     if (onFilterChange) {
       onFilterChange({
         search: '',
         status: 'all',
+        category: 'all',
         dateFrom: '',
         dateTo: '',
       });
     }
   };
 
-  const hasActiveFilters = searchQuery || statusFilter !== 'all' || dateFrom || dateTo;
+  const hasActiveFilters = searchQuery || statusFilter !== 'all' || categoryFilter !== 'all' || dateFrom || dateTo;
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-3 md:p-4 mb-4">
@@ -274,6 +296,27 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
                 ))}
               </select>
             </div>
+
+            {/* Category Filter - Only for Awards */}
+            {type === 'awards' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Filter by Category
+                </label>
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => handleCategoryChange(e.target.value)}
+                  className="w-full px-3 py-2.5 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base md:text-sm min-h-[44px] md:min-h-0"
+                >
+                  <option value="all">All Categories</option>
+                  {awardCategories.map((category) => (
+                    <option key={category.id} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* Date From Filter */}
             <div>

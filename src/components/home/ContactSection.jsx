@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Container, Section, Button } from '../common';
 import { openContactModal } from '../modals';
-import { HiMail, HiLocationMarker } from 'react-icons/hi';
+import { HiMail, HiLocationMarker, HiPhone } from 'react-icons/hi';
 
 /**
  * Contact Section Component
@@ -12,8 +12,14 @@ export default function ContactSection() {
     {
       icon: HiMail,
       label: "Email",
-      value: "info@acbfrsa.org.za",
-      link: "mailto:info@acbfrsa.org.za"
+      value: "info@acbf.org.za",
+      link: "mailto:info@acbf.org.za"
+    },
+    {
+      icon: HiPhone,
+      label: "Phone",
+      value: "+27 76 775 0044",
+      link: "tel:+27767750044"
     },
     {
       icon: HiLocationMarker,

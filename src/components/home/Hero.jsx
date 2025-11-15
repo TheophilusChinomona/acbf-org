@@ -3,6 +3,7 @@ import { Autoplay, Pagination, EffectFade } from 'swiper/modules';
 import { Link } from 'react-router-dom';
 import { HiChevronDown } from 'react-icons/hi';
 import { motion } from 'framer-motion';
+import { useState, useRef } from 'react';
 import { Button, Container, Image } from '../common';
 import { openContactModal } from '../modals';
 
@@ -16,6 +17,8 @@ import 'swiper/css/effect-fade';
  * Replaces Revolution Slider from WordPress
  */
 export default function Hero() {
+  const [videoReady, setVideoReady] = useState(false);
+  const videoRef = useRef(null);
   // Hero slides data - can be moved to JSON later
   // Supports both video and image backgrounds (video takes priority if both provided)
   const heroVideo = "/assets/videos/hero-background.mp4";
@@ -27,7 +30,7 @@ export default function Hero() {
       subtitle: "Building a Better Future Together",
       description: "Join us in our mission to create positive change and impact in our community.",
       video: heroVideo,
-      image: "/assets/images/hero-1.jpg", // Fallback if video not available
+      image: "/assets/images/heroes/Hero-1.png", // Fallback if video not available
       cta: { text: "Learn More", link: "/about" },
       ctaSecondary: { text: "Get Involved", link: "/contact" }
     },
@@ -37,7 +40,7 @@ export default function Hero() {
       subtitle: "Making a Difference",
       description: "Together we can achieve more. Discover our programs and initiatives.",
       video: heroVideo,
-      image: "/assets/images/hero-2.jpg", // Fallback if video not available
+      image: "/assets/images/heroes/Hero-1.png", // Fallback if video not available
       cta: { text: "Our Members", link: "/members" },
       ctaSecondary: { text: "Contact Us", link: "/contact" }
     },
@@ -47,11 +50,15 @@ export default function Hero() {
       subtitle: "Latest News & Updates",
       description: "Read our latest blog posts and stay informed about our activities.",
       video: heroVideo,
-      image: "/assets/images/hero-3.jpg", // Fallback if video not available
+      image: "/assets/images/heroes/Hero-1.png", // Fallback if video not available
       cta: { text: "Read Blog", link: "/blog" },
       ctaSecondary: { text: "About Us", link: "/about" }
     }
   ];
+
+  const handleVideoCanPlay = () => {
+    setVideoReady(true);
+  };
 
   const scrollToContent = () => {
     window.scrollTo({
@@ -88,12 +95,14 @@ export default function Hero() {
               <div className="absolute inset-0 z-0">
                 {slide.video ? (
                   <video
+                    ref={videoRef}
                     autoPlay
                     loop
                     muted
                     playsInline
                     className="w-full h-full object-cover"
-                    poster={slide.image} // Fallback image while video loads
+                    poster={slide.image}
+                    onCanPlay={handleVideoCanPlay}
                   >
                     <source src={slide.video} type="video/mp4" />
                     {/* Fallback to image if video fails to load */}

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Container, Section, SEO } from '../components/common';
 import { ContactForm } from '../components/forms';
-import { FiMail, FiMapPin } from 'react-icons/fi';
+import { FiMail, FiMapPin, FiPhone } from 'react-icons/fi';
 
 export default function Contact() {
   return (
@@ -102,8 +102,20 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-                    <a href="mailto:info@acbfrsa.org.za" className="text-gray-600 hover:text-primary transition-colors">
-                      info@acbfrsa.org.za
+                    <a href="mailto:info@acbf.org.za" className="text-gray-600 hover:text-primary transition-colors">
+                      info@acbf.org.za
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <FiPhone className="text-primary text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">Phone</h3>
+                    <a href="tel:+27767750044" className="text-gray-600 hover:text-primary transition-colors">
+                      +27 76 775 0044
                     </a>
                   </div>
                 </div>

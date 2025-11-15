@@ -8,6 +8,7 @@ import { useAdminManagement } from '../../hooks/useAdminManagement';
 import { useMemberManagement } from '../../hooks/useMemberManagement';
 import SubmissionsList from './SubmissionsList';
 import FilterBar from '../../components/admin/FilterBar';
+import AdminNavBar from '../../components/admin/AdminNavBar';
 import ExportButton from '../../components/admin/ExportButton';
 import { 
   FiLogOut, 
@@ -62,6 +63,7 @@ export default function AdminDashboard() {
     status: 'all',
     dateFrom: '',
     dateTo: '',
+    category: 'all',
   });
   const tabNavRef = useRef(null);
   const contactTabRef = useRef(null);
@@ -76,7 +78,7 @@ export default function AdminDashboard() {
   // Reset filters when switching tabs
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    setFilters({ search: '', status: 'all', dateFrom: '', dateTo: '' });
+    setFilters({ search: '', status: 'all', dateFrom: '', dateTo: '', category: 'all' });
     setShowArchived(false); // Reset archive view when switching tabs
     setMemberSearch('');
 
@@ -262,6 +264,11 @@ export default function AdminDashboard() {
     // Filter by status
     if (filters.status && filters.status !== 'all') {
       filtered = filtered.filter(n => n.status === filters.status);
+    }
+
+    // Filter by category
+    if (filters.category && filters.category !== 'all') {
+      filtered = filtered.filter(n => n.category === filters.category);
     }
 
     // Filter by search query
@@ -501,6 +508,9 @@ export default function AdminDashboard() {
         url={`${typeof window !== 'undefined' ? window.location.origin : ''}/admin`}
         noindex={true}
       />
+
+      {/* Admin Navigation Bar */}
+      <AdminNavBar />
 
       {/* Hero Section with Gradient Background */}
       <section className="relative w-full overflow-hidden bg-gradient-to-br from-secondary-dark via-secondary to-secondary-light py-4 md:py-8 lg:py-12">

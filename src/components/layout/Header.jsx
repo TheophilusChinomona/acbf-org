@@ -113,6 +113,15 @@ export default function Header() {
     return '/member/dashboard';
   };
 
+  // Filter menu items - hide "Becoming a Member" for signed-in users
+  const filteredMenuItems = menusData.main.filter((item) => {
+    // Hide "Becoming a Member" if user is signed in
+    if (item.url === '/becoming-a-member' && currentUser) {
+      return false;
+    }
+    return true;
+  });
+
   return (
     <header
       className={`sticky top-0 z-50 bg-white shadow-md transition-all duration-300 ${
@@ -135,7 +144,7 @@ export default function Header() {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
             <ul className="flex items-center space-x-4 xl:space-x-6" role="list">
-              {menusData.main.map((item) => (
+              {filteredMenuItems.map((item) => (
                 <li key={item.url} role="listitem">
                   <Link
                     to={item.url}
@@ -231,7 +240,7 @@ export default function Header() {
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-gray-200 py-4" role="menu">
             <ul className="flex flex-col space-y-4" role="list">
-              {menusData.main.map((item) => (
+              {filteredMenuItems.map((item) => (
                 <li key={item.url} role="listitem">
                   <Link
                     to={item.url}

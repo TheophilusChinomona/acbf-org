@@ -316,81 +316,12 @@ export default function SubmissionsList({
               )}
 
               {type === 'awards' && (
-                <div className="ml-0 sm:ml-[36px] md:ml-[52px] mt-2 space-y-2">
+                <div className="ml-0 sm:ml-[36px] md:ml-[52px] mt-2 flex flex-wrap items-center gap-2">
                   {/* Category Badge */}
                   {item.category && (
                     <div className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded">
                       <FiAward className="w-3 h-3" />
                       {item.category}
-                    </div>
-                  )}
-
-                  {/* Organization */}
-                  {item.nominee?.organization && (
-                    <div className="flex items-center gap-1 text-xs md:text-sm text-gray-600">
-                      <FiBriefcase className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                      <span className="truncate">{item.nominee.organization}</span>
-                    </div>
-                  )}
-
-                  {/* Nominee Contact Number */}
-                  {item.nominee?.contactNumber && (
-                    <div className="flex items-center gap-1 text-xs md:text-sm text-gray-600">
-                      <FiPhone className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                      <span className="truncate">{item.nominee.contactNumber}</span>
-                    </div>
-                  )}
-
-                  {/* Nominator Info */}
-                  {item.nominator?.fullName && (
-                    <div className="text-xs md:text-sm text-gray-600">
-                      <span className="font-medium">Nominated by:</span> {item.nominator.fullName}
-                      {item.nominator.relationship && (
-                        <span className="text-gray-500"> ({item.nominator.relationship})</span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Supporting Statement Preview */}
-                  {item.supportingStatement && (
-                    <div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleExpanded(item.id);
-                        }}
-                        className="text-xs md:text-sm font-medium text-primary hover:text-primary-dark flex items-center gap-1"
-                      >
-                        {expandedItems[item.id] ? (
-                          <>
-                            <FiChevronUp className="w-3 h-3" />
-                            Hide Details
-                          </>
-                        ) : (
-                          <>
-                            <FiChevronDown className="w-3 h-3" />
-                            View Supporting Statement
-                          </>
-                        )}
-                      </button>
-                      {expandedItems[item.id] && (
-                        <div className="mt-2 p-3 bg-gray-50 rounded-md space-y-3">
-                          <div>
-                            <p className="text-xs font-semibold text-gray-700 mb-1">Supporting Statement:</p>
-                            <p className="text-xs md:text-sm text-gray-600 whitespace-pre-wrap">
-                              {item.supportingStatement}
-                            </p>
-                          </div>
-                          {item.achievements && (
-                            <div>
-                              <p className="text-xs font-semibold text-gray-700 mb-1">Key Achievements:</p>
-                              <p className="text-xs md:text-sm text-gray-600 whitespace-pre-wrap">
-                                {item.achievements}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
