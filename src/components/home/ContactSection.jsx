@@ -47,7 +47,7 @@ export default function ContactSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-4 mb-8">
           {contactInfo.map((info, index) => {
             const Icon = info.icon;
             return (
@@ -57,24 +57,26 @@ export default function ContactSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="text-center"
+                className="flex items-start gap-4"
               >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary mb-3">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
                   <Icon className="w-6 h-6" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {info.label}
-                </h3>
-                {info.link ? (
-                  <a
-                    href={info.link}
-                    className="text-gray-600 hover:text-primary transition-colors"
-                  >
-                    {info.value}
-                  </a>
-                ) : (
-                  <p className="text-gray-600">{info.value}</p>
-                )}
+                <div className="text-left">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                    {info.label}
+                  </h3>
+                  {info.link ? (
+                    <a
+                      href={info.link}
+                      className="text-sm text-gray-600 hover:text-primary transition-colors break-words"
+                    >
+                      {info.value}
+                    </a>
+                  ) : (
+                    <p className="text-sm text-gray-600 break-words">{info.value}</p>
+                  )}
+                </div>
               </motion.div>
             );
           })}
