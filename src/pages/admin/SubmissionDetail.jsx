@@ -395,12 +395,21 @@ export default function SubmissionDetail() {
                   {/* Nominee Information */}
                   <div className="border-t border-gray-200 pt-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Nominee Information</h3>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        <FiBriefcase className="inline mr-2" />
-                        Company Name
-                      </label>
-                      <p className="text-gray-900 font-medium">{submission.nominee?.organization || 'N/A'}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <FiBriefcase className="inline mr-2" />
+                          Company Name
+                        </label>
+                        <p className="text-gray-900 font-medium">{submission.nominee?.organization || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <FiPhone className="inline mr-2" />
+                          Contact Number
+                        </label>
+                        <p className="text-gray-900 font-medium">{submission.nominee?.contactNumber || 'N/A'}</p>
+                      </div>
                     </div>
                   </div>
 

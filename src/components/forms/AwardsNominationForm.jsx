@@ -29,6 +29,9 @@ const nominationSchema = z.object({
   nomineeOrganization: z.string()
     .min(2, 'Company name must be at least 2 characters')
     .max(100, 'Company name must be less than 100 characters'),
+  nomineeContactNumber: z.string()
+    .min(1, 'Contact number is required')
+    .regex(/^[\d\s\-\+\(\)]+$/, 'Invalid phone number format'),
 
   // Nomination details
   supportingStatement: z.string()
@@ -78,6 +81,7 @@ export default function AwardsNominationForm({ onSuccess }) {
         // Nominee information
         nominee: {
           organization: data.nomineeOrganization,
+          contactNumber: data.nomineeContactNumber,
         },
 
         // Nomination details
@@ -165,7 +169,7 @@ export default function AwardsNominationForm({ onSuccess }) {
             Nominee Information
           </h3>
 
-          <div>
+          <div className="space-y-4">
             {/* Company Name */}
             <div>
               <label htmlFor="nomineeOrganization" className="block text-sm font-medium text-gray-700 mb-2">
@@ -189,6 +193,34 @@ export default function AwardsNominationForm({ onSuccess }) {
                   {errors.nomineeOrganization.message}
                 </p>
               )}
+            </div>
+
+            {/* Contact Number */}
+            <div>
+              <label htmlFor="nomineeContactNumber" className="block text-sm font-medium text-gray-700 mb-2">
+                Contact Number <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  {...register('nomineeContactNumber')}
+                  type="tel"
+                  id="nomineeContactNumber"
+                  placeholder="+27 12 345 6789"
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors ${
+                    errors.nomineeContactNumber ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+              </div>
+              {errors.nomineeContactNumber && (
+                <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                  <FiAlertCircle className="flex-shrink-0" />
+                  {errors.nomineeContactNumber.message}
+                </p>
+              )}
+              <p className="mt-1 text-sm text-gray-500">
+                Contact number for the nominee
+              </p>
             </div>
           </div>
         </div>
