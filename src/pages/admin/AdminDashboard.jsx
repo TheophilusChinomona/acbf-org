@@ -594,23 +594,23 @@ export default function AdminDashboard() {
       </section>
 
       {/* Main Content */}
-      <Section bgColor="white" padding="xl">
+      <Section bgColor="white" padding="lg">
         <Container>
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-4 md:mb-6 lg:mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
             {/* Contact Submissions Stats */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
               onClick={() => handleTabChange('contact')}
-              className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 md:p-6 border border-primary-light cursor-pointer hover:border-blue-300 hover:shadow-md transition-all duration-200"
+              className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-3 md:p-4 border border-primary-light cursor-pointer hover:border-blue-300 hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-xs md:text-sm font-medium text-secondary-dark">Contact Submissions</h3>
                 <FiMail className="w-4 h-4 md:w-5 md:h-5 text-primary" />
               </div>
-              <p className="text-2xl md:text-3xl font-bold text-secondary-dark mb-1">{contactStats.total}</p>
+              <p className="text-xl md:text-2xl font-bold text-secondary-dark mb-1">{contactStats.total}</p>
               <div className="flex flex-wrap gap-1 md:gap-2 text-xs text-primary-dark">
                 <span>{contactStats.new} new</span>
                 <span className="hidden md:inline">•</span>
@@ -626,13 +626,13 @@ export default function AdminDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.2 }}
               onClick={() => handleTabChange('membership')}
-              className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 md:p-6 border border-green-200 cursor-pointer hover:border-green-300 hover:shadow-md transition-all duration-200"
+              className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-3 md:p-4 border border-green-200 cursor-pointer hover:border-green-300 hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-xs md:text-sm font-medium text-green-900">Membership Applications</h3>
                 <FiFileText className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
               </div>
-              <p className="text-2xl md:text-3xl font-bold text-green-900 mb-1">{membershipStats.total}</p>
+              <p className="text-xl md:text-2xl font-bold text-green-900 mb-1">{membershipStats.total}</p>
               <div className="flex flex-wrap gap-1 md:gap-2 text-xs text-green-700">
                 <span>{membershipStats.pending} pending</span>
                 <span className="hidden md:inline">•</span>
@@ -651,13 +651,13 @@ export default function AdminDashboard() {
                 handleTabChange('contact');
                 setFilters({ ...filters, status: 'new' });
               }}
-              className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 md:p-6 border border-orange-200 cursor-pointer hover:border-orange-300 hover:shadow-md transition-all duration-200"
+              className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-3 md:p-4 border border-orange-200 cursor-pointer hover:border-orange-300 hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-xs md:text-sm font-medium text-orange-900">New Submissions</h3>
                 <FiMail className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />
               </div>
-              <p className="text-2xl md:text-3xl font-bold text-orange-900">{contactStats.new}</p>
+              <p className="text-xl md:text-2xl font-bold text-orange-900">{contactStats.new}</p>
               <p className="text-xs text-orange-700 mt-1">Requires attention</p>
             </motion.div>
 
@@ -670,13 +670,13 @@ export default function AdminDashboard() {
                 handleTabChange('membership');
                 setFilters({ ...filters, status: 'pending' });
               }}
-              className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 md:p-6 border border-purple-200 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all duration-200"
+              className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-3 md:p-4 border border-purple-200 cursor-pointer hover:border-purple-300 hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-xs md:text-sm font-medium text-secondary-dark">Pending Applications</h3>
                 <FiFileText className="w-4 h-4 md:w-5 md:h-5 text-secondary-light" />
               </div>
-              <p className="text-2xl md:text-3xl font-bold text-secondary-dark">{membershipStats.pending}</p>
+              <p className="text-xl md:text-2xl font-bold text-secondary-dark">{membershipStats.pending}</p>
               <p className="text-xs text-secondary mt-1">Awaiting review</p>
             </motion.div>
 
@@ -687,13 +687,13 @@ export default function AdminDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.5 }}
               onClick={() => handleTabChange('awards')}
-              className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-4 md:p-6 border border-yellow-200 cursor-pointer hover:border-yellow-300 hover:shadow-md transition-all duration-200"
+              className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-3 md:p-4 border border-yellow-200 cursor-pointer hover:border-yellow-300 hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-xs md:text-sm font-medium text-yellow-900">Award Nominations</h3>
                 <FiFileText className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" />
               </div>
-              <p className="text-2xl md:text-3xl font-bold text-yellow-900">{awardsStats.total}</p>
+              <p className="text-xl md:text-2xl font-bold text-yellow-900">{awardsStats.total}</p>
               <div className="flex flex-wrap gap-1 md:gap-2 text-xs text-yellow-700">
                 <span>{awardsStats.pending} pending</span>
                 <span className="hidden md:inline">•</span>
@@ -711,13 +711,13 @@ export default function AdminDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.5 }}
               onClick={() => navigate('/admin/users')}
-              className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-4 md:p-6 border border-indigo-200 cursor-pointer hover:border-indigo-300 hover:shadow-md transition-all duration-200"
+              className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-3 md:p-4 border border-indigo-200 cursor-pointer hover:border-indigo-300 hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-xs md:text-sm font-medium text-indigo-900">User Permissions</h3>
                 <FiShield className="w-4 h-4 md:w-5 md:h-5 text-indigo-600" />
               </div>
-              <p className="text-2xl md:text-3xl font-bold text-indigo-900">Manage</p>
+              <p className="text-xl md:text-2xl font-bold text-indigo-900">Manage</p>
               <p className="text-xs text-indigo-700 mt-1">View and edit all user roles</p>
             </motion.div>
           )}
@@ -728,13 +728,13 @@ export default function AdminDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.5 }}
             onClick={() => handleTabChange('memberApprovals')}
-            className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-lg p-4 md:p-6 border border-teal-200 cursor-pointer hover:border-teal-300 hover:shadow-md transition-all duration-200"
+            className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-lg p-3 md:p-4 border border-teal-200 cursor-pointer hover:border-teal-300 hover:shadow-md transition-all duration-200"
           >
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs md:text-sm font-medium text-teal-900">Member Approvals</h3>
               <FiUserCheck className="w-4 h-4 md:w-5 md:h-5 text-teal-600" />
             </div>
-            <p className="text-2xl md:text-3xl font-bold text-teal-900">{pendingMemberCount}</p>
+            <p className="text-xl md:text-2xl font-bold text-teal-900">{pendingMemberCount}</p>
             <p className="text-xs text-teal-700 mt-1">Members awaiting activation</p>
           </motion.div>
           </div>
