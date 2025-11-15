@@ -18,15 +18,7 @@ function generateRandomBytes(byteLength) {
     return array;
   }
 
-  // Fallback for non-browser environments (e.g., tests, Node scripts)
-  try {
-    // Using eval to avoid bundlers attempting to polyfill Node's crypto module
-    const nodeRequire = typeof require === 'function' ? require : eval('require');
-    const { randomBytes } = nodeRequire('crypto');
-    return randomBytes(byteLength);
-  } catch (error) {
-    throw new Error('Secure random number generation is not supported in this environment.');
-  }
+  throw new Error('Secure random number generation is not supported in this environment.');
 }
 
 function bytesToHex(bytes) {

@@ -526,10 +526,10 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+              className="flex flex-col items-center gap-4 text-center"
             >
               {/* Title Section */}
-              <div className="flex items-center gap-3 md:gap-4">
+              <div className="flex flex-col items-center gap-3">
                 <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-white/20 backdrop-blur-sm rounded-full border-2 border-white/30">
                   <FiShield className="w-6 h-6 md:w-8 md:h-8 text-white" />
                 </div>
@@ -541,52 +541,6 @@ export default function AdminDashboard() {
                     Manage submissions and applications
                   </p>
                 </div>
-              </div>
-
-              {/* User Info & Logout */}
-              <div className="flex flex-col gap-3 md:flex-row md:items-center">
-                {/* User Info - Hide on mobile, show email only */}
-                <div className="hidden md:flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/20">
-                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                    <FiUser className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="text-white">
-                    <p className="text-sm font-medium">
-                      {currentUser?.email || 'Admin'}
-                    </p>
-                    <p className="text-xs text-white/80">Administrator</p>
-                  </div>
-                </div>
-                
-                {/* Mobile: Show simplified user info */}
-                <div className="md:hidden flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
-                  <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-                    <FiUser className="w-3 h-3 text-white" />
-                  </div>
-                  <p className="text-xs text-white font-medium truncate max-w-[200px]">
-                    {currentUser?.email || 'Admin'}
-                  </p>
-                </div>
-
-                {/* Logout Button */}
-                <Button
-                  variant="outline"
-                  onClick={handleLogout}
-                  disabled={isLoggingOut}
-                  className="w-full md:w-auto bg-white/10 border-white/30 text-white hover:bg-white/20 backdrop-blur-sm min-h-[44px] md:min-h-0"
-                >
-                  {isLoggingOut ? (
-                    <>
-                      <FiLoader className="animate-spin mr-2" />
-                      Logging out...
-                    </>
-                  ) : (
-                    <>
-                      <FiLogOut className="mr-2" />
-                      Logout
-                    </>
-                  )}
-                </Button>
               </div>
             </motion.div>
           </div>
