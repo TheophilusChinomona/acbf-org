@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Container, Section, SEO } from '../components/common';
-import { FiShield } from 'react-icons/fi';
+import { FiShield, FiMenu, FiX } from 'react-icons/fi';
 import pagesData from '../data/pages.js';
 
 /**
@@ -9,9 +9,27 @@ import pagesData from '../data/pages.js';
  * Loads content from pages data based on slug
  */
 export default function PrivacyPolicy() {
+  const [isTocOpen, setIsTocOpen] = useState(false);
+  const [sections, setSections] = useState([]);
+
   const page = useMemo(() => {
     return pagesData.find(p => p.slug === 'privacy-policy') || null;
   }, []);
+
+  // Extract sections from content when page loads
+  useEffect(() => {
+    if (page?.content) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(page.content, 'text/html');
+      const headings = Array.from(doc.querySelectorAll('h2'));
+      const extractedSections = headings.map((h, idx) => ({
+        id: `section-${idx}`,
+        title: h.textContent,
+        index: idx
+      }));
+      setSections(extractedSections);
+    }
+  }, [page]);
 
   if (!page) {
     return (
@@ -103,20 +121,84 @@ export default function PrivacyPolicy() {
       </section>
 
       <Section>
-      <Container>
-        <motion.article
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-4xl mx-auto"
-        >
-          <div
-            className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:text-gray-700 prose-img:rounded-lg prose-img:shadow-lg"
-            dangerouslySetInnerHTML={{ __html: page.content }}
-          />
-        </motion.article>
-      </Container>
-    </Section>
+        <Container>
+          <div className="max-w-4xl mx-auto">
+            {/* Mobile TOC Toggle Button */}
+            <div className="md:hidden mb-6">
+              <button
+                onClick={() => setIsTocOpen(!isTocOpen)}
+                className="flex items-center gap-2 px-4 py-3 bg-primary/10 border-2 border-primary text-primary rounded-lg font-semibold hover:bg-primary/20 transition-colors w-full justify-center"
+              >
+                {isTocOpen ? (
+                  <>
+                    <FiX className="w-5 h-5" />
+                    Close Contents
+                  </>
+                ) : (
+                  <>
+                    <FiMenu className="w-5 h-5" />
+                    Table of Contents
+                  </>
+                )}
+              </button>
+
+              {/* Mobile TOC Menu */}
+              {isTocOpen && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-3 p-4 bg-gray-50 rounded-lg border border-gray-200"
+                >
+                  <nav className="space-y-2">
+                    {sections.map((section) => (
+                      <a
+                        key={section.id}
+                        href={`#${section.id}`}
+                        onClick={() => setIsTocOpen(false)}
+                        className="block px-3 py-2 text-gray-700 hover:text-primary hover:bg-primary/5 rounded transition-colors text-sm"
+                      >
+                        {section.title}
+                      </a>
+                    ))}
+                  </nav>
+                </motion.div>
+              )}
+            </div>
+
+            {/* Main Content */}
+            <motion.article
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div
+                className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-headings:font-bold prose-headings:mt-8 prose-headings:mb-4 prose-headings:pb-3 prose-headings:border-b-2 prose-headings:border-primary/20 prose-p:text-gray-700 prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-strong:font-semibold prose-ul:text-gray-700 prose-ul:space-y-2 prose-ol:text-gray-700 prose-ol:space-y-2 prose-li:text-gray-700 prose-img:rounded-lg prose-img:shadow-lg"
+                dangerouslySetInnerHTML={{ __html: page.content }}
+              />
+            </motion.article>
+
+            {/* Back to Top Button */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="mt-12 pt-8 border-t border-gray-200 text-center"
+            >
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="inline-flex items-center gap-2 text-primary hover:text-primary-dark font-semibold transition-colors"
+              >
+                ↑ Back to Top
+              </a>
+            </motion.div>
+          </div>
+        </Container>
+      </Section>
     </>
   );
 }

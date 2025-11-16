@@ -210,3 +210,13 @@ Successfully added password fields directly to the membership signup form (Signu
 - Error messages are user-friendly without exposing sensitive information
 
 ---
+
+## CURRENT TASK: Refresh Privacy & Terms Pages
+
+- [x] Review how the site currently exposes privacy and terms placeholders (JSON page data + footer links)
+- [x] Replace `privacy-policy.json` & `terms-of-service.json` content with detailed copy that references site behaviour, data flows, membership, and communication practices
+- [x] Update `menus.json` footer links to point at `/privacy-policy` and `/terms-of-service`
+
+### Notes
+- UX focus: keep sections scannable, reference actual forms (membership, awards, contact) and backend services (Firestore, Firebase Auth, Mailtrap, Cloud Functions)
+- Next steps: ask for review from UX/Content or legal expert if available

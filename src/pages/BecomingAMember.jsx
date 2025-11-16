@@ -241,7 +241,7 @@ export default function BecomingAMember() {
               </motion.div>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {membershipBenefits.map((benefit, index) => {
                 const IconComponent = benefit.icon;
                 return (
@@ -250,16 +250,16 @@ export default function BecomingAMember() {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
-                    className={`${benefit.color} rounded-2xl p-8 border-2 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group cursor-default`}
+                    className={`${benefit.color} rounded-2xl p-6 border-2 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group cursor-default`}
                   >
                     <div className="flex flex-col">
-                      <div className={`flex-shrink-0 w-16 h-16 ${benefit.color.replace('-50', '-100')} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-md`}>
-                        <IconComponent className={`w-8 h-8 ${benefit.iconColor}`} />
+                      <div className={`flex-shrink-0 w-12 h-12 ${benefit.color.replace('-50', '-100')} rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-md`}>
+                        <IconComponent className={`w-7 h-7 ${benefit.iconColor}`} />
                       </div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-gray-800 transition-colors">
+                      <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-gray-800 transition-colors">
                         {benefit.title}
                       </h3>
-                      <p className="text-gray-700 leading-relaxed text-base">
+                      <p className="text-gray-700 leading-relaxed text-sm">
                         {benefit.description}
                       </p>
                     </div>
@@ -290,7 +290,7 @@ export default function BecomingAMember() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
               {membershipInfo.map((item, index) => {
                 const IconComponent = item.icon;
                 return (
@@ -299,21 +299,21 @@ export default function BecomingAMember() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.1 + index * 0.1 }}
-                    className={`${item.color} rounded-xl p-6 md:p-8 border-2 hover:shadow-lg hover:-translate-y-1 transition-all duration-300`}
+                    className={`${item.color} rounded-xl p-5 md:p-6 border-2 hover:shadow-lg hover:-translate-y-1 transition-all duration-300`}
                   >
                     <div className="flex items-start gap-4">
-                      <div className={`flex-shrink-0 w-14 h-14 ${item.color.replace('-50', '-100')} rounded-xl flex items-center justify-center shadow-md`}>
+                      <div className={`flex-shrink-0 w-12 h-12 ${item.color.replace('-50', '-100')} rounded-xl flex items-center justify-center shadow-md`}>
                         {item.icon === RandIcon ? (
-                          <RandIcon className={`text-2xl ${item.iconColor}`} />
+                          <RandIcon className={`text-lg ${item.iconColor}`} />
                         ) : (
                           <IconComponent className={`w-7 h-7 ${item.iconColor}`} />
                         )}
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3">
+                        <h3 className="text-base md:text-lg font-bold text-gray-900 mb-2">
                           {item.title}
                         </h3>
-                        <p className="text-gray-700 leading-relaxed text-base">
+                        <p className="text-gray-700 leading-relaxed text-sm">
                           {item.content}
                         </p>
                       </div>
