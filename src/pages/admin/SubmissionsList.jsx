@@ -122,8 +122,11 @@ export default function SubmissionsList({
   const canArchive = (item) => {
     if (type === 'contact') {
       return item.status === 'resolved' && !item.archived;
-    } else if (type === 'membership' || type === 'awards') {
+    } else if (type === 'membership') {
       return (item.status === 'approved' || item.status === 'rejected') && !item.archived;
+    } else if (type === 'awards') {
+      // Awards can be archived at any time (no status requirement)
+      return !item.archived;
     }
     return false;
   };
