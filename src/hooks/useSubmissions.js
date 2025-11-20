@@ -292,11 +292,13 @@ export function useSubmissions() {
 
   /**
    * Update the status of an awards nomination
+   * @deprecated This function is no longer used in the UI. Award nominations are treated as simple data submissions without status management.
    * @param {string} nominationId - Document ID of the nomination
    * @param {string} newStatus - New status value ('pending', 'approved', 'rejected')
    * @returns {Promise<void>}
    */
   const updateAwardsNominationStatus = async (nominationId, newStatus) => {
+    console.warn('updateAwardsNominationStatus is deprecated. Award nominations no longer use status management.');
     try {
       const validStatuses = ['pending', 'approved', 'rejected'];
       if (!validStatuses.includes(newStatus)) {

@@ -279,23 +279,25 @@ export default function FilterBar({ type = 'contact', onFilterChange, filters = 
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Status Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Filter by Status
-              </label>
-              <select
-                value={statusFilter}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                className="w-full px-3 py-2.5 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base md:text-sm min-h-[44px] md:min-h-0"
-              >
-                {getAvailableStatuses().map((status) => (
-                  <option key={status.value} value={status.value}>
-                    {status.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Status Filter - Not shown for Awards */}
+            {type !== 'awards' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Filter by Status
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                  className="w-full px-3 py-2.5 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-base md:text-sm min-h-[44px] md:min-h-0"
+                >
+                  {getAvailableStatuses().map((status) => (
+                    <option key={status.value} value={status.value}>
+                      {status.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* Category Filter - Only for Awards */}
             {type === 'awards' && (

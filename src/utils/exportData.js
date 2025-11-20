@@ -86,7 +86,6 @@ function prepareAwardsNominations(nominations) {
     'Supporting Statement': nomination.supportingStatement || '',
     'Key Achievements': nomination.achievements || '',
     'Nomination Year': nomination.nominationYear || '',
-    'Status': nomination.status || '',
     'Submitted At': formatDateForExport(nomination.submittedAt),
   }));
 }

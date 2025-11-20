@@ -283,82 +283,112 @@ export default function SubmissionDetail() {
       <Section bgColor="white" padding="xl">
         <Container>
           <div className="max-w-4xl mx-auto">
-            {/* Status Update Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="bg-white rounded-lg border border-gray-200 p-6 mb-6"
-            >
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-2">Update Status</h2>
+            {/* Status Update Section - Not shown for Awards */}
+            {type !== 'awards' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="bg-white rounded-lg border border-gray-200 p-6 mb-6"
+              >
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg font-semibold text-gray-900 mb-2">Update Status</h2>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-sm text-gray-600 whitespace-nowrap">Current status:</span>
+                      <StatusBadge status={submission.status} />
+                    </div>
+                  </div>
                   <div className="flex items-center gap-3 flex-wrap">
-                    <span className="text-sm text-gray-600 whitespace-nowrap">Current status:</span>
-                    <StatusBadge status={submission.status} />
+                    <select
+                      value={selectedStatus}
+                      onChange={(e) => setSelectedStatus(e.target.value)}
+                      disabled={isUpdating}
+                      className="px-4 py-2 min-w-[140px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed bg-white text-sm font-medium"
+                    >
+                      {getAvailableStatuses().map((status) => (
+                        <option key={status.value} value={status.value}>
+                          {status.label}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      onClick={handleStatusUpdate}
+                      disabled={isUpdating || !submission || !selectedStatus || selectedStatus === submission.status}
+                      variant="primary"
+                    >
+                      {isUpdating ? (
+                        <>
+                          <FiLoader className="animate-spin mr-2" />
+                          Updating...
+                        </>
+                      ) : (
+                        <>
+                          <FiSave className="mr-2" />
+                          Update Status
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      onClick={() => setShowDeleteConfirm(true)}
+                      disabled={isDeleting || !submission}
+                      variant="outline"
+                      className="border-red-500 text-red-600 hover:bg-red-50"
+                    >
+                      <FiTrash2 className="mr-2" />
+                      Delete
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <select
-                    value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value)}
-                    disabled={isUpdating}
-                    className="px-4 py-2 min-w-[140px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed bg-white text-sm font-medium"
-                  >
-                    {getAvailableStatuses().map((status) => (
-                      <option key={status.value} value={status.value}>
-                        {status.label}
-                      </option>
-                    ))}
-                  </select>
-                  <Button
-                    onClick={handleStatusUpdate}
-                    disabled={isUpdating || !submission || !selectedStatus || selectedStatus === submission.status}
-                    variant="primary"
-                  >
-                    {isUpdating ? (
-                      <>
-                        <FiLoader className="animate-spin mr-2" />
-                        Updating...
-                      </>
-                    ) : (
-                      <>
-                        <FiSave className="mr-2" />
-                        Update Status
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    onClick={() => setShowDeleteConfirm(true)}
-                    disabled={isDeleting || !submission}
-                    variant="outline"
-                    className="border-red-500 text-red-600 hover:bg-red-50"
-                  >
-                    <FiTrash2 className="mr-2" />
-                    Delete
-                  </Button>
-                </div>
-              </div>
 
-              {/* Update Status Messages */}
-              {updateStatus === 'success' && (
-                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
-                  <FiCheckCircle className="text-green-600 text-xl flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-green-900">{updateMessage}</p>
+                {/* Update Status Messages */}
+                {updateStatus === 'success' && (
+                  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
+                    <FiCheckCircle className="text-green-600 text-xl flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-green-900">{updateMessage}</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {updateStatus === 'error' && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-                  <FiAlertCircle className="text-red-600 text-xl flex-shrink-0 mt-0.5" />
+                {updateStatus === 'error' && (
+                  <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                    <FiAlertCircle className="text-red-600 text-xl flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-red-900">{updateMessage}</p>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {/* Delete Button Section - For Awards only */}
+            {type === 'awards' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="bg-white rounded-lg border border-gray-200 p-6 mb-6"
+              >
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg font-semibold text-gray-900 mb-2">Manage Nomination</h2>
+                    <p className="text-sm text-gray-600">View nomination details or delete if necessary.</p>
+                  </div>
                   <div>
-                    <p className="text-sm font-medium text-red-900">{updateMessage}</p>
+                    <Button
+                      onClick={() => setShowDeleteConfirm(true)}
+                      disabled={isDeleting || !submission}
+                      variant="outline"
+                      className="border-red-500 text-red-600 hover:bg-red-50"
+                    >
+                      <FiTrash2 className="mr-2" />
+                      Delete
+                    </Button>
                   </div>
                 </div>
-              )}
-            </motion.div>
+              </motion.div>
+            )}
 
             {/* Submission Details */}
             <motion.div
