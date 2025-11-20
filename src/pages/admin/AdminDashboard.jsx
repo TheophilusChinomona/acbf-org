@@ -261,11 +261,6 @@ export default function AdminDashboard() {
       return showArchived ? isArchived : !isArchived;
     });
 
-    // Filter by status
-    if (filters.status && filters.status !== 'all') {
-      filtered = filtered.filter(n => n.status === filters.status);
-    }
-
     // Filter by category
     if (filters.category && filters.category !== 'all') {
       filtered = filtered.filter(n => n.category === filters.category);
@@ -494,10 +489,7 @@ export default function AdminDashboard() {
   };
 
   const awardsStats = {
-    total: awardsNominations.filter(n => !n.archived).length,
-    pending: awardsNominations.filter(n => n.status === 'pending' && !n.archived).length,
-    approved: awardsNominations.filter(n => n.status === 'approved' && !n.archived).length,
-    rejected: awardsNominations.filter(n => n.status === 'rejected' && !n.archived).length,
+    total: awardsNominations.length,
   };
 
   return (
@@ -648,13 +640,7 @@ export default function AdminDashboard() {
                 <FiFileText className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" />
               </div>
               <p className="text-xl md:text-2xl font-bold text-yellow-900">{awardsStats.total}</p>
-              <div className="flex flex-wrap gap-1 md:gap-2 text-xs text-yellow-700">
-                <span>{awardsStats.pending} pending</span>
-                <span className="hidden md:inline">•</span>
-                <span>{awardsStats.approved} approved</span>
-                <span className="hidden md:inline">•</span>
-                <span>{awardsStats.rejected} rejected</span>
-              </div>
+              <p className="text-xs text-yellow-700 mt-1">Total submissions</p>
             </motion.div>
           )}
 

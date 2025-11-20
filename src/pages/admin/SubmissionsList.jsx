@@ -122,8 +122,11 @@ export default function SubmissionsList({
   const canArchive = (item) => {
     if (type === 'contact') {
       return item.status === 'resolved' && !item.archived;
-    } else if (type === 'membership' || type === 'awards') {
+    } else if (type === 'membership') {
       return (item.status === 'approved' || item.status === 'rejected') && !item.archived;
+    } else if (type === 'awards') {
+      // Awards can be archived at any time (no status requirement)
+      return !item.archived;
     }
     return false;
   };
@@ -253,7 +256,7 @@ export default function SubmissionsList({
                     <h3 className="font-semibold text-sm md:text-base text-gray-900 truncate">
                       {type === 'awards' ? (item.nominee?.organization || 'No company name') : (item.name || 'Unknown')}
                     </h3>
-                    <StatusBadge status={item.status} />
+                    {type !== 'awards' && <StatusBadge status={item.status} />}
                   </div>
                   <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-xs md:text-sm text-gray-600">
                     {type !== 'awards' && (
