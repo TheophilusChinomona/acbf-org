@@ -255,6 +255,12 @@ export default function AdminDashboard() {
   const filteredAwardsNominations = useMemo(() => {
     let filtered = [...awardsNominations];
 
+    // Filter by archived status
+    filtered = filtered.filter(n => {
+      const isArchived = n.archived === true;
+      return showArchived ? isArchived : !isArchived;
+    });
+
     // Filter by category
     if (filters.category && filters.category !== 'all') {
       filtered = filtered.filter(n => n.category === filters.category);
@@ -308,7 +314,7 @@ export default function AdminDashboard() {
     }
 
     return filtered;
-  }, [awardsNominations, filters]);
+  }, [awardsNominations, filters, showArchived]);
 
   const pendingMemberCount = pendingMembers.length;
   const filteredPendingMembers = useMemo(() => {
