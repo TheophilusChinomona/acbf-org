@@ -10,9 +10,9 @@ assignees: ''
 A clear and concise description of the bug.
 
 ## Steps to reproduce
-1. 
-2. 
-3. 
+1. <!-- Step 1: Describe the first action you took. -->
+2. <!-- Step 2: Describe the next action. -->
+3. <!-- Step 3: Describe what led to the bug. -->
 
 ## Expected behavior
 What you expected to happen.
