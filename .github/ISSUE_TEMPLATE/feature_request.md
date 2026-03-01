@@ -16,8 +16,8 @@ Describe the solution you want.
 Describe alternative solutions or workarounds you've considered.
 
 ## Acceptance criteria
-- [ ] 
-- [ ] 
+- [ ] Given [context], when [action], then [outcome]
+- [ ] ...
 
 ## Additional context
 Add any other context, mockups, or references.
