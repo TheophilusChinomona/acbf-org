@@ -1,5 +1,5 @@
 ## What changed
-- 
+- A brief description of the changes in this pull request.
 
 ## Why
 - 
