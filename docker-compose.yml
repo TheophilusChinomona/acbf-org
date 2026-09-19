@@ -14,22 +14,9 @@ services:
     restart: unless-stopped
     expose:
       - "80"
-    networks:
-      - public-edge
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=public-edge
-      - traefik.http.routers.acbf-prod.rule=Host(`acbf.org.za`) || Host(`www.acbf.org.za`)
-      - traefik.http.routers.acbf-prod.entrypoints=web
-      - traefik.http.routers.acbf-prod.service=acbf-prod
-      - traefik.http.services.acbf-prod.loadbalancer.server.port=80
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 10s
-
-networks:
-  public-edge:
-    external: true
