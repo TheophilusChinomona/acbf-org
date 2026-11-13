@@ -1,0 +1,380 @@
+{
+  "$comment": "Validated against Awards Nominees 5.xlsx. Obvious spelling/punctuation variants share a category; legal titles with/without Excellence remain separate. Legacy category aliases retained for compatibility. See docs/awards-nominee-validation.md for mapping rationale. Owner publication signoff remains pending.",
+  "version": 2,
+  "reviewedAt": null,
+  "categories": [
+    {
+      "id": "lifetime-achievement",
+      "name": "Lifetime Achievement Award",
+      "aliases": [
+        "Lifetime Achievement Award",
+        "Lifetime Achievement"
+      ]
+    },
+    {
+      "id": "ceo-award",
+      "name": "Chief Executive Officer",
+      "aliases": [
+        "Chief Executive Officer",
+        "Chief Executive Officer Award"
+      ]
+    },
+    {
+      "id": "corporate-leader",
+      "name": "Corporate Leader of the Year",
+      "aliases": [
+        "Corporate Leader of the Year",
+        "Corporate Leader of the Year Award"
+      ]
+    },
+    {
+      "id": "entrepreneur",
+      "name": "Entrepreneur of the Year",
+      "aliases": [
+        "Entrepreneur of the Year",
+        "Entrepreneur of the Year Award"
+      ]
+    },
+    {
+      "id": "young-christian-entrepreneur",
+      "name": "Young Christian Entrepreneur Award",
+      "aliases": [
+        "Young Christian Entrepreneur Award",
+        "Young Christian Entrepreneur"
+      ]
+    },
+    {
+      "id": "women-leadership",
+      "name": "Woman in Business Leadership Award",
+      "aliases": [
+        "Women in Business Leadership Award",
+        "Women in Business Leadership",
+        "Woman in Business Leadership Award"
+      ]
+    },
+    {
+      "id": "best-startup",
+      "name": "Best Start-up of the Year",
+      "aliases": [
+        "Best Start-up of the Year",
+        "Best Start-up of the Year Award"
+      ]
+    },
+    {
+      "id": "innovation-technology",
+      "name": "Business Innovation & Technology Award",
+      "aliases": [
+        "Business Innovation & Technology Award",
+        "Business Innovation & Technology"
+      ]
+    },
+    {
+      "id": "family-business",
+      "name": "Best Family-Owned Business Award",
+      "aliases": [
+        "Best Family-Owned Business Award",
+        "Best Family-Owned Business"
+      ]
+    },
+    {
+      "id": "social-impact",
+      "name": "Social Impact Award",
+      "aliases": [
+        "Social Impact Award",
+        "Social Impact"
+      ]
+    },
+    {
+      "id": "small-basket-business",
+      "name": "Small Basket Business Award",
+      "aliases": [
+        "Small Basket Business Award",
+        "Small Basket Business"
+      ]
+    },
+    {
+      "id": "agriculture-mining",
+      "name": "Excellence in Agriculture & Mining",
+      "aliases": [
+        "Excellence in Agriculture & Mining",
+        "Excellence in Agriculture & Mining Award"
+      ]
+    },
+    {
+      "id": "education",
+      "name": "Education and Training Excellence Award",
+      "aliases": [
+        "Excellence in Education",
+        "Excellence in Education Award",
+        "Education and Training Excellence Award"
+      ]
+    },
+    {
+      "id": "music-arts",
+      "name": "Excellence in Music & Arts Award",
+      "aliases": [
+        "Excellence in Music & Arts",
+        "Excellence in Music & Arts Award"
+      ]
+    },
+    {
+      "id": "financial-services",
+      "name": "Financial Services Excellence Award",
+      "aliases": [
+        "Excellence in Financial Services",
+        "Excellence in Financial Services Award",
+        "Financial Services Excellence Award"
+      ]
+    },
+    {
+      "id": "healthcare",
+      "name": "Healthcare and Wellness Excellence Award",
+      "aliases": [
+        "Excellence in Healthcare",
+        "Excellence in Healthcare Award",
+        "Healthcare and Wellness Excellence Award"
+      ]
+    },
+    {
+      "id": "logistics",
+      "name": "Transport & Logistics Excellence Award",
+      "aliases": [
+        "Excellence in Logistics",
+        "Excellence in Logistics Award",
+        "Transport & Logistics Excellence Award"
+      ]
+    },
+    {
+      "id": "beauty-fashion",
+      "name": "Beauty and Fashion Excellence Award",
+      "aliases": [
+        "Excellence in Beauty & Fashion",
+        "Excellence in Beauty & Fashion Award",
+        "Beauty and Fashion Excellence Award"
+      ]
+    },
+    {
+      "id": "construction-realestate",
+      "name": "Excellence in Construction & Real Estate",
+      "aliases": [
+        "Excellence in Construction & Real Estate",
+        "Excellence in Construction & Real Estate Award"
+      ]
+    },
+    {
+      "id": "food-industry",
+      "name": "Food Industry Excellence Award",
+      "aliases": [
+        "Excellence in Food Industry",
+        "Excellence in Food Industry Award",
+        "Food Industry Excellence Award"
+      ]
+    },
+    {
+      "id": "media-entertainment",
+      "name": "Media and Entertainment Excellence Award",
+      "aliases": [
+        "Excellence in Media & Entertainment",
+        "Excellence in Media & Entertainment Award",
+        "Media and Entertainment Excellence Award"
+      ]
+    },
+    {
+      "id": "manufacturing",
+      "name": "Manufacturing and Industrial Development Award",
+      "aliases": [
+        "Excellence in Manufacturing",
+        "Excellence in Manufacturing Award",
+        "Manufacturing and Industrial Development Award"
+      ]
+    },
+    {
+      "id": "furniture-interiors",
+      "name": "Furniture and Interiors Excellence Award",
+      "aliases": [
+        "Excellence in Furniture & Interiors",
+        "Excellence in Furniture & Interiors Award",
+        "Furniture and Interiors Excellence Award"
+      ]
+    },
+    {
+      "id": "tourism-events",
+      "name": "Creative Industries and Tourism Award",
+      "aliases": [
+        "Excellence in Tourism & Events",
+        "Excellence in Tourism & Events Award",
+        "Creative Industries and Tourism Award"
+      ]
+    },
+    {
+      "id": "built-environment",
+      "name": "Built Environment Excellence Award",
+      "aliases": [
+        "Excellence in Built Environment Consulting",
+        "Excellence in Built Environment Consulting Award",
+        "Built Environment Excellence Award"
+      ]
+    },
+    {
+      "id": "information-technology",
+      "name": "I.T & A.I Solutions Excellence Award",
+      "aliases": [
+        "Excellence in Information Technology",
+        "Excellence in Information Technology Award",
+        "I.T & A.I Solutions Excellence Award"
+      ]
+    },
+    {
+      "id": "services",
+      "name": "Services Excellence Award",
+      "aliases": [
+        "Excellence in Services",
+        "Excellence in Services Award",
+        "Services Excellence Award"
+      ]
+    },
+    {
+      "id": "cleaning-detergents",
+      "name": "Excellence in Cleaning & Detergents",
+      "aliases": [
+        "Excellence in Cleaning & Detergents",
+        "Excellence in Cleaning & Detergents Award"
+      ]
+    },
+    {
+      "id": "retail-and-consumer-services-excellence-award",
+      "name": "Retail and Consumer Services Excellence Award",
+      "aliases": [
+        "Retail and Consumer Services Excellence Award"
+      ]
+    },
+    {
+      "id": "business-leader-of-the-year",
+      "name": "Business Leader of the Year",
+      "aliases": [
+        "Business Leader Of the Year",
+        "Business Leader of the Year"
+      ]
+    },
+    {
+      "id": "job-creation-and-skills-development-award",
+      "name": "Job Creation and Skills Development Award",
+      "aliases": [
+        "Job Creation and Skills Development Award"
+      ]
+    },
+    {
+      "id": "legal-and-compliance-services-award",
+      "name": "Legal and Compliance Services Award",
+      "aliases": [
+        "Legal and Compliance Services Award"
+      ]
+    },
+    {
+      "id": "community-impact-award",
+      "name": "Community Impact Award",
+      "aliases": [
+        "Community Impact Award"
+      ]
+    },
+    {
+      "id": "agri-business-excellence-award",
+      "name": "Agri Business Excellence Award",
+      "aliases": [
+        "Agri Business Excellence Award"
+      ]
+    },
+    {
+      "id": "construction-and-infrastructure-award",
+      "name": "Construction and Infrastructure Award",
+      "aliases": [
+        "Construction and Infrastructure Award"
+      ]
+    },
+    {
+      "id": "energy-and-utilities-excellence-award",
+      "name": "Energy & Utilities Excellence Award",
+      "aliases": [
+        "Energy and Utilities Excellence Award",
+        "Energy & Utilities Excellence Award"
+      ]
+    },
+    {
+      "id": "professional-services-award",
+      "name": "Professional Services Award",
+      "aliases": [
+        "Professional Services Award"
+      ]
+    },
+    {
+      "id": "sme-excellence-award",
+      "name": "SME Excellence Award",
+      "aliases": [
+        "SME Excellence Award"
+      ]
+    },
+    {
+      "id": "youth-entrepreneurship-of-the-year-award",
+      "name": "Youth Entrepreneurship of the Year Award",
+      "aliases": [
+        "Youth Enterprenuership of the Year",
+        "Youth Entrepreneurship of the Year Award",
+        "Youth Enterprenuership of the year Award"
+      ]
+    },
+    {
+      "id": "investment-excellence-award",
+      "name": "Investment Excellence Award",
+      "aliases": [
+        "Investment Excellence Award"
+      ]
+    },
+    {
+      "id": "mining-and-natural-resources-excellence-award",
+      "name": "Mining and Natural Resources Excellence Award",
+      "aliases": [
+        "Mining and Natural Resources Excellence Award"
+      ]
+    },
+    {
+      "id": "risk-management-and-security-excellence-award",
+      "name": "Risk Management and Security Excellence Award",
+      "aliases": [
+        "Risk Management and Security Excellence Awards",
+        "Risk Management and Security Excellence Award"
+      ]
+    },
+    {
+      "id": "legal-and-compliance-services-excellence-award",
+      "name": "Legal and Compliance Services Excellence Award",
+      "aliases": [
+        "Legal and Compliance Services Excellence Award"
+      ]
+    },
+    {
+      "id": "real-estate-excellence-award",
+      "name": "Real Estate Excellence Award",
+      "aliases": [
+        "Real Estate Excellence Award"
+      ]
+    }
+  ],
+  "ambiguousAliases": [
+    {
+      "alias": "Legal Services",
+      "reason": "The design spec calls out legal services titles with and without \"Excellence\" as semantically different; confirm which ballot category each belongs to."
+    },
+    {
+      "alias": "Excellence in Legal Services",
+      "reason": "The design spec calls out legal services titles with and without \"Excellence\" as semantically different; confirm which ballot category each belongs to."
+    },
+    {
+      "alias": "Legal Services Excellence",
+      "reason": "The design spec calls out legal services titles with and without \"Excellence\" as semantically different; confirm which ballot category each belongs to."
+    },
+    {
+      "alias": "Professional Services",
+      "reason": "Overlaps both \"Excellence in Services\" and legal/consulting categories; confirm the intended ballot category."
+    }
+  ]
+}

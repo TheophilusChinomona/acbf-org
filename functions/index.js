@@ -13,12 +13,75 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const { sendEmail } = require('./src/sendEmail');
 const { generateAdminNotification } = require('./src/templates/adminNotification');
+const { createCastAwardVote } = require('./src/awards/voting');
+const {
+  createGetAdminInvitation,
+  createAcceptAdminInvitation,
+} = require('./src/admin/invitations');
+const { toPublicError } = require('./src/errors');
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
 
 // Load environment variables
 require('dotenv').config();
+
+/**
+ * Compatibility adapter for a transport-independent domain handler.
+ *
+ * Production browser flows use the internal Dokploy HTTP API
+ * (`src/api/app.js`) instead of these callables. The exports remain so existing
+ * deployments, tests and any rollback keep working, and this adapter is the only
+ * place that builds an `HttpsError`.
+ *
+ * @param {(data: unknown, context?: object) => Promise<unknown>} handler
+ */
+function callableAdapter(handler) {
+  return async (data, context) => {
+    try {
+      return await handler(data, context);
+    } catch (error) {
+      const { code, message } = toPublicError(error);
+      throw new functions.https.HttpsError(code, message);
+    }
+  };
+}
+
+/**
+ * Callable: accept one award vote.
+ *
+ * The whole decision — deadline, nominee/category match, duplicate detection and
+ * rate limiting — happens inside one Firestore transaction, so concurrent or
+ * retried submissions can only ever count once.
+ *
+ * Request payload: { competitionId, categoryId, nomineeId, browserToken, name?, email? }
+ * Response: { status: 'accepted' | 'already-voted', nomineeId?: string }
+ */
+exports.castAwardVote = functions.https.onCall(
+  callableAdapter(createCastAwardVote({ db: admin.firestore(), now: Date.now })),
+);
+
+/**
+ * Callable: read a sanitized admin invitation by token.
+ *
+ * `admin_invitations` is no longer publicly readable (that exposed live tokens);
+ * the acceptance page gets only the display fields it needs from here.
+ */
+exports.getAdminInvitation = functions.https.onCall(
+  callableAdapter(createGetAdminInvitation({ db: admin.firestore(), now: Date.now })),
+);
+
+/**
+ * Callable: accept an admin invitation.
+ *
+ * Creates the Auth account and the approved admin records server-side so no
+ * client can grant itself an admin role.
+ */
+exports.acceptAdminInvitation = functions.https.onCall(
+  callableAdapter(
+    createAcceptAdminInvitation({ db: admin.firestore(), auth: admin.auth(), now: Date.now }),
+  ),
+);
 
 /**
  * Firestore Trigger: Contact Form Submission
