@@ -13,9 +13,9 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
-import { getFunctions, httpsCallable } from 'firebase/functions';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import app, { auth, db } from '../lib/firebase';
+import { auth, db } from '../lib/firebase';
+import { API_PATHS, postBackendApi } from '../lib/backendApi';
 import { useAuth } from './useAuth';
 import {
   generateInvitationToken,
@@ -56,14 +56,6 @@ function formatInvitationDoc(snapshot) {
     expires_at: mapTimestamp(data?.expires_at),
     accepted_at: mapTimestamp(data?.accepted_at),
     cancelled_at: mapTimestamp(data?.cancelled_at),
-  };
-}
-
-function invitationFunctions() {
-  const functions = getFunctions(app);
-  return {
-    getAdminInvitation: httpsCallable(functions, 'getAdminInvitation'),
-    acceptAdminInvitation: httpsCallable(functions, 'acceptAdminInvitation'),
   };
 }
 
@@ -166,8 +158,10 @@ export function useAdminInvitations({ listen = false } = {}) {
       return null;
     }
 
-    const { getAdminInvitation } = invitationFunctions();
-    const response = await getAdminInvitation({ token: rawToken.trim() });
+    // Same-origin API: `admin_invitations` is not readable from the client.
+    const response = await postBackendApi(API_PATHS.lookupInvitation, {
+      token: rawToken.trim(),
+    });
     const invitation = response?.data?.invitation ?? null;
     if (!invitation) {
       return null;
@@ -188,8 +182,11 @@ export function useAdminInvitations({ listen = false } = {}) {
       throw new Error('Password must be at least 6 characters long.');
     }
 
-    const { acceptAdminInvitation } = invitationFunctions();
-    const response = await acceptAdminInvitation({ token: token.trim(), password, name });
+    const response = await postBackendApi(API_PATHS.acceptInvitation, {
+      token: token.trim(),
+      password,
+      name,
+    });
     const email = response?.data?.email;
 
     if (!email) {

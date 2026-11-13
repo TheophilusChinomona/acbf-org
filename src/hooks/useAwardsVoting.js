@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { collection, doc, onSnapshot } from 'firebase/firestore';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import app, { db } from '../lib/firebase';
+import { db } from '../lib/firebase';
+import { API_PATHS, parseVoteResult, postBackendApi } from '../lib/backendApi';
 import {
   AwardsStorageError,
   VOTING_COMPETITION_ID,
@@ -42,10 +42,11 @@ function messageFor(error) {
  * Public awards ballot state.
  *
  * Subscribes only to the public catalogue (competition settings, categories and
- * nominee display fields). Votes go through the `castAwardVote` callable, which
- * owns the deadline, deduplication and rate limits. The local deadline timer only
- * drives the UI; `failed-precondition` from the server closes the ballot
- * regardless of the device clock.
+ * nominee display fields). Votes go through the same-origin internal API
+ * (`/api/v1/awards/vote`), which owns the deadline, deduplication and rate limits;
+ * no Firebase function is involved. The local deadline timer only drives the UI;
+ * `failed-precondition` from the server closes the ballot regardless of the
+ * device clock.
  *
  * @param {string} [competitionId]
  */
@@ -227,21 +228,24 @@ export function useAwardsVoting(competitionId = VOTING_COMPETITION_ID) {
 
       setVotingCategoryId(categoryId);
       try {
-        const functions = getFunctions(app);
-        const castAwardVote = httpsCallable(functions, 'castAwardVote');
-        const response = await castAwardVote({
-          competitionId,
-          categoryId,
-          nomineeId,
-          browserToken,
-          name: details.value.name,
-          email: details.value.email,
-        });
+        const payload = { competitionId, categoryId, nomineeId, browserToken };
+        // Anonymous mode sends no optional identity fields at all.
+        if (details.value.name !== null) payload.name = details.value.name;
+        if (details.value.email !== null) payload.email = details.value.email;
 
-        const nextVotes = recordVotedCategory(undefined, { categoryId, nomineeId });
+        const response = await postBackendApi(API_PATHS.vote, payload);
+        const result = parseVoteResult(response?.data);
+
+        // Only a recorded outcome may lock the category locally. A duplicate is
+        // already recorded server-side, so the attempt is remembered without
+        // claiming a nominee the response never discloses.
+        const nextVotes = recordVotedCategory(
+          undefined,
+          result.status === 'accepted' ? { categoryId, nomineeId } : { categoryId },
+        );
         if (mountedRef.current) setVotedCategoryIds(Object.keys(nextVotes));
 
-        if (response?.data?.status === 'already-voted') {
+        if (result.status === 'already-voted') {
           return {
             status: 'already-voted',
             message: 'This browser has already voted in this category.',
