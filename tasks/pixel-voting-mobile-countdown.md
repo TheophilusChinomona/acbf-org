@@ -21,3 +21,7 @@ clamps at zero, and disables intro/blur. Counter respects reduced motion.
 The shared Firebase competition stays closed; this change does not authorize launch.
 
 Validation: 52 awards tests passed, one emulator-gated skip; changed-file lint and production build passed. Browser fixture checks at 320/375/1280px passed (category switching, voted marker, clock updates, reduced motion, StrictMode, no overflow or page errors). No Firebase writes. Existing staging PR #12 remains draft; main and launch hold unchanged.
+
+Follow-up: add padded nominee header and responsive two-column nominee choices to address cramped heading and unused desktop width.
+
+Spacing follow-up verified: changed-file lint and production Vite build pass; browser fixture checks at 320/375/1280px pass, desktop nominees occupy two columns, mobile stays one column, padded header visible. No database changes.

@@ -279,24 +279,24 @@ export default function AwardsBallot() {
               className="rounded-lg border border-gray-200 bg-white"
               aria-describedby="nominee-list-note"
             >
-              <legend
-                id="nominee-list-heading"
-                className="px-4 pt-4 text-lg font-semibold text-gray-900"
-              >
-                {activeCategory?.name ?? 'Nominees'}
-              </legend>
-              <p id="nominee-list-note" className="px-4 pb-2 text-sm text-gray-600">
-                {alreadyVoted
-                  ? 'This browser has already voted in this category.'
-                  : 'Select one nominee, then confirm your vote below.'}
-              </p>
+              <legend className="sr-only">{activeCategory?.name ?? 'Nominees'}</legend>
+              <div className="px-5 pb-5 pt-6 sm:px-6">
+                <h3 id="nominee-list-heading" className="text-lg font-semibold leading-snug text-gray-900">
+                  {activeCategory?.name ?? 'Nominees'}
+                </h3>
+                <p id="nominee-list-note" className="mt-2 text-sm leading-relaxed text-gray-600">
+                  {alreadyVoted
+                    ? 'This browser has already voted in this category.'
+                    : 'Select one nominee, then confirm your vote below.'}
+                </p>
+              </div>
 
               {categoryNominees.length === 0 ? (
                 <p className="px-4 pb-4 text-sm text-gray-600">
                   No nominees match your search in this category.
                 </p>
               ) : (
-                <ul className="divide-y divide-gray-100">
+                <ul className="grid grid-cols-1 gap-3 px-5 pb-6 md:grid-cols-2 sm:px-6">
                   {categoryNominees.map((nominee) => {
                     const inputId = `nominee-${nominee.id}`;
                     const isChecked = selectedNomineeId === nominee.id;
@@ -304,7 +304,9 @@ export default function AwardsBallot() {
                       <li key={nominee.id}>
                         <label
                           htmlFor={inputId}
-                          className={`flex cursor-pointer items-start gap-3 px-4 py-3 ${
+                          className={`flex h-full min-h-[104px] cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors ${
+                            isChecked ? 'border-primary bg-primary/5' : 'border-gray-200'
+                          } ${
                             alreadyVoted ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50'
                           }`}
                         >
@@ -318,7 +320,7 @@ export default function AwardsBallot() {
                             onChange={() => setSelectedNomineeId(nominee.id)}
                             className="mt-1 h-4 w-4 border-gray-300 text-primary focus:ring-primary"
                           />
-                          <span className="min-w-0">
+                          <span className="min-w-0 space-y-1 break-words">
                             <span className="block font-medium text-gray-900">
                               {nominee.personName || nominee.businessName || 'Nominee'}
                             </span>
