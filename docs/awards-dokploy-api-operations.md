@@ -248,7 +248,20 @@ tickets or logs. The API logs only the failing error's name/code.
 
 ---
 
-## 8. Rollback
+## 8. Backups and rollback
+
+### Backups before launch
+
+Capture read-only copies of `award_competitions/2026` (the competition document
+plus the `categories`, `nominees`, `totals` and `votes` subcollections),
+`approved_admins` and `admin_invitations` from the Firebase console before opening
+voting, and again before any catalogue re-import. Firestore managed backups or
+`gcloud firestore export` depend on the project's plan and billing, and billing is
+currently disabled — do not assume either exists. The importer is idempotent and
+never writes votes or totals, so recovery from a bad deploy is a code rollback,
+not a data restore.
+
+### Rollback
 
 1. **Close voting first**: set `award_competitions/2026.isOpen` to `false`.
 2. Do not delete votes, totals, nominees or rate-limit buckets; a rollback never
