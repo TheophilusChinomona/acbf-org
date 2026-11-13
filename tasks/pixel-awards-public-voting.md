@@ -75,15 +75,14 @@ Fresh verification: 52 awards tests passed on Node 22 using the actual workbook;
 lint passed. Independent review found no blocking issues. Build outputs were
 restored and are not part of the change.
 
-### Deployed rules baseline could not be retrieved
+### Deployed rules baseline audited
 
-`firestore.rules` did not exist in the repository even though `firebase.json`
-referenced it, and no authenticated Firebase tooling was available here to read
-the deployed rules. The unrelated collections in the new rules file therefore
-follow the audited behaviour in `tasks/complete-firestore-rules.md` and the code
-paths under `src/`, with admin provisioning tightened. **The rules must be
-diffed against the live rules by Theo before deployment** — see the release
-runbook.
+Firebase login succeeded and the deployed Firestore rules were retrieved read-only
+on 13 November 2026. The audit found the proposed membership permissions were
+broader than live: public application reads and cross-email linking. Restore the
+live email-matched boundary and field types; preserve pending admin application
+submission. Tests cover the regression. See `docs/awards-live-rules-audit.md`.
+No production rules, catalogue records, functions or voting settings were changed.
 
 ### Admin provisioning moved server-side
 
@@ -104,7 +103,18 @@ them up by token.
 
 Dokploy follow-up: frontend build arguments documented, Docker build context now
 excludes credentials/private workbooks, Node 22 configured for Functions/build/CI,
-and CI runs awards regression tests. Firebase CLI reports no authorized account;
-live-rule comparison, production import, functions/rules deployment and opening
-voting are not performed. Docker image execution cannot be verified here because
+and CI runs awards regression tests. Firebase CLI is now authorized and live rules audited; production import,
+functions/rules deployment and opening voting are not performed. Docker image execution cannot be verified here because
 this user cannot access the Docker socket; native production build passed.
+
+### Authenticated release audit follow-up
+
+Firebase CLI login and Rules API access confirmed. Retrieved and compared the
+published rules without modifying production. Restored membership privacy/type
+validation and pending admin application creation; 28 rules emulator tests pass
+and independent review found no blocking regression. Targeted lint passes.
+
+Read-only Cloud Billing lookup reports **billingEnabled: false**. Functions list
+is empty. Owner must enable Blaze/billing before the voting backend can deploy;
+no billing configuration was changed. Production import, backend deploy, Dokploy
+release and opening voting remain owner actions, not completed launch steps.

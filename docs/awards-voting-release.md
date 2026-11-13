@@ -38,21 +38,17 @@ All of these must be true before a production deploy.
 
 ### 1.2 Deployed rules baseline comparison
 
-`firestore.rules` was absent from the repository while `firebase.json` referenced
-it, and no authenticated tooling was available during implementation to read the
-live rules. The new file reproduces the audited behaviour of
-`tasks/complete-firestore-rules.md` and `src/` for unrelated collections, and
-tightens admin provisioning. **Before deploying:**
-
-Do not publish rules to discover the diff. Read/export the currently deployed
-rules from the Firebase console (or authenticated Rules API), save a private
-baseline copy, and compare it with `firestore.rules` before deploying.
+Live rules were retrieved read-only on 13 November 2026 after Firebase login.
+See `docs/awards-live-rules-audit.md` for the comparison. No rules were published.
+A private baseline copy is held outside the repository under
+`/tmp/acbf-live-rules/live-0.rules`; re-export the live rules before release to
+ensure nobody changed them after the audit.
 
 Compare the local file with the rules currently shown in the Firebase console
 (Firestore → Rules). Confirm, one collection at a time:
 
 - `contact_submissions`, `membership_applications`: public create still allowed,
-  admin read/update/delete preserved.
+  admin read/update/delete preserved; membership details remain applicant-email/admin-only.
 - `users`, `approved_admins`: role escalation closed; approve/reject flows still
   work for admins and the super admin.
 - `awards_nominations`: reads and status/archive updates still allowed for admins,
@@ -214,10 +210,21 @@ functions separately with `npx firebase deploy --only functions --project
 acbf-rsa-backend`. The Dokploy Dockerfile does neither. Do not add privileged
 Firebase credentials to the frontend container to work around this separation.
 
-Firebase CLI currently reports no authorized account in this workspace. Frontend
-`.env` API settings identify the project but do not grant deployment or Admin SDK
-import access. Live-rule comparison, production import, backend deployment and
-opening the ballot remain pending authenticated access and release approval.
+Firebase CLI login is now authorized and live rules have been retrieved for
+comparison. Frontend `.env` API settings identify the project but are not Admin
+SDK credentials. Production import uses application default credentials (a
+separate authorization from CLI login); confirm that path without writing data
+before applying. Production import, backend deployment and opening the ballot
+remain pending release approval. `firebase functions:list` returned an empty list
+on 13 November 2026, so do not assume existing email functions are live. Verify
+SMTP readiness separately before deploying or promising email notifications.
 
 References: [Deploy rules](https://firebase.google.com/docs/rules/manage-deploy),
 [Server SDK access](https://firebase.google.com/docs/firestore/security/insecure-rules).
+
+## Confirmed billing blocker
+
+Authenticated read-only Cloud Billing API check on 13 November 2026 returned
+`billingEnabled: false` for `acbf-rsa-backend`. The project must have billing
+linked / be on Blaze before deploying the callable backend. This audit did not
+change the billing plan, deploy code/rules, import nominees, or open voting.

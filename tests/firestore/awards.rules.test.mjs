@@ -375,7 +375,7 @@ describe('unrelated flows keep working', () => {
     await assertFails(db.collection('contact_submissions').get());
   });
 
-  test('membership applications can be created and read by id, but not listed', async () => {
+  test('membership applications allow public submission but keep reads private', async () => {
     const db = anonDb();
 
     await assertSucceeds(
@@ -388,8 +388,30 @@ describe('unrelated flows keep working', () => {
         created_at: new Date(),
       }),
     );
-    await assertSucceeds(db.doc('membership_applications/application-1').get());
+    await assertFails(db.doc('membership_applications/application-1').get());
     await assertFails(db.collection('membership_applications').get());
+  });
+
+  test('only the matching applicant may read and link their application', async () => {
+    const applicant = testEnv.authenticatedContext('applicant-uid', {email:'applicant@example.test'}).firestore();
+    await assertSucceeds(applicant.doc('membership_applications/application-1').get());
+    await assertFails(memberDb().doc('membership_applications/application-1').get());
+    await assertFails(memberDb().doc('membership_applications/application-1').update({user_id:'member-uid', account_created:true}));
+    await assertSucceeds(applicant.doc('membership_applications/application-1').update({user_id:'applicant-uid', account_created:true}));
+    await assertFails(applicant.doc('membership_applications/application-1').update({user_id:'other-uid'}));
+  });
+
+  test('membership submissions retain live required field types', async () => {
+    await assertFails(anonDb().collection('membership_applications').add({
+      name:123, email:'applicant@example.test', phone:'+27000000000',
+      business_type:'Retail', created_at:new Date(), status:'pending',
+    }));
+  });
+
+  test('authenticated users may submit their own pending admin application', async () => {
+    const data = {email:'member@example.test', name:'Member', reason:'Apply', created_at:new Date(), status:'pending'};
+    await assertSucceeds(memberDb().doc('admin_applications/new').set(data));
+    await assertFails(memberDb().doc('admin_applications/forged').set({...data,email:'other@example.test'}));
   });
 
   test('admins can read and process contact and membership submissions', async () => {

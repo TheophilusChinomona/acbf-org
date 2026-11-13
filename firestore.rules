@@ -143,7 +143,10 @@ service cloud.firestore {
     match /admin_applications/{applicationId} {
       allow read: if isSignedIn()
         && (resource.data.email == callerEmail() || isSuperAdmin());
-      allow create: if false;
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasAll(['email', 'name', 'reason', 'created_at', 'status'])
+        && request.resource.data.email == callerEmail()
+        && request.resource.data.status == 'pending';
       allow update, delete: if isSuperAdmin();
     }
 
@@ -161,15 +164,20 @@ service cloud.firestore {
     match /membership_applications/{applicationId} {
       allow create: if request.resource.data.keys()
         .hasAll(['name', 'email', 'phone', 'business_type', 'created_at', 'status'])
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.phone is string
+        && request.resource.data.business_type is string
         && request.resource.data.status == 'pending';
 
-      // The registration link reads one application before the account exists, so
-      // a single-document read is allowed. Listing stays admin-only.
-      allow get: if true;
-      allow list: if canReadAdminData();
+      // Preserve the deployed privacy boundary: only the applicant's signed-in
+      // email or an approved admin may read application personal details.
+      allow read: if canReadAdminData()
+        || (isSignedIn() && resource.data.email == callerEmail());
 
-      // The newly created account links itself to its application.
+      // The newly created account links only its own email-matched application.
       allow update: if isSignedIn()
+        && resource.data.email == callerEmail()
         && request.resource.data.diff(resource.data).affectedKeys()
           .hasOnly(['user_id', 'account_created', 'account_created_at'])
         && request.resource.data.user_id == request.auth.uid;
