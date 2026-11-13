@@ -44,7 +44,7 @@ const COLUMN_ALIASES = Object.freeze({
     'organization',
     'business/organisation',
   ],
-  personName: ['person name', 'person', 'nominee name', 'nominee', 'name', 'individual', 'full name'],
+  personName: ['business person', 'person name', 'person', 'nominee name', 'nominee', 'name', 'individual', 'full name'],
   country: ['country', 'nation', 'country of origin'],
 });
 
@@ -448,5 +448,17 @@ export function readNomineeWorkbook(workbookPath) {
   const sheetName = workbook.SheetNames[0];
   if (!sheetName) throw new Error(`Workbook "${workbookPath}" has no worksheets`);
   const sheet = workbook.Sheets[sheetName];
+  // Version 5 has an intentionally blank sixth heading. Recognize only its
+  // exact surrounding layout; never guess a category from an arbitrary column.
+  const matrix = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', blankrows: true });
+  const headers = matrix[0]?.map(normalizeKey) ?? [];
+  if (headers.length === 7 &&
+      headers[0] === 'country' && headers[1] === 'business name' &&
+      headers[2] === 'business person' && headers[3] === 'contact number' &&
+      headers[4] === 'email' && headers[5] === '' && headers[6] === 'extra notes') {
+    const names = [...matrix[0]];
+    names[5] = 'Award Category';
+    return matrix.slice(1).map(cells => Object.fromEntries(names.map((name, i) => [name, cells[i] ?? ''])));
+  }
   return XLSX.utils.sheet_to_json(sheet, { defval: '', blankrows: false });
 }

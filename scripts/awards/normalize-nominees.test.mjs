@@ -323,7 +323,7 @@ test('importer permits display corrections for an unchanged identity after votes
 test('supplied version 5 workbook (AWARDS_NOMINEES_XLSX) has 139 nominees from nine countries', async (t) => {
   const workbookPath = process.env.AWARDS_NOMINEES_XLSX;
   if (!workbookPath) {
-    t.diagnostic(
+    t.skip(
       'AWARDS_NOMINEES_XLSX is not set; the committed synthetic fixture covers the same shape. ' +
         'Set it to the supplied workbook to verify the real file.',
     );
@@ -336,5 +336,59 @@ test('supplied version 5 workbook (AWARDS_NOMINEES_XLSX) has 139 nominees from n
 
   assert.equal(summary.nomineeCount, 139);
   assert.equal(summary.countryCount, 9);
+  assert.equal(summary.errorCount, 0, JSON.stringify(issues));
+  assert.equal(nominees.filter(n => !n.personName).length, 21);
+  assert.equal(nominees.filter(n => !n.businessName).length, 3);
   assert.equal(new Set(nominees.map((nominee) => nominee.id)).size, 139);
+});
+
+
+test('reads version 5 blank category heading and Business Person without leaking contacts', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'acbf-real-shape-'));
+  try {
+    const XLSX = require('xlsx');
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([
+      ['Country', 'Business Name ', 'Business Person', 'Contact Number ', 'Email ', '    ', 'Extra Notes '],
+      ['Namibia', '', 'Person Only', 'private phone', 'private@example.com', 'Business Leader Of the Year', 'private notes'],
+      ['', 'Business Only', '', '', '', 'Business Leader Of the Year', ''],
+    ]), 'Sheet1');
+    const file = join(dir, 'nominees.xlsx');
+    XLSX.writeFile(workbook, file);
+    const result = normalizeNominees(readNomineeWorkbook(file), categoryMap);
+    assert.equal(result.nominees.length, 2);
+    assert.equal(result.nominees[0].personName, 'Person Only');
+    assert.equal(result.nominees[1].country, 'Namibia');
+    assert.equal(result.issues.filter(i => i.severity === 'error').length, 0);
+    assert.ok(!JSON.stringify(result.nominees).includes('private'));
+  } finally { rmSync(dir, {recursive:true, force:true}); }
+});
+
+
+test('keeps the workbook legal and professional categories distinct', () => {
+  const result = normalizeNominees([
+    row({category:'Legal and Compliance Services Award', business:'Legal One', country:'Namibia'}),
+    row({category:'Legal and Compliance Services Excellence Award', business:'Legal Two', country:'Namibia'}),
+    row({category:'Professional Services Award', business:'Advisory', country:'Namibia'}),
+  ], categoryMap);
+  assert.equal(result.categories.length, 3);
+  assert.equal(result.issues.length, 0);
+});
+
+test('merges only the explicit workbook spelling variants', () => {
+  const result = normalizeNominees([
+    row({category:'Youth Enterprenuership of the Year', business:'Youth One', country:'Namibia'}),
+    row({category:'Youth Enterprenuership of the year Award', business:'Youth Two', country:'Namibia'}),
+    row({category:'Energy & Utilities Excellence Award', business:'Energy One', country:'Namibia'}),
+    row({category:'Energy and Utilities Excellence Award', business:'Energy Two', country:'Namibia'}),
+  ], categoryMap);
+  assert.equal(result.categories.length, 2);
+  assert.equal(result.issues.length, 0);
+});
+
+
+test('does not guess a blank category column in an unrelated workbook', () => {
+  assert.throws(() => normalizeNominees([
+    {Country:'Namibia', 'Business Name':'Business', 'Business Person':'Person', '':'Unidentified value'},
+  ], categoryMap), /missing required column/);
 });

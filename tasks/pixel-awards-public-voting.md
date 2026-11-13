@@ -62,11 +62,18 @@ Run the dry run against the real workbook and add the reviewed mappings before
 node scripts/awards/import-nominees.mjs "/path/Awards Nominees 5.xlsx"
 ```
 
-The supplied workbook was not present in this environment, so the 139-nominee
-dry run against the real file is still outstanding. `AWARDS_NOMINEES_XLSX=<path>`
-turns on the same assertion in
-`node --test scripts/awards/normalize-nominees.test.mjs`, which currently runs it
-against a committed synthetic fixture of the same shape.
+The real supplied workbook is now available and validated. The importer recognizes
+its blank sixth heading only for the known seven-column layout and imports the
+Business Person column correctly. Real validation: **139 unique nominees,
+9 countries, 32 populated categories, zero blocking errors**, 3 missing business
+names and 21 missing person names. See `docs/awards-nominee-validation.md` for
+category counts and explicit mapping decisions. Legal award titles with and
+without Excellence remain separate; owner publication signoff is still pending.
+
+Fresh verification: 52 awards tests passed on Node 22 using the actual workbook;
+33 voting emulator tests and 25 rules tests passed; production build and targeted
+lint passed. Independent review found no blocking issues. Build outputs were
+restored and are not part of the change.
 
 ### Deployed rules baseline could not be retrieved
 
@@ -87,3 +94,17 @@ authorised by security rules, so `getAdminInvitation` and `acceptAdminInvitation
 now perform the privileged writes with the Admin SDK and the rules deny client
 writes. Existing pending invitations keep working because the server still looks
 them up by token.
+
+### Real workbook and Dokploy follow-up
+
+- [x] Support the supplied blank category heading and Business Person column.
+- [x] Validate all 139 actual nominees and document category decisions.
+- [x] Update Dokploy/Firebase release guidance and supported runtime.
+- [x] Run relevant tests/build; push follow-up to PR #11.
+
+Dokploy follow-up: frontend build arguments documented, Docker build context now
+excludes credentials/private workbooks, Node 22 configured for Functions/build/CI,
+and CI runs awards regression tests. Firebase CLI reports no authorized account;
+live-rule comparison, production import, functions/rules deployment and opening
+voting are not performed. Docker image execution cannot be verified here because
+this user cannot access the Docker socket; native production build passed.

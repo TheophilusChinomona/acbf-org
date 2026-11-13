@@ -19,11 +19,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "npm"
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Test awards pipeline and voting policy
+        run: npm run test:awards
 
       - name: Build React app
         run: npm run build:prod

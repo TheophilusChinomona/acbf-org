@@ -2,7 +2,7 @@
   "functions": {
     "source": "functions",
     "predeploy": [],
-    "runtime": "nodejs18"
+    "runtime": "nodejs22"
   },
   "firestore": {
     "rules": "firestore.rules"
