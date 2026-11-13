@@ -343,3 +343,14 @@ export function categoriesWithCounts(categories, nominees) {
     .filter((category) => category.nomineeCount > 0)
     .sort((a, b) => a.name.localeCompare(b.name));
 }
+
+/** Clock-derived values prevent drift after backgrounding; never display negatives. */
+export function countdownParts(deadlineMs, nowMs = Date.now()) {
+  const seconds = Math.max(0, Math.ceil((deadlineMs - nowMs) / 1000));
+  return {
+    days: Math.floor(seconds / 86400),
+    hours: Math.floor((seconds % 86400) / 3600),
+    minutes: Math.floor((seconds % 3600) / 60),
+    seconds: seconds % 60,
+  };
+}

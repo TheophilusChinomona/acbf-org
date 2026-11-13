@@ -208,3 +208,16 @@ test('evaluates the closing boundary exactly like the server', () => {
   assert.equal(isDeadlinePassed('2026-11-19T14:00:00Z', VOTING_DEADLINE_MS - 1), false);
   assert.equal(isDeadlinePassed(null, 0), true);
 });
+
+// The deadline is 16:00 South Africa time, regardless of the visitor's timezone.
+test('countdown stays positive until the exact SAST deadline and stops at zero', async () => {
+  const { countdownParts, VOTING_DEADLINE_MS } = await import('./awardsVoting.js');
+  assert.deepEqual(countdownParts(VOTING_DEADLINE_MS, Date.parse('2026-11-13T14:00:00Z')),
+    { days: 6, hours: 0, minutes: 0, seconds: 0 });
+  assert.deepEqual(countdownParts(VOTING_DEADLINE_MS, VOTING_DEADLINE_MS - 1),
+    { days: 0, hours: 0, minutes: 0, seconds: 1 });
+  for (const now of [VOTING_DEADLINE_MS, VOTING_DEADLINE_MS + 3600000]) {
+    assert.deepEqual(countdownParts(VOTING_DEADLINE_MS, now),
+      { days: 0, hours: 0, minutes: 0, seconds: 0 });
+  }
+});

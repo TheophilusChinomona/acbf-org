@@ -188,7 +188,9 @@ export function useAwardsVoting(competitionId = VOTING_COMPETITION_ID) {
       if (!isOpen) {
         return {
           status: 'closed',
-          message: `Voting closed on ${deadlineLabel}.`,
+          message: deadlineReached
+            ? `Voting closed on ${deadlineLabel}.`
+            : 'Voting is not open yet. You can browse the nominees.',
         };
       }
       if (votedCategoryIds.includes(categoryId)) {
@@ -269,6 +271,7 @@ export function useAwardsVoting(competitionId = VOTING_COMPETITION_ID) {
     [
       competitionId,
       deadlineLabel,
+      deadlineReached,
       isOpen,
       storageAvailable,
       storageMessage,

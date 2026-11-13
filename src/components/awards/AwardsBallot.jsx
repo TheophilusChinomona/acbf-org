@@ -3,6 +3,7 @@ import { FiAlertTriangle, FiCheckCircle, FiInfo, FiSearch } from 'react-icons/fi
 import toast from 'react-hot-toast';
 import Button from '../common/Button';
 import Loading from '../common/Loading';
+import VotingCountdown from './VotingCountdown';
 import { useAwardsVoting } from '../../hooks/useAwardsVoting';
 import {
   categoriesWithCounts,
@@ -27,6 +28,8 @@ export default function AwardsBallot() {
     error,
     isOpen,
     deadlineLabel,
+    deadlineReached,
+    closesAt,
     castVote,
     votingCategoryId,
     votedCategoryIds,
@@ -83,7 +86,12 @@ export default function AwardsBallot() {
     event.preventDefault();
 
     if (!isOpen) {
-      setStatus({ tone: 'info', message: `Voting closed on ${deadlineLabel}.` });
+      setStatus({
+        tone: 'info',
+        message: deadlineReached
+          ? `Voting closed on ${deadlineLabel}.`
+          : 'Voting is not open yet. You can browse the nominees.',
+      });
       return;
     }
     if (!activeCategoryId || !selectedNomineeId) {
@@ -173,9 +181,11 @@ export default function AwardsBallot() {
             isOpen ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700'
           }`}
         >
-          {isOpen ? `Voting closes ${deadlineLabel}` : `Voting closed ${deadlineLabel}`}
+          {isOpen ? 'Voting open' : deadlineReached ? 'Voting closed' : 'Voting is not open yet'}
         </p>
       </div>
+
+      <VotingCountdown closesAt={closesAt} deadlineLabel={deadlineLabel} />
 
       {!storageAvailable && (
         <p className="flex items-start gap-2 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-900">
@@ -192,8 +202,9 @@ export default function AwardsBallot() {
         <p className="flex items-start gap-2 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
           <FiInfo className="mt-0.5 flex-shrink-0" aria-hidden="true" />
           <span>
-            Voting closed on {deadlineLabel}. The nominee list stays available for reference; no
-            further votes are accepted.
+            {deadlineReached
+              ? `Voting closed on ${deadlineLabel}. The nominee list stays available for reference; no further votes are accepted.`
+              : `Voting is not open yet. You can browse the nominees. The scheduled closing time is ${deadlineLabel}.`}
           </span>
         </p>
       )}
@@ -208,35 +219,19 @@ export default function AwardsBallot() {
             <h3 id="award-category-heading" className="text-lg font-semibold text-gray-900 mb-3">
               Choose a category
             </h3>
-            <div className="flex gap-2 overflow-x-auto pb-2" role="group" aria-label="Award categories">
-              {visibleCategories.map((category) => {
-                const isActive = category.id === activeCategoryId;
-                const hasVoted = votedCategoryIds.includes(category.id);
-                return (
-                  <button
-                    key={category.id}
-                    type="button"
-                    onClick={() => handleCategoryChange(category.id)}
-                    aria-pressed={isActive}
-                    className={`min-h-[44px] whitespace-nowrap rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
-                      isActive
-                        ? 'border-primary bg-primary text-white'
-                        : 'border-gray-300 bg-white text-gray-700 hover:border-primary hover:text-primary'
-                    }`}
-                  >
-                    {category.name}
-                    <span
-                      className={`ml-2 rounded-full px-2 py-0.5 text-xs ${
-                        isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {category.nomineeCount}
-                    </span>
-                    {hasVoted && <span className="sr-only"> — vote recorded</span>}
-                  </button>
-                );
-              })}
-            </div>
+            <label htmlFor="award-category" className="sr-only">Choose a category</label>
+            <select
+              id="award-category"
+              value={activeCategoryId}
+              onChange={(event) => handleCategoryChange(event.target.value)}
+              className="min-h-[44px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {visibleCategories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name} ({category.nomineeCount}){votedCategoryIds.includes(category.id) ? ' — vote recorded' : ''}
+                </option>
+              ))}
+            </select>
           </section>
 
           <section aria-labelledby="nominee-list-heading" className="space-y-4">
