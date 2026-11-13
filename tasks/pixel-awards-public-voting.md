@@ -212,6 +212,20 @@ functions deployment.
 Unrelated pre-existing lint findings were left untouched (`useAdminManagement.js`,
 `src/templates/adminNotification.js`, `vite.config.js`).
 
+### Independent review (13 November 2026)
+
+Reviewed the amendment diff against the five review-focus risks (client-IP trust,
+idempotency, startup/readiness, invitations, proxy failure): **no blocking
+findings**. Two non-blocking nits fixed — the tautological `app().options.projectId`
+assertion was removed (the real guard is the credential/project comparison in
+`config.js`) and startup failures now go through the injected logger. Accepted
+nits: client and server timeouts are both 15 s, so a slow vote can surface either
+message; nginx's intercepted 503 reuses the API's own generic text; a duplicate
+vote caches `nomineeId: null` locally (the server never discloses the choice).
+Two pre-existing behaviours stay out of scope: an expired token still renders a
+submittable form (the server refuses it), and an Auth account orphaned by a failed
+batch *and* failed cleanup wedges that email until an admin removes it.
+
 ### Amendment owner gates (not executed by the implementing agent)
 
 - [ ] Provision the dedicated service account and mount
@@ -229,3 +243,7 @@ Unrelated pre-existing lint findings were left untouched (`useAdminManagement.js
 - 2026-11-13: implementation complete on the feature branch: domain/callable
   split, internal HTTP API, browser transport, Compose/nginx/CI/docs. Checks
   above recorded; no merge, deploy, production import or voting change performed.
+- 2026-11-13: PR #11 description updated with the amendment; branch CI green
+  (runs 43452816695 and 43453737384 after the socket-error guard), including both
+  Docker image builds, the API-image no-credential startup check and the proxy
+  `/api/v1/` JSON-503 smoke test. Callables remain undeployed.

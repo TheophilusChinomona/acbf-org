@@ -47,13 +47,13 @@ function createReadinessProbe({ db, projectId, timeoutMs = READINESS_TIMEOUT_MS 
   };
 }
 
-function fail(error) {
+function fail(error, logger) {
   // Only our own configuration errors carry reviewed text. Anything else is
   // reported by shape so a library message cannot leak credential material.
   if (error instanceof ApiConfigError) {
-    console.error('api: startup failed:', error.message);
+    logger.error('api: startup failed:', error.message);
   } else {
-    console.error('api: startup failed', {
+    logger.error('api: startup failed', {
       name: error && error.name,
       code: error && error.code,
     });
@@ -66,17 +66,13 @@ function initialiseAdmin(config) {
     throw new Error('The Admin SDK is already initialised.');
   }
 
+  // `loadApiConfig` already proved `credentials.project_id === config.projectId`
+  // and validated the key material; trusting `app().options.projectId` here would
+  // only assert the value just passed in.
   admin.initializeApp({
     credential: admin.credential.cert(config.credentials),
     projectId: config.projectId,
   });
-
-  const resolvedProjectId = admin.app().options.projectId;
-  if (resolvedProjectId !== config.projectId) {
-    throw new ApiConfigError(
-      'The Admin SDK resolved a different project than FIREBASE_PROJECT_ID.',
-    );
-  }
 }
 
 /**
@@ -92,7 +88,7 @@ async function main({ env = process.env, logger = console } = {}) {
     config = loadApiConfig(env);
     initialiseAdmin(config);
   } catch (error) {
-    fail(error);
+    fail(error, logger);
     return { server: null };
   }
 
