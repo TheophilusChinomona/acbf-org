@@ -17,10 +17,10 @@
  * never reveals which nominee was voted for.
  */
 
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
+const { FieldValue, Timestamp } = require('firebase-admin/firestore');
 
 const policy = require('./policy');
+const { normalizeDomainError } = require('../errors');
 
 const { AwardsVoteError, ERROR_CODES } = policy;
 
@@ -44,20 +44,29 @@ function competitionRefs(db, competitionId) {
   };
 }
 
-function toHttpsError(error) {
-  if (error instanceof AwardsVoteError) {
-    const code = Object.values(ERROR_CODES).includes(error.code)
-      ? error.code
-      : ERROR_CODES.UNAVAILABLE;
-    return new functions.https.HttpsError(code, error.message);
-  }
+/**
+ * Read the transport-supplied client address.
+ *
+ * The HTTP API passes `clientIp` taken from the single trusted proxy header; the
+ * legacy callable passes its own `rawRequest.ip`. Callers cannot choose either
+ * value from a request body.
+ *
+ * @param {{clientIp?: string, rawRequest?: {ip?: string}}} [context]
+ * @returns {string|null}
+ */
+function readClientIp(context) {
+  if (!context || typeof context !== 'object') return null;
+  if (typeof context.clientIp === 'string') return context.clientIp;
+  const rawIp = context.rawRequest && context.rawRequest.ip;
+  return typeof rawIp === 'string' ? rawIp : null;
+}
 
-  // Log only the shape of the failure: never voter data or payload contents.
-  console.error('castAwardVote failed', {
-    name: error && error.name,
-    code: error && error.code,
+function toDomainError(error) {
+  // Log only the shape of unexpected failures: never voter data or payloads.
+  return normalizeDomainError(error, {
+    context: 'castAwardVote',
+    message: UNAVAILABLE_MESSAGE,
   });
-  return new functions.https.HttpsError(ERROR_CODES.UNAVAILABLE, UNAVAILABLE_MESSAGE);
 }
 
 /**
@@ -71,19 +80,17 @@ function createCastAwardVote({ db, now = Date.now } = {}) {
     throw new TypeError('createCastAwardVote requires a Firestore instance');
   }
 
-  const { FieldValue, Timestamp } = admin.firestore;
-
   return async function castAwardVote(data, context = {}) {
     let input;
     try {
       input = policy.validateVoteInput(data);
     } catch (error) {
-      throw toHttpsError(error);
+      throw toDomainError(error);
     }
 
     const refs = competitionRefs(db, input.competitionId);
     const voteRef = refs.votes.doc(policy.voteKeyFor(input));
-    const hashedIp = policy.ipIdentity(context && context.rawRequest && context.rawRequest.ip);
+    const hashedIp = policy.ipIdentity(readClientIp(context));
 
     try {
       return await db.runTransaction(async (transaction) => {
@@ -193,7 +200,7 @@ function createCastAwardVote({ db, now = Date.now } = {}) {
         return { status: 'accepted', nomineeId: input.nomineeId };
       });
     } catch (error) {
-      throw toHttpsError(error);
+      throw toDomainError(error);
     }
   };
 }
@@ -201,6 +208,7 @@ function createCastAwardVote({ db, now = Date.now } = {}) {
 module.exports = {
   createCastAwardVote,
   competitionRefs,
+  readClientIp,
   CLOSED_MESSAGE,
   NOT_OPEN_MESSAGE,
   UNAVAILABLE_MESSAGE,

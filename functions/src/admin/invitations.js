@@ -1,12 +1,12 @@
 'use strict';
 
 /**
- * Admin invitation callables.
+ * Admin invitation domain services.
  *
  * Admin provisioning has to happen on the server: the previous client-side flow
  * let any fresh account write its own `users.role = 'admin'` profile and its own
  * `approved_admins` record, which cannot be authorised by security rules. These
- * callables keep the invitation experience unchanged while moving every
+ * services keep the invitation experience unchanged while moving every
  * privileged write behind the Admin SDK.
  *
  * - `getAdminInvitation` returns the sanitized invitation details the acceptance
@@ -15,10 +15,17 @@
  * - `acceptAdminInvitation` verifies the token, creates the Auth user, creates the
  *   approved admin profile, records the approved admin, and marks the invitation
  *   accepted.
+ *
+ * The invitation document is the only authority for the granted identity: the
+ * caller supplies a token, a password and an optional display name, and can never
+ * choose the email or role. Failures are reported as transport-independent
+ * `DomainError`s; `functions/index.js` (callable) and `src/api/app.js` (HTTP) map
+ * them to their own error type.
  */
 
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
+const { FieldValue } = require('firebase-admin/firestore');
+
+const { ERROR_CODES, DomainError, normalizeDomainError } = require('../errors');
 
 const INVITATIONS_COLLECTION = 'admin_invitations';
 const APPROVED_ADMINS_COLLECTION = 'approved_admins';
@@ -29,8 +36,13 @@ const MAX_NAME_LENGTH = 120;
 const MIN_PASSWORD_LENGTH = 6;
 const MAX_PASSWORD_LENGTH = 256;
 
+const LOOKUP_UNAVAILABLE_MESSAGE =
+  'Invitations are temporarily unavailable. Please try again.';
+const ACCEPT_UNAVAILABLE_MESSAGE =
+  'Could not finish creating the account. Please try again.';
+
 function invalid(message) {
-  return new functions.https.HttpsError('invalid-argument', message);
+  return new DomainError(ERROR_CODES.INVALID_ARGUMENT, message);
 }
 
 function readToken(data) {
@@ -87,7 +99,16 @@ function createGetAdminInvitation({ db, now = Date.now } = {}) {
 
   return async function getAdminInvitation(data) {
     const token = readToken(data);
-    const snapshot = await findInvitationByToken(db, token);
+
+    let snapshot;
+    try {
+      snapshot = await findInvitationByToken(db, token);
+    } catch (error) {
+      throw normalizeDomainError(error, {
+        context: 'getAdminInvitation',
+        message: LOOKUP_UNAVAILABLE_MESSAGE,
+      });
+    }
     if (!snapshot) return { invitation: null, reason: 'not-found' };
 
     const invitation = serializeInvitation(snapshot);
@@ -119,27 +140,36 @@ function createAcceptAdminInvitation({ db, auth, now = Date.now } = {}) {
       throw invalid(`Name must be ${MAX_NAME_LENGTH} characters or fewer.`);
     }
 
-    const snapshot = await findInvitationByToken(db, token);
-    if (!snapshot) throw new functions.https.HttpsError('not-found', 'Invitation not found.');
+    let snapshot;
+    try {
+      snapshot = await findInvitationByToken(db, token);
+    } catch (error) {
+      throw normalizeDomainError(error, {
+        context: 'acceptAdminInvitation',
+        message: LOOKUP_UNAVAILABLE_MESSAGE,
+      });
+    }
+    if (!snapshot) throw new DomainError(ERROR_CODES.NOT_FOUND, 'Invitation not found.');
 
     const invitation = snapshot.data();
     if (invitation.status !== 'pending') {
-      throw new functions.https.HttpsError(
-        'failed-precondition',
+      throw new DomainError(
+        ERROR_CODES.FAILED_PRECONDITION,
         'This invitation has already been used or cancelled.',
       );
     }
     if (invitationExpired(invitation, now())) {
-      throw new functions.https.HttpsError(
-        'failed-precondition',
+      throw new DomainError(
+        ERROR_CODES.FAILED_PRECONDITION,
         'This invitation has expired. Please request a new one.',
       );
     }
 
+    // The invitation document decides the granted identity, never the payload.
     const email = String(invitation.email ?? '').trim().toLowerCase();
     if (!email) {
-      throw new functions.https.HttpsError(
-        'failed-precondition',
+      throw new DomainError(
+        ERROR_CODES.FAILED_PRECONDITION,
         'This invitation is missing an email address. Please request a new one.',
       );
     }
@@ -151,19 +181,18 @@ function createAcceptAdminInvitation({ db, auth, now = Date.now } = {}) {
       userRecord = await auth.createUser({ email, password, displayName });
     } catch (error) {
       if (error?.code === 'auth/email-already-exists') {
-        throw new functions.https.HttpsError(
-          'already-exists',
+        throw new DomainError(
+          ERROR_CODES.ALREADY_EXISTS,
           'An account already exists for this email. Sign in instead.',
         );
       }
       console.error('acceptAdminInvitation: failed to create auth user', { code: error?.code });
-      throw new functions.https.HttpsError(
-        'unavailable',
+      throw new DomainError(
+        ERROR_CODES.UNAVAILABLE,
         'Could not create the account. Please try again.',
       );
     }
 
-    const { FieldValue } = admin.firestore;
     const batch = db.batch();
     batch.set(db.collection(USERS_COLLECTION).doc(userRecord.uid), {
       email,
@@ -196,15 +225,14 @@ function createAcceptAdminInvitation({ db, auth, now = Date.now } = {}) {
     try {
       await batch.commit();
     } catch (error) {
-      // Do not leave an orphaned auth account that cannot be provisioned again.
+      // Remove only the account created by this call: a pre-existing account is
+      // never touched, and no admin record was granted because the batch is
+      // atomic.
       await auth.deleteUser(userRecord.uid).catch(() => undefined);
       console.error('acceptAdminInvitation: failed to write admin records', {
         code: error?.code,
       });
-      throw new functions.https.HttpsError(
-        'unavailable',
-        'Could not finish creating the account. Please try again.',
-      );
+      throw new DomainError(ERROR_CODES.UNAVAILABLE, ACCEPT_UNAVAILABLE_MESSAGE);
     }
 
     return { uid: userRecord.uid, email };
@@ -213,6 +241,8 @@ function createAcceptAdminInvitation({ db, auth, now = Date.now } = {}) {
 
 module.exports = {
   INVITATIONS_COLLECTION,
+  APPROVED_ADMINS_COLLECTION,
+  USERS_COLLECTION,
   createGetAdminInvitation,
   createAcceptAdminInvitation,
   serializeInvitation,

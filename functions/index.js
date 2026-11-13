@@ -18,12 +18,34 @@ const {
   createGetAdminInvitation,
   createAcceptAdminInvitation,
 } = require('./src/admin/invitations');
+const { toPublicError } = require('./src/errors');
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
 
 // Load environment variables
 require('dotenv').config();
+
+/**
+ * Compatibility adapter for a transport-independent domain handler.
+ *
+ * Production browser flows use the internal Dokploy HTTP API
+ * (`src/api/app.js`) instead of these callables. The exports remain so existing
+ * deployments, tests and any rollback keep working, and this adapter is the only
+ * place that builds an `HttpsError`.
+ *
+ * @param {(data: unknown, context?: object) => Promise<unknown>} handler
+ */
+function callableAdapter(handler) {
+  return async (data, context) => {
+    try {
+      return await handler(data, context);
+    } catch (error) {
+      const { code, message } = toPublicError(error);
+      throw new functions.https.HttpsError(code, message);
+    }
+  };
+}
 
 /**
  * Callable: accept one award vote.
@@ -36,7 +58,7 @@ require('dotenv').config();
  * Response: { status: 'accepted' | 'already-voted', nomineeId?: string }
  */
 exports.castAwardVote = functions.https.onCall(
-  createCastAwardVote({ db: admin.firestore(), now: Date.now }),
+  callableAdapter(createCastAwardVote({ db: admin.firestore(), now: Date.now })),
 );
 
 /**
@@ -46,7 +68,7 @@ exports.castAwardVote = functions.https.onCall(
  * the acceptance page gets only the display fields it needs from here.
  */
 exports.getAdminInvitation = functions.https.onCall(
-  createGetAdminInvitation({ db: admin.firestore(), now: Date.now }),
+  callableAdapter(createGetAdminInvitation({ db: admin.firestore(), now: Date.now })),
 );
 
 /**
@@ -56,7 +78,9 @@ exports.getAdminInvitation = functions.https.onCall(
  * client can grant itself an admin role.
  */
 exports.acceptAdminInvitation = functions.https.onCall(
-  createAcceptAdminInvitation({ db: admin.firestore(), auth: admin.auth(), now: Date.now }),
+  callableAdapter(
+    createAcceptAdminInvitation({ db: admin.firestore(), auth: admin.auth(), now: Date.now }),
+  ),
 );
 
 /**

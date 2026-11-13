@@ -10,6 +10,8 @@
 
 const crypto = require('node:crypto');
 
+const { ERROR_CODES, DomainError } = require('../errors');
+
 const VOTING_COMPETITION_ID = '2026';
 
 /** Closing time confirmed with the client: 19 November 2026, 16:00 SAST (UTC+2). */
@@ -48,19 +50,15 @@ const ALLOWED_VOTE_FIELDS = Object.freeze([
   'email',
 ]);
 
-const ERROR_CODES = Object.freeze({
-  INVALID_ARGUMENT: 'invalid-argument',
-  FAILED_PRECONDITION: 'failed-precondition',
-  RESOURCE_EXHAUSTED: 'resource-exhausted',
-  UNAVAILABLE: 'unavailable',
-});
-
-/** Error carrying one of the callable error codes the client understands. */
-class AwardsVoteError extends Error {
+/**
+ * Error carrying one of the client-understood codes. It is a plain domain error:
+ * the callable and HTTP adapters translate it, so this module stays free of
+ * framework imports.
+ */
+class AwardsVoteError extends DomainError {
   constructor(code, message) {
-    super(message);
+    super(code, message);
     this.name = 'AwardsVoteError';
-    this.code = code;
   }
 }
 
