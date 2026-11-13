@@ -13,12 +13,28 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const { sendEmail } = require('./src/sendEmail');
 const { generateAdminNotification } = require('./src/templates/adminNotification');
+const { createCastAwardVote } = require('./src/awards/voting');
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
 
 // Load environment variables
 require('dotenv').config();
+
+/**
+ * Callable: accept one award vote.
+ *
+ * The whole decision — deadline, nominee/category match, duplicate detection and
+ * rate limiting — happens inside one Firestore transaction, so concurrent or
+ * retried submissions can only ever count once.
+ *
+ * Request payload: { competitionId, categoryId, nomineeId, browserToken, name?, email? }
+ * Response: { status: 'accepted' | 'already-voted', nomineeId?: string }
+ */
+exports.castAwardVote = functions.https.onCall(
+  createCastAwardVote({ db: admin.firestore(), now: Date.now }),
+);
+
 
 /**
  * Firestore Trigger: Contact Form Submission
