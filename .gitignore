@@ -31,3 +31,6 @@ api/config.php
 **/firebase-admin.json
 **/firebase-voting-api.json
 **/*service-account*.json
+
+# Local/private environment variants
+.env.*
