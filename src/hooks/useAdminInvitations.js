@@ -5,19 +5,18 @@ import {
   doc,
   getDoc,
   getDocs,
-  limit,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
-  setDoc,
   Timestamp,
   updateDoc,
   where,
 } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import app, { auth, db } from '../lib/firebase';
 import { useAuth } from './useAuth';
-import { useUserManagement } from './useUserManagement';
 import {
   generateInvitationToken,
   validateInvitationToken,
@@ -25,10 +24,8 @@ import {
   isInvitationExpired,
   INVITATION_TOKEN_DEFAULTS,
 } from '../utils/invitationToken';
-import { USER_ROLES } from '../utils/userRoles';
 
 const INVITATIONS_COLLECTION = 'admin_invitations';
-const APPROVED_ADMINS_COLLECTION = 'approved_admins';
 
 function normaliseEmail(email) {
   if (typeof email !== 'string') {
@@ -62,23 +59,16 @@ function formatInvitationDoc(snapshot) {
   };
 }
 
-async function findInvitationByToken(token) {
-  const invitationsQuery = query(
-    collection(db, INVITATIONS_COLLECTION),
-    where('token', '==', token),
-    limit(1),
-  );
-
-  const snapshot = await getDocs(invitationsQuery);
-  if (snapshot.empty) {
-    return null;
-  }
-  return snapshot.docs[0];
+function invitationFunctions() {
+  const functions = getFunctions(app);
+  return {
+    getAdminInvitation: httpsCallable(functions, 'getAdminInvitation'),
+    acceptAdminInvitation: httpsCallable(functions, 'acceptAdminInvitation'),
+  };
 }
 
 export function useAdminInvitations({ listen = false } = {}) {
-  const { currentUser, register } = useAuth();
-  const { createUserProfile } = useUserManagement();
+  const { currentUser } = useAuth();
 
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(listen);
@@ -176,91 +166,42 @@ export function useAdminInvitations({ listen = false } = {}) {
       return null;
     }
 
-    const trimmedToken = rawToken.trim();
-    const snapshot = await findInvitationByToken(trimmedToken);
-    if (!snapshot) {
+    const { getAdminInvitation } = invitationFunctions();
+    const response = await getAdminInvitation({ token: rawToken.trim() });
+    const invitation = response?.data?.invitation ?? null;
+    if (!invitation) {
       return null;
     }
-    return formatInvitationDoc(snapshot);
+
+    return {
+      ...invitation,
+      created_at: mapTimestamp(invitation.created_at),
+      expires_at: mapTimestamp(invitation.expires_at),
+    };
   }, []);
 
-  const markInvitationAsAccepted = useCallback(async (invitationId, acceptedBy) => {
-    const invitationRef = doc(db, INVITATIONS_COLLECTION, invitationId);
-    await updateDoc(invitationRef, {
-      status: 'accepted',
-      accepted_at: serverTimestamp(),
-      accepted_by: acceptedBy ?? null,
-    });
+  const acceptInvitation = useCallback(async ({ token, password, name }) => {
+    if (!validateInvitationToken(token, { minLength: 8, maxLength: 256 })) {
+      throw new Error('Invalid invitation token.');
+    }
+    if (typeof password !== 'string' || password.length < 6) {
+      throw new Error('Password must be at least 6 characters long.');
+    }
+
+    const { acceptAdminInvitation } = invitationFunctions();
+    const response = await acceptAdminInvitation({ token: token.trim(), password, name });
+    const email = response?.data?.email;
+
+    if (!email) {
+      throw new Error('The invitation could not be completed. Please request a new invite.');
+    }
+
+    // The account and admin records are created server-side; signing in here
+    // establishes the session the rest of the app expects.
+    const credential = await signInWithEmailAndPassword(auth, email, password);
+    return credential.user;
   }, []);
 
-  const addApprovedAdminRecord = useCallback(async ({ email, name, approver }) => {
-    const adminRef = doc(db, APPROVED_ADMINS_COLLECTION, email);
-    await setDoc(
-      adminRef,
-      {
-        email,
-        name: name || email,
-        approved_by: approver || null,
-        approved_at: serverTimestamp(),
-        status: 'approved',
-      },
-      { merge: true },
-    );
-  }, []);
-
-  const acceptInvitation = useCallback(
-    async ({ token, password, name }) => {
-      if (!validateInvitationToken(token, { minLength: 8, maxLength: 256 })) {
-        throw new Error('Invalid invitation token.');
-      }
-      if (typeof password !== 'string' || password.length < 6) {
-        throw new Error('Password must be at least 6 characters long.');
-      }
-
-      const trimmedToken = token.trim();
-      const invitationSnapshot = await findInvitationByToken(trimmedToken);
-
-      if (!invitationSnapshot) {
-        throw new Error('Invitation not found or already used.');
-      }
-
-      const invitation = formatInvitationDoc(invitationSnapshot);
-      if (invitation.status !== 'pending') {
-        throw new Error('This invitation has already been used or cancelled.');
-      }
-
-      if (invitation.expires_at && isInvitationExpired(invitation.expires_at)) {
-        throw new Error('This invitation has expired. Please request a new one.');
-      }
-
-      const registrationName = name?.trim() || invitation.invitee_name || invitation.email;
-      const newUser = await register(invitation.email, password);
-
-      await createUserProfile(newUser.uid, {
-        email: invitation.email,
-        name: registrationName,
-        role: USER_ROLES.ADMIN,
-        status: 'approved',
-        approved_at: serverTimestamp(),
-        approved_by: invitation.invited_by || null,
-      });
-
-      await markInvitationAsAccepted(invitation.id, newUser.uid);
-
-      try {
-        await addApprovedAdminRecord({
-          email: invitation.email,
-          name: registrationName,
-          approver: invitation.invited_by || null,
-        });
-      } catch (adminRecordError) {
-        console.warn('Failed to update approved_admins record:', adminRecordError);
-      }
-
-      return newUser;
-    },
-    [addApprovedAdminRecord, createUserProfile, markInvitationAsAccepted, register],
-  );
 
   const getPendingInvitations = useCallback(async () => {
     const pendingQuery = query(

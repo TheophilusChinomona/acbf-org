@@ -4,7 +4,6 @@ dist.zip
 node_modules
 ADMIN-BOOTSTRAP-GUIDE.md
 FIRESTORE-RULES-DEPLOYMENT.md
-firestore.rules
 md files/SUPABASE-SETUP-GUIDE.md
 .gitignore
 tasks/admin-dashboard-plan.md
@@ -19,6 +18,10 @@ functions/node_modules
 functions/.env
 functions/lib
 functions/.runtimeconfig.json
+
+# Firebase emulator output
+firestore-debug.log
+ui-debug.log
 
 # PHP API
 api/config.php

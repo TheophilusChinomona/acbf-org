@@ -14,6 +14,10 @@ const admin = require('firebase-admin');
 const { sendEmail } = require('./src/sendEmail');
 const { generateAdminNotification } = require('./src/templates/adminNotification');
 const { createCastAwardVote } = require('./src/awards/voting');
+const {
+  createGetAdminInvitation,
+  createAcceptAdminInvitation,
+} = require('./src/admin/invitations');
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -35,6 +39,25 @@ exports.castAwardVote = functions.https.onCall(
   createCastAwardVote({ db: admin.firestore(), now: Date.now }),
 );
 
+/**
+ * Callable: read a sanitized admin invitation by token.
+ *
+ * `admin_invitations` is no longer publicly readable (that exposed live tokens);
+ * the acceptance page gets only the display fields it needs from here.
+ */
+exports.getAdminInvitation = functions.https.onCall(
+  createGetAdminInvitation({ db: admin.firestore(), now: Date.now }),
+);
+
+/**
+ * Callable: accept an admin invitation.
+ *
+ * Creates the Auth account and the approved admin records server-side so no
+ * client can grant itself an admin role.
+ */
+exports.acceptAdminInvitation = functions.https.onCall(
+  createAcceptAdminInvitation({ db: admin.firestore(), auth: admin.auth(), now: Date.now }),
+);
 
 /**
  * Firestore Trigger: Contact Form Submission
