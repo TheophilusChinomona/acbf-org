@@ -1,7 +1,7 @@
 # Dokploy voting API amendment
 
-Status: proposed; replaces the Cloud Functions deployment requirement in the
-approved awards voting design, subject to Theo's approval.
+Status: approved by Theo on 13 November 2026; replaces the Cloud Functions
+deployment requirement in the approved awards voting design.
 
 ## Intent and deployment evidence
 
