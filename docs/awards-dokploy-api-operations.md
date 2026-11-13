@@ -140,7 +140,7 @@ The API ignores `X-Forwarded-For`, `Forwarded` and every other forwarding header
 
 Verify before opening voting, from a network whose public IP you know:
 
-1. `docker compose config` renders and both containers are healthy:
+1. `docker compose config --quiet` renders and both containers are healthy:
 
    ```bash
    docker compose ps

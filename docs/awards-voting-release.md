@@ -84,7 +84,7 @@ Run the suites locally once more and confirm the CLI can authenticate:
 npm run test:awards
 npm run test:api
 npm run test:emulator
-docker compose config    # with the real deployment variables set
+docker compose config --quiet    # with the real deployment variables set
 firebase projects:list
 ```
 
