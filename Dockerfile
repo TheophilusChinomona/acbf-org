@@ -24,6 +24,10 @@ RUN npm run build:prod
 
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# nginx.conf is a template: the official entrypoint renders it with envsubst so
+# ACBF_TRUSTED_PROXY_CIDR can be set per deployment. The stock default.conf is
+# removed to avoid a duplicate server block on port 80.
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+RUN rm -f /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

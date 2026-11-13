@@ -57,49 +57,53 @@ Compare the local file with the rules currently shown in the Firebase console
 - Any collection present in the live rules but missing locally must be added
   before publishing.
 
-### 1.3 Function deployment readiness
+### 1.3 Backend deployment readiness (Dokploy API, no Cloud Functions)
 
-- Node runtime is `nodejs22` in `firebase.json` and `22` in
-  `functions/package.json`. Node 18 is decommissioned; do not deploy it or fall
-  back to Node 20. Node 22 supports the existing first-generation functions.
-  Use Node 22 locally for release verification and smoke-test email triggers.
-  Sources: [Firebase runtimes](https://firebase.google.com/docs/functions/manage-functions),
-  [Google runtime lifecycle](https://docs.cloud.google.com/functions/docs/runtime-support).
-- `functions/package.json` now includes `test` and `test:emulator` scripts; the
-  emulator suites require `firebase-tools` (already a root dev dependency).
-- Billing: callable functions and Firestore transactions require the Blaze plan
-  for the `acbf-rsa-backend` project. Confirm billing is enabled.
-- Existing triggers `onContactSubmissionCreated`,
-  `onMembershipApplicationCreated` and `testEmail` are untouched and must still
-  deploy. `testEmail` is an unauthenticated endpoint; removing it is a separate
-  decision, not part of this change.
-- New callables: `castAwardVote`, `getAdminInvitation`, `acceptAdminInvitation`.
+Voting and invitation acceptance run in the Compose `api` service; nothing is
+deployed to Cloud Functions and no Blaze upgrade is needed. Full setup is in
+`docs/awards-dokploy-api-operations.md`.
+
+- Node 22 everywhere: `api` image, CI and `functions/package.json` engines.
+- The dedicated service account, its read-only mount and the exact
+  `ACBF_TRUSTED_PROXY_CIDR` must exist **before** merging, because `main`
+  auto-deploys through Dokploy.
+- `GET /api/v1/ready` must return `{"data":{"status":"ready"}}` after deploy.
+- The legacy callable exports remain only as compatibility adapters; production
+  browser flows call `/api/v1/`.
+- Existing email triggers (`onContactSubmissionCreated`,
+  `onMembershipApplicationCreated`, `testEmail`) are outside this transport
+  migration and remain undeployed; do not promise email notifications.
+- Firestore rules are still published separately (they do not require Blaze).
 
 ### 1.4 Test the deployment path
 
-Run the emulator suites locally once more and confirm the CLI can authenticate:
+Run the suites locally once more and confirm the CLI can authenticate:
 
 ```bash
 npm run test:awards
+npm run test:api
 npm run test:emulator
+docker compose config    # with the real deployment variables set
 firebase projects:list
 ```
 
-If `firebase projects:list` fails, deployment access is missing. Report it rather
-than working around it.
+If `firebase projects:list` fails, rules deployment access is missing. Report it
+rather than working around it.
 
 ---
 
 ## 2. Release order
 
-Functions first (the frontend calls them), then rules, then hosting. The
-invitation callables must exist before the new frontend is served.
+Credentials and proxy trust first, then code (Dokploy auto-deploys `main`), then
+rules, then the catalogue import. The `api` service must be configured before the
+new frontend is served; there is no function deployment step.
 
-1. **Deploy functions**
+0. **Provision the API** (`docs/awards-dokploy-api-operations.md` §2–§4): service
+   account file mounted read-only, `FIREBASE_PROJECT_ID`, `PUBLIC_ORIGIN`,
+   `FIREBASE_ADMIN_CREDENTIALS_FILE` and the exact `ACBF_TRUSTED_PROXY_CIDR`.
 
-   ```bash
-   firebase deploy --only functions
-   ```
+1. **Deploy the API and frontend together** by merging the approved PR; Dokploy
+   rebuilds `prod` and `api`. Never publish a host port for `api`.
 
 2. **Deploy rules**
 
@@ -131,18 +135,20 @@ invitation callables must exist before the new frontend is served.
 
    Confirm the production domain and HTTPS routing in Dokploy, SPA deep-link
    fallback in nginx, and Firebase Auth authorized domains for any new host.
-   The existing browser callables continue to call Firebase, not nginx.
-   See [Dokploy build arguments](https://docs.dokploy.com/docs/core/applications/build-type).
+   Voting and invitation acceptance call the same-origin `/api/v1/` endpoints, so
+   nginx must proxy them to the `api` service in the same deployment. See
+   [Dokploy build arguments](https://docs.dokploy.com/docs/core/applications/build-type).
 
 
 5. **Smoke checks before opening**
 
    - `/awards` shows "Voting closed …" with the full nominee list browsable.
-   - `castAwardVote` returns `failed-precondition` (closed) — check in the
-     functions log, not in the browser console alone.
+   - `POST /api/v1/awards/vote` returns `409 failed-precondition` (closed) —
+     verify with `docker compose logs api`, not from the browser console alone.
    - As an admin, `/admin` → **Voting Results** lists 139 nominees at zero.
    - **Nomination Archive** still lists the historical nominations.
-   - Contact and membership form submissions still succeed and still send email.
+   - Contact and membership form submissions still succeed and are stored in
+     Firestore. Email triggers remain undeployed and outside this release.
 
 6. **Open voting** only after Theo approves launch. In the Firebase console set
    `award_competitions/2026`:
@@ -168,13 +174,14 @@ Order matters: close first, restore code second.
 2. **Preserve data**: nominees, categories, votes, totals and nomination history
    stay as they are. Never run a bulk delete; never "reset" totals.
 3. **Restore the frontend** only if the previous build is compatible with the
-   deployed rules and functions (the nomination form is gone from the build; do
-   not restore a build that expects public nomination writes).
+   deployed rules and `/api/v1/` contract (the nomination form is gone from the
+   build; do not restore a build that expects public nomination writes).
 4. **Do not** restore public nomination writes or public reads of totals/votes to
    recover a broken page — the archive and private results are intentional.
-5. If a function deploy is faulty, redeploy the previous function revision from
-   the last green commit; votes already accepted remain valid and totals are
-   unchanged by redeploys.
+5. If an API deploy is faulty, redeploy the previous green commit (the `api`
+   image rebuilds from it) and confirm `/api/v1/ready` before reopening; votes
+   already accepted remain valid and totals are unchanged by redeploys. While the
+   API is down, voting returns JSON `503` and the marketing pages keep serving.
 6. Report the incident with the timeline and the exact configuration used.
 
 ---
@@ -192,23 +199,24 @@ Order matters: close first, restore code second.
   limited to 600 accepted votes per hour and a single browser to 60. Expired
   buckets are harmless and can be cleaned up manually.
 - `admin_invitations` is no longer publicly readable; the acceptance page uses
-  the `getAdminInvitation` callable. Deploying the frontend before the functions
-  will break invitation acceptance until the functions are deployed.
+  `/api/v1/admin/invitations/lookup`. Serving the new frontend without a working
+  `api` service breaks invitation acceptance (and voting) until it is healthy.
 
 ## 5. What Dokploy changes about rules
 
-Dokploy hosts the frontend only. Browser requests still go directly to Firebase;
-Firestore rules remain deployed and enforced in the same Firebase project. No
-rule syntax, public-access grant, or domain allowlist in Firestore is needed just
-because the frontend host changes. Keep the admin-only totals and denied direct
-vote writes intact. Admin SDK code in Cloud Functions bypasses Firestore rules,
-so callable validation and authorization remain necessary.
+Dokploy hosts the frontend and the internal API. Browser data reads still go
+directly to Firestore from the SPA; voting and invitation writes go to
+`/api/v1/`, which nginx proxies to the private `api` service. Firestore rules
+remain deployed and enforced in the same Firebase project. No rule syntax,
+public-access grant, or domain allowlist in Firestore is needed just because the
+frontend host changes. Keep the admin-only totals and denied direct vote writes
+intact. The API uses the Admin SDK, which bypasses Firestore rules, so its input
+validation and invitation-token authority remain necessary.
 
 Deploy rules separately with `npx firebase deploy --only firestore:rules --project
-acbf-rsa-backend` from an authenticated, approved release environment. Deploy
-functions separately with `npx firebase deploy --only functions --project
-acbf-rsa-backend`. The Dokploy Dockerfile does neither. Do not add privileged
-Firebase credentials to the frontend container to work around this separation.
+acbf-rsa-backend` from an authenticated, approved release environment. Do **not**
+run `firebase deploy --only functions`. Do not add privileged Firebase credentials
+to the frontend container, or to Vite variables, to work around this separation.
 
 Firebase CLI login is now authorized and live rules have been retrieved for
 comparison. Frontend `.env` API settings identify the project but are not Admin
@@ -222,9 +230,13 @@ SMTP readiness separately before deploying or promising email notifications.
 References: [Deploy rules](https://firebase.google.com/docs/rules/manage-deploy),
 [Server SDK access](https://firebase.google.com/docs/firestore/security/insecure-rules).
 
-## Confirmed billing blocker
+## Billing status
 
 Authenticated read-only Cloud Billing API check on 13 November 2026 returned
-`billingEnabled: false` for `acbf-rsa-backend`. The project must have billing
-linked / be on Blaze before deploying the callable backend. This audit did not
-change the billing plan, deploy code/rules, import nominees, or open voting.
+`billingEnabled: false` for `acbf-rsa-backend`. That blocked deploying the callable
+backend; it does **not** block this release, because voting and invitation
+acceptance now run in the Dokploy `api` service (see
+`docs/superpowers/specs/2026-11-13-dokploy-voting-api-design.md`). Deploying the
+legacy Cloud Functions exports would still require Blaze; they must not be
+deployed. This audit changed no billing plan, deployed no code or rules, imported
+no nominees, and did not open voting.

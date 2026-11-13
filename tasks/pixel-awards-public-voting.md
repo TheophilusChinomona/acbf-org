@@ -118,3 +118,114 @@ Read-only Cloud Billing lookup reports **billingEnabled: false**. Functions list
 is empty. Owner must enable Blaze/billing before the voting backend can deploy;
 no billing configuration was changed. Production import, backend deploy, Dokploy
 release and opening voting remain owner actions, not completed launch steps.
+
+---
+
+## Amendment: run the voting backend on Dokploy (approved 13 November 2026)
+
+The Cloud Functions release requirement in the original plan is replaced by an
+internal Node 22 API served by the existing Dokploy Compose deployment. Voting and
+invitation acceptance keep their Firestore transactions, rules and ballot
+behaviour; only the browser transport changes. No Firebase billing upgrade, no
+functions deployment.
+
+- Amendment spec: `docs/superpowers/specs/2026-11-13-dokploy-voting-api-design.md`
+- Implementation plan: `docs/superpowers/plans/2026-11-13-dokploy-voting-api.md`
+- Operations runbook: `docs/awards-dokploy-api-operations.md`
+
+### Amendment scope
+
+- [x] Domain services (`functions/src/awards/voting.js`,
+      `functions/src/admin/invitations.js`) load without the Cloud Functions
+      runtime and throw transport-independent domain errors; `functions/index.js`
+      keeps the callables as compatibility adapters only.
+- [x] Internal API (`functions/src/api/`) on `0.0.0.0:3001`, private Compose
+      service, same-origin `/api/v1/` proxy through nginx.
+- [x] Browser transport (`src/lib/backendApi.js`) replaces `httpsCallable` in the
+      voting and invitation hooks.
+- [x] `Dockerfile.api`, Compose service/health checks, nginx proxy, CI coverage
+      and release/operations documentation.
+
+### Amendment acceptance criteria
+
+- No production browser flow depends on a deployed Firebase function.
+- `POST /api/v1/awards/vote`, `POST /api/v1/admin/invitations/lookup` and
+  `POST /api/v1/admin/invitations/accept` accept the existing payloads and return
+  `{data}` / `{error:{code,message}}`, preserving `accepted`/`already-voted` and
+  the existing error codes.
+- `GET /api/v1/health` is process liveness only; `GET /api/v1/ready` verifies
+  credentials, project identity and a real Firestore read. Neither returns
+  secrets.
+- A caller-supplied `X-Forwarded-For` or multi-value client-IP header cannot
+  choose the rate-limit identity; missing/invalid proxy identity fails the vote
+  safely.
+- Concurrent or retried requests still count one vote and one total increment.
+- Missing, unreadable, malformed or wrong-project credentials fail startup and
+  readiness; no credential contents or request bodies are logged.
+- Reverse-proxy/backend failure returns a JSON 503 through nginx, never SPA HTML
+  or a false vote success.
+- Voting stays closed through deployment; rules are still published separately.
+
+### Amendment implementation notes
+
+- `functions/src/errors.js` holds the transport-independent `DomainError` and its
+  approved safe messages. `functions/index.js` is the only place that builds an
+  `HttpsError`; `functions/src/api/errors.js` is the only place that maps codes to
+  HTTP statuses. No domain module requires `firebase-functions` (asserted by a
+  test).
+- Invitation acceptance still derives the granted email and role from the stored
+  invitation, never from the payload. A conflicting Auth account returns
+  `already-exists` without touching the existing account, and a failed profile
+  write removes only the account created by that call.
+- The API requires the exact `PUBLIC_ORIGIN` and a JSON content type on
+  mutations, caps bodies at 16 KiB, and rejects unknown fields per route.
+- The rate-limit identity comes only from the single `X-ACBF-Client-IP` header
+  that nginx overwrites with `$remote_addr`. `X-Forwarded-For`, `Forwarded`,
+  multi-value and malformed addresses fail the vote with JSON `503`; they never
+  select a bucket. nginx trusts forwarded addresses only from
+  `ACBF_TRUSTED_PROXY_CIDR`.
+- Readiness performs a real Firestore read (3 s timeout) and startup fails on a
+  missing/unreadable/malformed/wrong-project credential file. Only the port and
+  origin are logged.
+- `Dockerfile.api` runs as uid 1000 with production dependencies from the
+  functions lockfile and copies only `src/{api,awards,admin}` plus
+  `src/errors.js`. Compose mounts the credential read-only at
+  `/run/secrets/firebase-admin.json`; `api` publishes no host port.
+- nginx resolves the `api` service per request through Docker DNS, so a recreated
+  container is picked up without pinning a stale address, and backend failures
+  return JSON `503`, never `index.html`.
+
+### Amendment verification (13 November 2026)
+
+| Check | Command | Result |
+|---|---|---|
+| Awards + voting policy | `npm run test:awards` | 51 pass, 1 skipped (needs emulator) |
+| HTTP/config/browser transport | `npm run test:api` | 36 pass |
+| Vote + invitation transactions | `npm run test:emulator:voting` | 42 pass |
+| HTTP concurrency through the real API | `npm run test:emulator:api` | 2 pass — 10 simultaneous same-browser requests produced one vote and one increment; `/ready` read Firestore |
+| Private results rules | `npm run test:emulator:rules` | 28 pass |
+| Lint (changed areas) | `npx eslint src/lib … functions/test` | clean |
+| Production build | `npm run build:prod` | passed (generated `dist`/sitemap restored) |
+| Compose configuration | `docker compose config` with placeholders | valid |
+| Container build/smoke | `docker build -f Dockerfile.api .` | **not executed** — no Docker socket for this user; CI builds both images and smoke-tests the proxy contract |
+
+Unrelated pre-existing lint findings were left untouched (`useAdminManagement.js`,
+`src/templates/adminNotification.js`, `vite.config.js`).
+
+### Amendment owner gates (not executed by the implementing agent)
+
+- [ ] Provision the dedicated service account and mount
+      (`docs/awards-dokploy-api-operations.md` §3).
+- [ ] Set the exact `ACBF_TRUSTED_PROXY_CIDR` and verify real-IP behaviour with a
+      known client and a forged `X-Forwarded-For` (§4).
+- [ ] Merge the PR (this triggers the Dokploy release) and publish rules.
+- [ ] Run the private catalogue import while voting stays closed.
+- [ ] Open voting only after Theo approves launch.
+
+### Amendment status log
+
+- 2026-11-13: amendment recorded; implementation started on
+  `pixel/awards-public-voting`.
+- 2026-11-13: implementation complete on the feature branch: domain/callable
+  split, internal HTTP API, browser transport, Compose/nginx/CI/docs. Checks
+  above recorded; no merge, deploy, production import or voting change performed.

@@ -13,3 +13,15 @@ dist
 firebase-debug.log
 firestore-debug.log
 coverage
+
+# Keep the build context to what the images need: no private workbooks, docs,
+# tests or stray archives.
+*.zip
+**/*.zip
+docs
+tasks
+tests
+functions/test
+.github
+md files
+*.md
