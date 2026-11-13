@@ -327,6 +327,10 @@ function createApiServer(options = {}) {
   };
 
   const server = http.createServer((req, res) => {
+    // A client that disconnects mid-response would otherwise emit an unhandled
+    // 'error' on the response and take down the process.
+    res.on('error', () => {});
+
     handleRequest(req, res, settings).catch((error) => {
       logger.error('api: unhandled request failure', { name: error && error.name });
       if (!res.headersSent) {
