@@ -29,7 +29,7 @@ Theo chose to archive nominations and replace the public nomination experience. 
 - Store a random persistent browser token and enforce one vote per category against it on the server. Add server-side rate limits to reduce automated abuse. No device fingerprinting. The product must not promise verified one-person-one-vote: clearing storage or using another browser/device can bypass the limit. Optional unverified email is not proof of identity.
 - Votes are final for this launch. No vote editing, paid voting, public leaderboard, or automated winner declaration.
 - Add a distinct admin voting view with live totals per nominee, category filters, and overall accepted vote count. Restrict any individual vote records, including optional personal details, to authorized admins. Anonymous entries show “Anonymous.” Reuse the existing Excel export utility if export is included in the implementation plan.
-- Provide an explicit competition open/closed configuration, defaulting closed until the approved launch. The opening/closing schedule is not yet supplied; no dates will be invented. Closing blocks new votes server-side while retaining results and history.
+- Provide an explicit competition open/closed configuration, defaulting closed until the approved launch. Theo confirmed that voting closes on 19 November 2026 at 16:00 SAST (UTC+2), equivalent to 2026-11-19T14:00:00Z. Reject votes at or after this deadline using server time, regardless of browser time or whether the page remains open. Display the deadline and timezone publicly. An admin open flag cannot bypass the deadline. The opening time is not yet supplied. Closing retains results and history.
 - Preserve the existing awards nominations admin functionality as a clearly labeled archive. Disable new public nomination submissions at both the UI and backend/security-rule layer, without deleting records or altering unrelated submission types.
 
 ## Constraints and safety
@@ -41,7 +41,7 @@ Do not change Firebase credentials, legacy PHP, approved brand assets, or SMTP s
 - All 139 source nominees appear once with the agreed display fallback and country; category mappings are reviewed before publication.
 - Public visitors can vote without login or personal details. Optional fields are validated when supplied and are never public.
 - Duplicate/concurrent submissions for the same browser/category count once; another category remains available. A failed request can be retried safely.
-- Closed voting, invalid nominees, direct writes, and unauthorized reads of totals/voter data are rejected server-side.
+- Closed voting, invalid nominees, direct writes, and unauthorized reads of totals/voter data are rejected server-side. Verify the exact deadline boundary: votes before 2026-11-19T14:00:00Z may be accepted when open; votes at or after it are rejected.
 - Admin totals update after accepted votes and remain correct under concurrent voting. Existing nomination records remain accessible.
 - Mobile, keyboard navigation, loading/error states, and submission confirmation work. Relevant security/transaction checks, lint, and production build pass before review; pre-existing failures are reported separately.
 
