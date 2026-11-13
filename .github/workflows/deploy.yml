@@ -26,7 +26,13 @@ jobs:
         run: npm ci
 
       - name: Test awards pipeline and voting policy
-        run: npm run test:awards
+        # Voting tests load the separately packaged Cloud Functions dependencies.
+        # Root npm ci alone only installs frontend dependencies.
+        # Install from the Functions lockfile before loading those modules.
+        # No credentials or production services are used by these unit tests.
+        run: |
+          npm ci --prefix functions
+          npm run test:awards
 
       - name: Build React app
         run: npm run build:prod
