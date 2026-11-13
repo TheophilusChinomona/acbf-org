@@ -247,3 +247,37 @@ batch *and* failed cleanup wedges that email until an admin removes it.
   (runs 43452816695 and 43453737384 after the socket-error guard), including both
   Docker image builds, the API-image no-credential startup check and the proxy
   `/api/v1/` JSON-503 smoke test. Callables remain undeployed.
+
+### Authorized Firebase setup and environment-only credential follow-up
+
+- [x] Verify Firebase project and live admin roster; save private backups.
+- [x] Create dedicated API account and key outside the repository.
+- [x] Import official catalogue with voting closed; publish staged voting rules.
+- [x] Support Dokploy runtime credential via environment; prepare private .env.
+- [x] Verify credential readiness and tests; document operator steps and push PR checks.
+
+### Authorized Firebase preparation results
+
+- Created dedicated `acbf-voting-api` account with only project-level
+  `roles/datastore.user` and `roles/firebaseauth.admin`, plus one runtime key.
+  Kept keys/backups in owner-only storage outside Git.
+- Imported actual workbook: 139 nominees / 32 categories / nine countries.
+  Verified zero votes, `isOpen: false`, closing time `2026-11-19T14:00:00Z`.
+- Published tested additive voting rules only. Anonymous catalogue reads return
+  HTTP 200; private votes/totals return HTTP 403. Existing site behavior remains
+  unchanged pending coordinated final rule/website release. Eight staging-rule
+  emulator checks passed; three-admin roster matches all admin profiles.
+- Prepared private `.env` for remote Dokploy: Firebase project, public origin and
+  dedicated base64 runtime credential. Removed the need for a remote key mount;
+  file credentials remain supported for standalone deployments. Actual proxy
+  CIDR is intentionally blank until the remote network can be inspected.
+- Dedicated credential passed actual API readiness HTTP 200 and Firebase Auth
+  read check. Initial IAM propagation delay resolved without broadening roles.
+- Verification: 52 actual-workbook awards tests, 40 API tests, changed-file lint
+  and Compose validation passed. Independent review found no blocking issues;
+  stale Dockerfile credential comments were corrected. CI is checked after push.
+
+Remote environment copy, real proxy CIDR/forged-header verification, approved
+merge/deployment, final rules hardening and opening voting remain owner actions.
+The original supplied key was moved out of the repository; no credentials were
+committed. No Cloud Functions or billing changes were made.

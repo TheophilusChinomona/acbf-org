@@ -4,8 +4,8 @@
 # same-origin HTTP contract that nginx exposes at /api/v1/. No Cloud Functions
 # deployment and no Firebase billing upgrade are involved.
 #
-# Runtime credentials are NOT baked into this image: Compose mounts the
-# service-account file read-only and sets GOOGLE_APPLICATION_CREDENTIALS.
+# Runtime credentials are NOT baked into this image: Compose supplies the
+# server-only FIREBASE_ADMIN_CREDENTIALS_BASE64 runtime secret.
 
 FROM node:22-alpine AS deps
 WORKDIR /app
@@ -27,7 +27,7 @@ COPY functions/src/awards ./src/awards
 COPY functions/src/admin ./src/admin
 COPY functions/src/errors.js ./src/errors.js
 
-# The mounted secret must be readable by this non-root user (uid 1000).
+# Run the API without root privileges; credentials are loaded only at runtime.
 USER node
 
 EXPOSE 3001

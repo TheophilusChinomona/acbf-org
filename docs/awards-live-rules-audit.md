@@ -52,3 +52,12 @@ Authenticated read-only Cloud Billing API check on 13 November 2026 returned
 `billingEnabled: false` for `acbf-rsa-backend`. The project must have billing
 linked / be on Blaze before deploying the callable backend. This audit did not
 change the billing plan, deploy code/rules, import nominees, or open voting.
+
+## Subsequent authorized preparation
+
+After owner authorization, the official catalogue was imported closed and
+additive voting-only rules were published. Existing nomination/invitation rules
+are deliberately retained until the coordinated Dokploy API/frontend deployment.
+Full hardening in the repository's firestore.rules is still pending that release.
+Three approved admin records match all three existing admin-role profiles; no
+profile needed promotion. Dedicated API credentials were verified successfully.

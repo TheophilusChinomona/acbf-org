@@ -43,11 +43,8 @@ services:
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:?FIREBASE_PROJECT_ID is required}
       # Exact browser origin allowed on mutation routes, e.g. https://acbf.org.za
       PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?PUBLIC_ORIGIN is required}
-      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/firebase-admin.json
-    volumes:
-      # Host path must exist on the deployment server; this variable never creates
-      # the file. The file must be readable by uid 1000 inside the container.
-      - ${FIREBASE_ADMIN_CREDENTIALS_FILE:?FIREBASE_ADMIN_CREDENTIALS_FILE must point to the host service-account file}:/run/secrets/firebase-admin.json:ro
+      # Server-only runtime secret. Never pass this to prod or to build args.
+      FIREBASE_ADMIN_CREDENTIALS_BASE64: ${FIREBASE_ADMIN_CREDENTIALS_BASE64:?FIREBASE_ADMIN_CREDENTIALS_BASE64 is required (server-only credential)}
     expose:
       - "3001"
     healthcheck:

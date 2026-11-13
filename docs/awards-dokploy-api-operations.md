@@ -5,8 +5,10 @@ instead of Firebase Cloud Functions. Companion to
 `docs/superpowers/specs/2026-11-13-dokploy-voting-api-design.md` and
 `docs/superpowers/plans/2026-11-13-dokploy-voting-api.md`.
 
-**Approval:** Theo approves the merge, the deployment and opening voting. Nothing
-here may be executed against production by an implementing agent.
+**Approval:** Theo approves merge, deployment and opening voting. On 13 November
+2026 Theo explicitly authorized Firebase preparation: dedicated IAM account/key,
+closed catalogue import, admin-roster check and additive voting-only rules. Those
+steps are complete. No merge, Dokploy deploy or opening was authorized/executed.
 
 **No Blaze plan, no function deploy.** `firebase deploy --only functions` is not
 part of this release. Firestore security rules are still published separately.
@@ -58,17 +60,17 @@ the deployment server, which is not committed):
 | `VITE_FIREBASE_*` (6 values) | `prod` build args | — | yes |
 | `FIREBASE_PROJECT_ID` | `api` | `acbf-rsa-backend` | yes |
 | `PUBLIC_ORIGIN` | `api` | `https://acbf.org.za` | yes |
-| `FIREBASE_ADMIN_CREDENTIALS_FILE` | Compose volume | `/opt/acbf/secrets/firebase-admin.json` | yes |
+| `FIREBASE_ADMIN_CREDENTIALS_BASE64` | `api` runtime only | private base64 service-account JSON | yes |
 | `ACBF_TRUSTED_PROXY_CIDR` | `prod` (nginx) | `10.0.5.0/24` | yes |
 
 Rules the API enforces on startup (a failure exits non-zero and the container
 restarts; nothing is served):
 
 - `FIREBASE_PROJECT_ID` must be a valid project id and must equal the credential
-  file's `project_id`.
+  credential's `project_id`.
 - `PUBLIC_ORIGIN` must be one bare origin (no path, query, fragment, wildcard).
   Mutating requests whose `Origin` differs get `403`.
-- The credential file must exist, be readable, parse as JSON, be
+- The runtime credential must decode as JSON, be
   `"type": "service_account"`, and contain `project_id`, `client_email` and
   `private_key`.
 - `ACBF_TRUSTED_PROXY_CIDR` must be the *private network of the platform proxy*
@@ -80,48 +82,46 @@ Missing configuration is a deliberate hard failure — it is better to serve a J
 
 ---
 
-## 3. Credential setup (requires Theo's authorization)
+## 3. Credential setup and prepared environment
 
-Do not create or download service-account keys, and do not change IAM, without
-explicit authorization. Interactive `firebase login` tokens are **not** acceptable
-server credentials.
+A dedicated `acbf-voting-api` account has been created in `acbf-rsa-backend` with
+only `roles/datastore.user` and `roles/firebaseauth.admin`. These are project-level
+roles, not collection-scoped grants. The backend remains responsible for
+restricting which operations callers can perform.
 
-1. In the Firebase project (`acbf-rsa-backend`) create a dedicated service
-   account, e.g. `acbf-voting-api`, owned by the project.
-2. Grant only the roles these endpoints need:
-   - **Cloud Datastore User** (`roles/datastore.user`) — read/write
-     `award_competitions/**`, `users/{uid}`, `approved_admins/**`,
-     `admin_invitations/**`.
-   - **Firebase Authentication Admin** (`roles/firebaseauth.admin`) — create the
-     Auth user during invitation acceptance and delete it if the profile write
-     fails.
-   - No roles for Storage, Cloud Functions, billing or project administration.
-3. Create one JSON key for that account (authorized step). Treat the file as a
-   production secret: never commit it, never place it in the repository, never
-   pass it through a Vite variable, never paste it into logs or tickets.
-4. Place it on the Dokploy deployment server outside the repository, e.g.
-   `/opt/acbf/secrets/firebase-admin.json`:
+The owner-authorized credential is prepared in the workspace's private `.env` as
+`FIREBASE_ADMIN_CREDENTIALS_BASE64`. It is **not encrypted** by base64; treat the
+whole `.env` as a production secret. Compose passes this value to the **api
+runtime only**, never frontend build arguments or the prod container. The API
+loads the decoded credential in memory. No separate remote key upload or volume
+mount is needed for this Compose configuration.
 
-   ```bash
-   sudo install -d -m 0750 -o root -g root /opt/acbf/secrets
-   sudo install -m 0400 -o 1000 -g 1000 \
-     /path/to/downloaded-key.json /opt/acbf/secrets/firebase-admin.json
-   sudo ls -l /opt/acbf/secrets/firebase-admin.json
-   # -r-------- 1 1000 1000 ... firebase-admin.json
-   ```
+1. Copy the prepared private `.env` values to this Compose stack's **Environment**
+   editor in Dokploy. Do not paste its contents into chat, Git, build arguments,
+   tickets or screenshots. Review existing settings before replacing them.
+2. Keep `FIREBASE_PROJECT_ID=acbf-rsa-backend` and
+   `PUBLIC_ORIGIN=https://acbf.org.za` (change the latter only if the actual
+   canonical browser origin differs).
+3. Set `ACBF_TRUSTED_PROXY_CIDR` to the real private Traefik/Dokploy proxy network.
+   It is deliberately blank in the prepared file; see section 4. Saving environment
+   variables alone is not launch approval, and the blank value deliberately blocks
+   deployment until filled.
+4. Before merge, confirm settings are saved. On the approved Compose release,
+   nginx and the API start from the same deployment. Verify readiness afterward.
 
-   `FIREBASE_ADMIN_CREDENTIALS_FILE` only names this host path; Compose does not
-   create the file. The container runs as uid 1000 (`node`), so the file must be
-   readable by that uid. Docker bind-mounts also require the *path itself* to be
-   present before `docker compose up`.
-5. Set `FIREBASE_ADMIN_CREDENTIALS_FILE=/opt/acbf/secrets/firebase-admin.json` in
-   the stack environment. Compose mounts it at
-   `/run/secrets/firebase-admin.json:ro` and sets
-   `GOOGLE_APPLICATION_CREDENTIALS` to that path.
+A read-only `GOOGLE_APPLICATION_CREDENTIALS` file is still supported for standalone
+API deployments. Supply **exactly one** source: that path or the base64 runtime
+variable. This Compose uses the environment source, without a key-file mount.
 
-**Rotation:** create the replacement key, install it over the path above with the
-same ownership, then `docker compose up -d --force-recreate api`. Delete the old
-key in the console after `/api/v1/ready` returns `200`.
+The supplied broader Firebase Admin SDK key was moved outside the repository to
+`/home/deploy/.config/acbf-release/supplied-firebase-admin.json` for authorized
+maintenance. The dedicated API key is kept separately in that protected directory.
+Neither key was committed. The broader key is not used in the Dokploy environment.
+
+**Rotation:** create a replacement dedicated key, replace the base64 runtime value
+in Dokploy, recreate the API container through an approved deployment, confirm
+readiness, then revoke the previous dedicated key. Do not revoke the separately
+supplied maintenance key without identifying its other uses.
 
 ---
 
@@ -181,7 +181,7 @@ port ever appears in `docker compose ps`, remove the mapping before launch.
 `main` auto-deploys, so credential and proxy setup must be complete **before** the
 merge that ships this code.
 
-1. **Provision** the service account and file (§3), set all environment variables
+1. **Provision** the service account/runtime secret (§3), set all environment variables
    (§2), confirm `ACBF_TRUSTED_PROXY_CIDR` (§4).
 2. **Authorize and merge** the PR. Dokploy rebuilds `prod` and `api`.
 3. **Publish Firestore rules** (unchanged boundary, still required):

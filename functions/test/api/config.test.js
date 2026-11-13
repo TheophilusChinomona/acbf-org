@@ -181,4 +181,37 @@ describe('loadApiConfig', () => {
       );
     }
   });
+  it('loads a runtime base64 credential without any host credential file', () => {
+    const key = serviceAccount();
+    const config = loadApiConfig({FIREBASE_PROJECT_ID:PROJECT_ID, PUBLIC_ORIGIN:ORIGIN,
+      FIREBASE_ADMIN_CREDENTIALS_BASE64:Buffer.from(JSON.stringify(key)).toString('base64')});
+    assert.deepEqual(config.credentials, key);
+    assert.equal(config.credentialsPath, '');
+  });
+
+  it('rejects simultaneous file and environment credential sources', () => {
+    assert.throws(() => loadApiConfig(envFor({
+      FIREBASE_ADMIN_CREDENTIALS_BASE64:Buffer.from(JSON.stringify(serviceAccount())).toString('base64'),
+    })), isConfigError(/only one/i));
+  });
+
+  it('rejects malformed, oversized and non-JSON runtime credentials safely', () => {
+    for (const secret of ['not@@base64', 'a'.repeat(131073), Buffer.from('private non-json text').toString('base64')]) {
+      assert.throws(() => loadApiConfig({FIREBASE_PROJECT_ID:PROJECT_ID, PUBLIC_ORIGIN:ORIGIN,
+        FIREBASE_ADMIN_CREDENTIALS_BASE64:secret}), e => {
+        assert.ok(e instanceof ApiConfigError);
+        assert.ok(!e.message.includes(secret));
+        assert.ok(!e.message.includes('private non-json text'));
+        return true;
+      });
+    }
+  });
+
+  it('validates project and service-account type for runtime credentials', () => {
+    for (const key of [serviceAccount({project_id:'wrong-project'}),serviceAccount({type:'authorized_user'}),serviceAccount({private_key:''})]) {
+      assert.throws(() => loadApiConfig({FIREBASE_PROJECT_ID:PROJECT_ID,PUBLIC_ORIGIN:ORIGIN,
+        FIREBASE_ADMIN_CREDENTIALS_BASE64:Buffer.from(JSON.stringify(key)).toString('base64')}), e => e instanceof ApiConfigError);
+    }
+  });
+
 });

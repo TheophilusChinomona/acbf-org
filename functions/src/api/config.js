@@ -3,8 +3,8 @@
 /**
  * Runtime configuration for the internal voting API.
  *
- * All values arrive from the container environment; credentials arrive as a
- * read-only mounted file named by `GOOGLE_APPLICATION_CREDENTIALS`. Every check
+ * All values arrive from the container environment; credentials use a server-only
+ * base64 JSON variable or a read-only GOOGLE_APPLICATION_CREDENTIALS file. Every check
  * fails fast with `ApiConfigError`, which mentions only the offending variable or
  * file path — never the file's contents — so a misconfiguration cannot leak
  * secrets into logs.
@@ -95,20 +95,29 @@ function parseProjectId(raw) {
   return raw;
 }
 
-function readCredentials(credentialsPath) {
-  if (credentialsPath === '') {
-    throw new ApiConfigError(
-      'GOOGLE_APPLICATION_CREDENTIALS must name the mounted service-account file.',
-    );
+function readCredentials(credentialsPath, encodedCredentials = '') {
+  if (credentialsPath && encodedCredentials) {
+    throw new ApiConfigError('Provide only one credential source: GOOGLE_APPLICATION_CREDENTIALS or FIREBASE_ADMIN_CREDENTIALS_BASE64.');
   }
-
   let raw;
-  try {
-    raw = fs.readFileSync(credentialsPath, 'utf8');
-  } catch {
-    throw new ApiConfigError(
-      'The Firebase credentials file could not be read. Mount it read-only and check its permissions.',
-    );
+  if (encodedCredentials) {
+    // Base64 is a single-line transport format, not encryption. Keep this value
+    // exclusively in the server runtime environment, never frontend build args.
+    if (encodedCredentials.length > 131072 ||
+        !/^[A-Za-z0-9+/]+={0,2}$/.test(encodedCredentials) ||
+        Buffer.from(encodedCredentials, 'base64').toString('base64') !== encodedCredentials) {
+      throw new ApiConfigError('FIREBASE_ADMIN_CREDENTIALS_BASE64 must be valid base64-encoded service-account JSON.');
+    }
+    raw = Buffer.from(encodedCredentials, 'base64').toString('utf8');
+  } else {
+    if (credentialsPath === '') {
+      throw new ApiConfigError('GOOGLE_APPLICATION_CREDENTIALS or FIREBASE_ADMIN_CREDENTIALS_BASE64 is required.');
+    }
+    try {
+      raw = fs.readFileSync(credentialsPath, 'utf8');
+    } catch {
+      throw new ApiConfigError('The Firebase credentials file could not be read. Mount it read-only and check its permissions.');
+    }
   }
 
   let credentials;
@@ -151,7 +160,7 @@ function loadApiConfig(env = process.env) {
   const projectId = parseProjectId(readString(env, 'FIREBASE_PROJECT_ID'));
   const allowedOrigin = parseOrigin(readString(env, 'PUBLIC_ORIGIN'));
   const credentialsPath = readString(env, 'GOOGLE_APPLICATION_CREDENTIALS');
-  const credentials = readCredentials(credentialsPath);
+  const credentials = readCredentials(credentialsPath, readString(env, 'FIREBASE_ADMIN_CREDENTIALS_BASE64'));
 
   if (credentials.project_id.trim() !== projectId) {
     throw new ApiConfigError(

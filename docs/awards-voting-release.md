@@ -1,7 +1,8 @@
 # Awards voting release runbook
 
 Companion to `docs/superpowers/plans/2026-11-13-awards-voting.md`. Everything here
-requires Theo's approval; nothing in this repository has been deployed.
+requires Theo's approval. Authorized Firebase preparation is recorded below;
+the Dokploy application is not deployed.
 
 Voting closes at **2026-11-19T14:00:00Z** (19 November 2026, 16:00 SAST). The
 server rejects votes at or after that instant regardless of the admin flag, and
@@ -64,7 +65,7 @@ deployed to Cloud Functions and no Blaze upgrade is needed. Full setup is in
 `docs/awards-dokploy-api-operations.md`.
 
 - Node 22 everywhere: `api` image, CI and `functions/package.json` engines.
-- The dedicated service account, its read-only mount and the exact
+- The dedicated service account, its runtime credential and the exact
   `ACBF_TRUSTED_PROXY_CIDR` must exist **before** merging, because `main`
   auto-deploys through Dokploy.
 - `GET /api/v1/ready` must return `{"data":{"status":"ready"}}` after deploy.
@@ -240,3 +241,24 @@ acceptance now run in the Dokploy `api` service (see
 legacy Cloud Functions exports would still require Blaze; they must not be
 deployed. This audit changed no billing plan, deployed no code or rules, imported
 no nominees, and did not open voting.
+
+## Authorized Firebase preparation — 13 November 2026
+
+Completed on Theo's explicit instruction: dedicated API IAM account/key with
+Firestore and Firebase Auth roles; backup of pre-import catalogue/admin data;
+real workbook import of 139 nominees in 32 categories across nine countries;
+three-admin roster check; additive voting-only rules publication. API readiness
+using the dedicated credential returned HTTP 200 and Firebase Auth access passed.
+Competition is closed, has zero votes and retains the exact closing deadline.
+
+The published rules preserve the current main site's nomination/invitation
+behavior until the API frontend ships. They expose only the public voting
+catalogue and protect voting writes/results. The final `firestore.rules` file
+still includes nomination archival and invitation/role hardening: publish that
+full file only in the coordinated API/frontend release, after refreshing the live
+rules baseline. Do not mistake additive staging for completion of that final step.
+
+The private local `.env` now includes server-only runtime credentials for copying
+to the remote Dokploy Environment editor. No remote filesystem mount is needed.
+`ACBF_TRUSTED_PROXY_CIDR` remains blank until the real proxy network is identified.
+Neither main nor Dokploy settings have been changed; voting has not been opened.

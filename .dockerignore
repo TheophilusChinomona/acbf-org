@@ -25,3 +25,9 @@ functions/test
 .github
 md files
 *.md
+
+# Firebase server credentials never belong in source or Docker context
+**/*firebase-adminsdk*.json
+**/firebase-admin.json
+**/firebase-voting-api.json
+**/*service-account*.json

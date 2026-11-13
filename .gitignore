@@ -25,3 +25,9 @@ ui-debug.log
 
 # PHP API
 api/config.php
+
+# Firebase server credentials never belong in source or Docker context
+**/*firebase-adminsdk*.json
+**/firebase-admin.json
+**/firebase-voting-api.json
+**/*service-account*.json
