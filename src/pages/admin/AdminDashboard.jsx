@@ -10,6 +10,7 @@ import SubmissionsList from './SubmissionsList';
 import FilterBar from '../../components/admin/FilterBar';
 import AdminNavBar from '../../components/admin/AdminNavBar';
 import ExportButton from '../../components/admin/ExportButton';
+import AwardsVotingPanel from '../../components/admin/AwardsVotingPanel';
 import { 
   FiLogOut, 
   FiUser, 
@@ -24,6 +25,7 @@ import {
   FiUserX,
   FiAlertTriangle,
   FiSearch,
+  FiBarChart2,
 } from 'react-icons/fi';
 import Button from '../../components/common/Button';
 import toast from 'react-hot-toast';
@@ -55,7 +57,7 @@ export default function AdminDashboard() {
     rejectMember,
   } = useMemberManagement({ listenToPendingMembers: true });
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('contact'); // 'contact', 'membership', 'awards', 'memberApprovals'
+  const [activeTab, setActiveTab] = useState('contact'); // 'contact', 'membership', 'awards', 'voting', 'memberApprovals'
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showArchived, setShowArchived] = useState(false); // Toggle between active and archived view
   const [filters, setFilters] = useState({
@@ -69,6 +71,7 @@ export default function AdminDashboard() {
   const contactTabRef = useRef(null);
   const membershipTabRef = useRef(null);
   const awardsTabRef = useRef(null);
+  const votingTabRef = useRef(null);
   const adminTabRef = useRef(null);
   const memberApprovalsTabRef = useRef(null);
   const [memberActionLoadingId, setMemberActionLoadingId] = useState(null);
@@ -91,6 +94,8 @@ export default function AdminDashboard() {
         tabRef = membershipTabRef.current;
       } else if (tab === 'awards') {
         tabRef = awardsTabRef.current;
+      } else if (tab === 'voting') {
+        tabRef = votingTabRef.current;
       } else if (tab === 'memberApprovals') {
         tabRef = memberApprovalsTabRef.current;
       }
@@ -115,6 +120,8 @@ export default function AdminDashboard() {
         tabRef = membershipTabRef.current;
       } else if (activeTab === 'awards') {
         tabRef = awardsTabRef.current;
+      } else if (activeTab === 'voting') {
+        tabRef = votingTabRef.current;
       } else if (activeTab === 'memberApprovals') {
         tabRef = memberApprovalsTabRef.current;
       }
@@ -636,11 +643,11 @@ export default function AdminDashboard() {
               className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-3 md:p-4 border border-yellow-200 cursor-pointer hover:border-yellow-300 hover:shadow-md transition-all duration-200"
             >
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xs md:text-sm font-medium text-yellow-900">Award Nominations</h3>
+                <h3 className="text-xs md:text-sm font-medium text-yellow-900">Nomination Archive</h3>
                 <FiFileText className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" />
               </div>
               <p className="text-xl md:text-2xl font-bold text-yellow-900">{awardsStats.total}</p>
-              <p className="text-xs text-yellow-700 mt-1">Total submissions</p>
+              <p className="text-xs text-yellow-700 mt-1">Historical nominations</p>
             </motion.div>
           )}
 
@@ -763,8 +770,8 @@ export default function AdminDashboard() {
                     `}
                   >
                     <div className="flex items-center gap-2 whitespace-nowrap">
-                      <FiFileText className="w-4 h-4" />
-                      <span>Award Nominations</span>
+                      <FiArchive className="w-4 h-4" />
+                      <span>Nomination Archive</span>
                       {awardsStats.total > 0 && (
                         <span className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-0.5 rounded-full hidden sm:inline">
                           {awardsStats.total}
@@ -773,6 +780,23 @@ export default function AdminDashboard() {
                     </div>
                   </button>
                 )}
+                <button
+                  ref={votingTabRef}
+                  onClick={() => handleTabChange('voting')}
+                  className={`
+                    px-4 py-2 md:px-6 md:py-3 text-sm font-medium border-b-2 transition-colors min-h-[44px] md:min-h-0
+                    ${
+                      activeTab === 'voting'
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2 whitespace-nowrap">
+                    <FiBarChart2 className="w-4 h-4" />
+                    <span>Voting Results</span>
+                  </div>
+                </button>
                 {isSuperAdmin && (
                   <>
                     <button
@@ -1022,11 +1046,13 @@ export default function AdminDashboard() {
                       </div>
                     )}
                   </div>
+                ) : activeTab === 'voting' ? (
+                  <AwardsVotingPanel />
                 ) : activeTab === 'awards' ? (
                   <div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                       <h2 className="text-lg md:text-xl font-semibold text-gray-900">
-                        {showArchived ? 'Archived Award Nominations' : 'Award Nominations'}
+                        {showArchived ? 'Archived Nominations' : 'Nomination Archive'}
                       </h2>
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                         {awardsNominations.length > 0 && (
