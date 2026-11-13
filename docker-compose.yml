@@ -18,6 +18,9 @@ services:
       # value would let a caller spoof the client IP used for vote rate limits.
       ACBF_TRUSTED_PROXY_CIDR: ${ACBF_TRUSTED_PROXY_CIDR:?ACBF_TRUSTED_PROXY_CIDR is required (private proxy network, never 0.0.0.0/0)}
     depends_on:
+      # Startup ordering only. If the API cannot start, the site must stay up with
+      # a JSON 503 on /api/*; gating on service_healthy would turn a broken
+      # credential into a whole-site outage.
       api:
         condition: service_started
     expose:

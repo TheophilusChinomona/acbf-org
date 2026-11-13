@@ -207,7 +207,7 @@ functions deployment.
 | Lint (changed areas) | `npx eslint src/lib … functions/test` | clean |
 | Production build | `npm run build:prod` | passed (generated `dist`/sitemap restored) |
 | Compose configuration | `docker compose config` with placeholders | valid |
-| Container build/smoke | `docker build -f Dockerfile.api .` | **not executed** — no Docker socket for this user; CI builds both images and smoke-tests the proxy contract |
+| Container build/smoke | CI run 43452816695 (`Build API image`, `API image must fail safely without credentials`, `Build frontend image`, `Proxy contract smoke test`) | passed — the API image starts non-root and fails safely without credentials; nginx renders the template and `/api/v1/health` returns JSON `503`, never SPA HTML (not runnable locally: no Docker socket for this user) |
 
 Unrelated pre-existing lint findings were left untouched (`useAdminManagement.js`,
 `src/templates/adminNotification.js`, `vite.config.js`).

@@ -241,6 +241,7 @@ merge that ships this code.
 | Mutations return `403` | `Origin` ≠ `PUBLIC_ORIGIN` | fix the variable (bare origin), recreate `api` |
 | Votes return `503` but health is fine | nginx is not setting `X-ACBF-Client-IP` | check the `prod` config and §4 |
 | Everything returns 502/503 after a redeploy | nginx cached an old `api` address | the config resolves `api` per request via Docker DNS; reload `prod` if it persists |
+| Whole site down instead of a voting-only 503 | `prod` was gated on `api` being healthy | keep `condition: service_started` (startup ordering only) — readiness belongs to `/api/v1/ready`, not container gating |
 
 Never paste credential JSON, request bodies, passwords or invitation tokens into
 tickets or logs. The API logs only the failing error's name/code.
