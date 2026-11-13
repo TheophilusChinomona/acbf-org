@@ -1,6 +1,6 @@
 # ACBF public awards voting
 
-Status: proposed; awaiting Theo's approval before implementation.
+Status: approved by Theo on 13 November 2026, including the confirmed SAST deadline.
 
 ## Intent and agreed behavior
 
