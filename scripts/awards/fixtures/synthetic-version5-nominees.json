@@ -1,0 +1,1275 @@
+{
+  "$comment": "SYNTHETIC TEST DATA - not real nominees. Mirrors the shape of the supplied Awards Nominees 5.xlsx: 139 nominee rows, 9 countries, 3 missing business names, 21 missing person names, blank country cells that must carry forward, blank separator rows, and per-row contact columns that must never be imported.",
+  "sheet": "Awards Nominees",
+  "rows": [
+    {
+      "Award Category": "Lifetime Achievement Award",
+      "Business Name": "Synthetic Business 001",
+      "Person Name": "Synthetic Person 001",
+      "Country": "South Africa",
+      "Contact Number": "+27 00 000 001",
+      "Email": "nominee001@example.test",
+      "Notes": "Synthetic contact detail for row 1"
+    },
+    {
+      "Award Category": "Chief Executive Officer",
+      "Business Name": "Synthetic Business 002",
+      "Person Name": "Synthetic Person 002",
+      "Country": "",
+      "Contact Number": "+27 00 000 002",
+      "Email": "nominee002@example.test",
+      "Notes": "Synthetic contact detail for row 2"
+    },
+    {
+      "Award Category": "Corporate Leader of the Year",
+      "Business Name": "Synthetic Business 003",
+      "Person Name": "Synthetic Person 003",
+      "Country": "",
+      "Contact Number": "+27 00 000 003",
+      "Email": "nominee003@example.test",
+      "Notes": "Synthetic contact detail for row 3"
+    },
+    {
+      "Award Category": "Entrepreneur of the Year",
+      "Business Name": "Synthetic Business 004",
+      "Person Name": "Synthetic Person 004",
+      "Country": "",
+      "Contact Number": "+27 00 000 004",
+      "Email": "nominee004@example.test",
+      "Notes": "Synthetic contact detail for row 4"
+    },
+    {
+      "Award Category": "Young Christian Entrepreneur Award",
+      "Business Name": "Synthetic Business 005",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 005",
+      "Email": "nominee005@example.test",
+      "Notes": "Synthetic contact detail for row 5"
+    },
+    {
+      "Award Category": "Women in Business Leadership Award",
+      "Business Name": "Synthetic Business 006",
+      "Person Name": "Synthetic Person 006",
+      "Country": "",
+      "Contact Number": "+27 00 000 006",
+      "Email": "nominee006@example.test",
+      "Notes": "Synthetic contact detail for row 6"
+    },
+    {
+      "Award Category": "Best Start-up of the Year",
+      "Business Name": "Synthetic Business 007",
+      "Person Name": "Synthetic Person 007",
+      "Country": "",
+      "Contact Number": "+27 00 000 007",
+      "Email": "nominee007@example.test",
+      "Notes": "Synthetic contact detail for row 7"
+    },
+    {
+      "Award Category": "Business Innovation & Technology Award",
+      "Business Name": "Synthetic Business 008",
+      "Person Name": "Synthetic Person 008",
+      "Country": "",
+      "Contact Number": "+27 00 000 008",
+      "Email": "nominee008@example.test",
+      "Notes": "Synthetic contact detail for row 8"
+    },
+    {
+      "Award Category": "Best Family-Owned Business Award",
+      "Business Name": "Synthetic Business 009",
+      "Person Name": "Synthetic Person 009",
+      "Country": "",
+      "Contact Number": "+27 00 000 009",
+      "Email": "nominee009@example.test",
+      "Notes": "Synthetic contact detail for row 9"
+    },
+    {
+      "Award Category": "Social Impact Award",
+      "Business Name": "Synthetic Business 010",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 010",
+      "Email": "nominee010@example.test",
+      "Notes": "Synthetic contact detail for row 10"
+    },
+    {
+      "Award Category": "Small Basket Business Award",
+      "Business Name": "Synthetic Business 011",
+      "Person Name": "Synthetic Person 011",
+      "Country": "",
+      "Contact Number": "+27 00 000 011",
+      "Email": "nominee011@example.test",
+      "Notes": "Synthetic contact detail for row 11"
+    },
+    {
+      "Award Category": "Excellence in Agriculture & Mining",
+      "Business Name": "Synthetic Business 012",
+      "Person Name": "Synthetic Person 012",
+      "Country": "",
+      "Contact Number": "+27 00 000 012",
+      "Email": "nominee012@example.test",
+      "Notes": "Synthetic contact detail for row 12"
+    },
+    {
+      "Award Category": "Excellence in Education",
+      "Business Name": "Synthetic Business 013",
+      "Person Name": "Synthetic Person 013",
+      "Country": "",
+      "Contact Number": "+27 00 000 013",
+      "Email": "nominee013@example.test",
+      "Notes": "Synthetic contact detail for row 13"
+    },
+    {
+      "Award Category": "Excellence in Music & Arts",
+      "Business Name": "Synthetic Business 014",
+      "Person Name": "Synthetic Person 014",
+      "Country": "",
+      "Contact Number": "+27 00 000 014",
+      "Email": "nominee014@example.test",
+      "Notes": "Synthetic contact detail for row 14"
+    },
+    {
+      "Award Category": "Excellence in Financial Services",
+      "Business Name": "Synthetic Business 015",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 015",
+      "Email": "nominee015@example.test",
+      "Notes": "Synthetic contact detail for row 15"
+    },
+    {
+      "Award Category": "Excellence in Healthcare",
+      "Business Name": "Synthetic Business 016",
+      "Person Name": "Synthetic Person 016",
+      "Country": "",
+      "Contact Number": "+27 00 000 016",
+      "Email": "nominee016@example.test",
+      "Notes": "Synthetic contact detail for row 16"
+    },
+    {
+      "Award Category": "Excellence in Logistics",
+      "Business Name": "Synthetic Business 017",
+      "Person Name": "Synthetic Person 017",
+      "Country": "",
+      "Contact Number": "+27 00 000 017",
+      "Email": "nominee017@example.test",
+      "Notes": "Synthetic contact detail for row 17"
+    },
+    {
+      "Award Category": "Excellence in Beauty & Fashion",
+      "Business Name": "Synthetic Business 018",
+      "Person Name": "Synthetic Person 018",
+      "Country": "Botswana",
+      "Contact Number": "+27 00 000 018",
+      "Email": "nominee018@example.test",
+      "Notes": "Synthetic contact detail for row 18"
+    },
+    {
+      "Award Category": "Excellence in Construction & Real Estate",
+      "Business Name": "Synthetic Business 019",
+      "Person Name": "Synthetic Person 019",
+      "Country": "",
+      "Contact Number": "+27 00 000 019",
+      "Email": "nominee019@example.test",
+      "Notes": "Synthetic contact detail for row 19"
+    },
+    {
+      "Award Category": "Excellence in Food Industry",
+      "Business Name": "Synthetic Business 020",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 020",
+      "Email": "nominee020@example.test",
+      "Notes": "Synthetic contact detail for row 20"
+    },
+    {
+      "Award Category": "Excellence in Media & Entertainment",
+      "Business Name": "Synthetic Business 021",
+      "Person Name": "Synthetic Person 021",
+      "Country": "",
+      "Contact Number": "+27 00 000 021",
+      "Email": "nominee021@example.test",
+      "Notes": "Synthetic contact detail for row 21"
+    },
+    {
+      "Award Category": "Excellence in Manufacturing",
+      "Business Name": "Synthetic Business 022",
+      "Person Name": "Synthetic Person 022",
+      "Country": "",
+      "Contact Number": "+27 00 000 022",
+      "Email": "nominee022@example.test",
+      "Notes": "Synthetic contact detail for row 22"
+    },
+    {
+      "Award Category": "Excellence in Furniture & Interiors",
+      "Business Name": "Synthetic Business 023",
+      "Person Name": "Synthetic Person 023",
+      "Country": "",
+      "Contact Number": "+27 00 000 023",
+      "Email": "nominee023@example.test",
+      "Notes": "Synthetic contact detail for row 23"
+    },
+    {
+      "Award Category": "Excellence in Tourism & Events",
+      "Business Name": "Synthetic Business 024",
+      "Person Name": "Synthetic Person 024",
+      "Country": "",
+      "Contact Number": "+27 00 000 024",
+      "Email": "nominee024@example.test",
+      "Notes": "Synthetic contact detail for row 24"
+    },
+    {
+      "Award Category": "Excellence in Built Environment Consulting",
+      "Business Name": "Synthetic Business 025",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 025",
+      "Email": "nominee025@example.test",
+      "Notes": "Synthetic contact detail for row 25"
+    },
+    {
+      "Award Category": "Excellence in Information Technology",
+      "Business Name": "Synthetic Business 026",
+      "Person Name": "Synthetic Person 026",
+      "Country": "",
+      "Contact Number": "+27 00 000 026",
+      "Email": "nominee026@example.test",
+      "Notes": "Synthetic contact detail for row 26"
+    },
+    {
+      "Award Category": "Excellence in Services",
+      "Business Name": "Synthetic Business 027",
+      "Person Name": "Synthetic Person 027",
+      "Country": "",
+      "Contact Number": "+27 00 000 027",
+      "Email": "nominee027@example.test",
+      "Notes": "Synthetic contact detail for row 27"
+    },
+    {
+      "Award Category": "Excellence in Cleaning & Detergents",
+      "Business Name": "Synthetic Business 028",
+      "Person Name": "Synthetic Person 028",
+      "Country": "",
+      "Contact Number": "+27 00 000 028",
+      "Email": "nominee028@example.test",
+      "Notes": "Synthetic contact detail for row 28"
+    },
+    {
+      "Award Category": "Lifetime Achievement Award",
+      "Business Name": "Synthetic Business 029",
+      "Person Name": "Synthetic Person 029",
+      "Country": "",
+      "Contact Number": "+27 00 000 029",
+      "Email": "nominee029@example.test",
+      "Notes": "Synthetic contact detail for row 29"
+    },
+    {
+      "Award Category": "Chief Executive Officer",
+      "Business Name": "Synthetic Business 030",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 030",
+      "Email": "nominee030@example.test",
+      "Notes": "Synthetic contact detail for row 30"
+    },
+    {
+      "Award Category": "Corporate Leader of the Year",
+      "Business Name": "Synthetic Business 031",
+      "Person Name": "Synthetic Person 031",
+      "Country": "",
+      "Contact Number": "+27 00 000 031",
+      "Email": "nominee031@example.test",
+      "Notes": "Synthetic contact detail for row 31"
+    },
+    {
+      "Award Category": "Entrepreneur of the Year",
+      "Business Name": "Synthetic Business 032",
+      "Person Name": "Synthetic Person 032",
+      "Country": "",
+      "Contact Number": "+27 00 000 032",
+      "Email": "nominee032@example.test",
+      "Notes": "Synthetic contact detail for row 32"
+    },
+    {
+      "Award Category": "Young Christian Entrepreneur Award",
+      "Business Name": "Synthetic Business 033",
+      "Person Name": "Synthetic Person 033",
+      "Country": "",
+      "Contact Number": "+27 00 000 033",
+      "Email": "nominee033@example.test",
+      "Notes": "Synthetic contact detail for row 33"
+    },
+    {
+      "Award Category": "Women in Business Leadership Award",
+      "Business Name": "Synthetic Business 034",
+      "Person Name": "Synthetic Person 034",
+      "Country": "",
+      "Contact Number": "+27 00 000 034",
+      "Email": "nominee034@example.test",
+      "Notes": "Synthetic contact detail for row 34"
+    },
+    {
+      "Award Category": "Best Start-up of the Year",
+      "Business Name": "Synthetic Business 035",
+      "Person Name": "",
+      "Country": "Namibia",
+      "Contact Number": "+27 00 000 035",
+      "Email": "nominee035@example.test",
+      "Notes": "Synthetic contact detail for row 35"
+    },
+    {
+      "Award Category": "Business Innovation & Technology Award",
+      "Business Name": "Synthetic Business 036",
+      "Person Name": "Synthetic Person 036",
+      "Country": "",
+      "Contact Number": "+27 00 000 036",
+      "Email": "nominee036@example.test",
+      "Notes": "Synthetic contact detail for row 36"
+    },
+    {
+      "Award Category": "Best Family-Owned Business Award",
+      "Business Name": "Synthetic Business 037",
+      "Person Name": "Synthetic Person 037",
+      "Country": "",
+      "Contact Number": "+27 00 000 037",
+      "Email": "nominee037@example.test",
+      "Notes": "Synthetic contact detail for row 37"
+    },
+    {
+      "Award Category": "Social Impact Award",
+      "Business Name": "Synthetic Business 038",
+      "Person Name": "Synthetic Person 038",
+      "Country": "",
+      "Contact Number": "+27 00 000 038",
+      "Email": "nominee038@example.test",
+      "Notes": "Synthetic contact detail for row 38"
+    },
+    {
+      "Award Category": "Small Basket Business Award",
+      "Business Name": "Synthetic Business 039",
+      "Person Name": "Synthetic Person 039",
+      "Country": "",
+      "Contact Number": "+27 00 000 039",
+      "Email": "nominee039@example.test",
+      "Notes": "Synthetic contact detail for row 39"
+    },
+    {
+      "Award Category": "Excellence in Agriculture & Mining",
+      "Business Name": "Synthetic Business 040",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 040",
+      "Email": "nominee040@example.test",
+      "Notes": "Synthetic contact detail for row 40"
+    },
+    {
+      "Award Category": "Excellence in Education",
+      "Business Name": "Synthetic Business 041",
+      "Person Name": "Synthetic Person 041",
+      "Country": "",
+      "Contact Number": "+27 00 000 041",
+      "Email": "nominee041@example.test",
+      "Notes": "Synthetic contact detail for row 41"
+    },
+    {
+      "Award Category": "",
+      "Business Name": "",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "",
+      "Email": "",
+      "Notes": ""
+    },
+    {
+      "Award Category": "Excellence in Music & Arts",
+      "Business Name": "Synthetic Business 042",
+      "Person Name": "Synthetic Person 042",
+      "Country": "",
+      "Contact Number": "+27 00 000 042",
+      "Email": "nominee042@example.test",
+      "Notes": "Synthetic contact detail for row 42"
+    },
+    {
+      "Award Category": "Excellence in Financial Services",
+      "Business Name": "Synthetic Business 043",
+      "Person Name": "Synthetic Person 043",
+      "Country": "",
+      "Contact Number": "+27 00 000 043",
+      "Email": "nominee043@example.test",
+      "Notes": "Synthetic contact detail for row 43"
+    },
+    {
+      "Award Category": "Excellence in Healthcare",
+      "Business Name": "Synthetic Business 044",
+      "Person Name": "Synthetic Person 044",
+      "Country": "",
+      "Contact Number": "+27 00 000 044",
+      "Email": "nominee044@example.test",
+      "Notes": "Synthetic contact detail for row 44"
+    },
+    {
+      "Award Category": "Excellence in Logistics",
+      "Business Name": "Synthetic Business 045",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 045",
+      "Email": "nominee045@example.test",
+      "Notes": "Synthetic contact detail for row 45"
+    },
+    {
+      "Award Category": "Excellence in Beauty & Fashion",
+      "Business Name": "",
+      "Person Name": "Synthetic Person 046",
+      "Country": "",
+      "Contact Number": "+27 00 000 046",
+      "Email": "nominee046@example.test",
+      "Notes": "Synthetic contact detail for row 46"
+    },
+    {
+      "Award Category": "Excellence in Construction & Real Estate",
+      "Business Name": "Synthetic Business 047",
+      "Person Name": "Synthetic Person 047",
+      "Country": "",
+      "Contact Number": "+27 00 000 047",
+      "Email": "nominee047@example.test",
+      "Notes": "Synthetic contact detail for row 47"
+    },
+    {
+      "Award Category": "Excellence in Food Industry",
+      "Business Name": "Synthetic Business 048",
+      "Person Name": "Synthetic Person 048",
+      "Country": "",
+      "Contact Number": "+27 00 000 048",
+      "Email": "nominee048@example.test",
+      "Notes": "Synthetic contact detail for row 48"
+    },
+    {
+      "Award Category": "Excellence in Media & Entertainment",
+      "Business Name": "Synthetic Business 049",
+      "Person Name": "Synthetic Person 049",
+      "Country": "",
+      "Contact Number": "+27 00 000 049",
+      "Email": "nominee049@example.test",
+      "Notes": "Synthetic contact detail for row 49"
+    },
+    {
+      "Award Category": "Excellence in Manufacturing",
+      "Business Name": "Synthetic Business 050",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 050",
+      "Email": "nominee050@example.test",
+      "Notes": "Synthetic contact detail for row 50"
+    },
+    {
+      "Award Category": "Excellence in Furniture & Interiors",
+      "Business Name": "Synthetic Business 051",
+      "Person Name": "Synthetic Person 051",
+      "Country": "",
+      "Contact Number": "+27 00 000 051",
+      "Email": "nominee051@example.test",
+      "Notes": "Synthetic contact detail for row 51"
+    },
+    {
+      "Award Category": "Excellence in Tourism & Events",
+      "Business Name": "Synthetic Business 052",
+      "Person Name": "Synthetic Person 052",
+      "Country": "Zimbabwe",
+      "Contact Number": "+27 00 000 052",
+      "Email": "nominee052@example.test",
+      "Notes": "Synthetic contact detail for row 52"
+    },
+    {
+      "Award Category": "Excellence in Built Environment Consulting",
+      "Business Name": "Synthetic Business 053",
+      "Person Name": "Synthetic Person 053",
+      "Country": "",
+      "Contact Number": "+27 00 000 053",
+      "Email": "nominee053@example.test",
+      "Notes": "Synthetic contact detail for row 53"
+    },
+    {
+      "Award Category": "Excellence in Information Technology",
+      "Business Name": "Synthetic Business 054",
+      "Person Name": "Synthetic Person 054",
+      "Country": "",
+      "Contact Number": "+27 00 000 054",
+      "Email": "nominee054@example.test",
+      "Notes": "Synthetic contact detail for row 54"
+    },
+    {
+      "Award Category": "Excellence in Services",
+      "Business Name": "Synthetic Business 055",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 055",
+      "Email": "nominee055@example.test",
+      "Notes": "Synthetic contact detail for row 55"
+    },
+    {
+      "Award Category": "Excellence in Cleaning & Detergents",
+      "Business Name": "Synthetic Business 056",
+      "Person Name": "Synthetic Person 056",
+      "Country": "",
+      "Contact Number": "+27 00 000 056",
+      "Email": "nominee056@example.test",
+      "Notes": "Synthetic contact detail for row 56"
+    },
+    {
+      "Award Category": "Lifetime Achievement Award",
+      "Business Name": "Synthetic Business 057",
+      "Person Name": "Synthetic Person 057",
+      "Country": "",
+      "Contact Number": "+27 00 000 057",
+      "Email": "nominee057@example.test",
+      "Notes": "Synthetic contact detail for row 57"
+    },
+    {
+      "Award Category": "Chief Executive Officer",
+      "Business Name": "Synthetic Business 058",
+      "Person Name": "Synthetic Person 058",
+      "Country": "",
+      "Contact Number": "+27 00 000 058",
+      "Email": "nominee058@example.test",
+      "Notes": "Synthetic contact detail for row 58"
+    },
+    {
+      "Award Category": "Corporate Leader of the Year",
+      "Business Name": "Synthetic Business 059",
+      "Person Name": "Synthetic Person 059",
+      "Country": "",
+      "Contact Number": "+27 00 000 059",
+      "Email": "nominee059@example.test",
+      "Notes": "Synthetic contact detail for row 59"
+    },
+    {
+      "Award Category": "Entrepreneur of the Year",
+      "Business Name": "Synthetic Business 060",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 060",
+      "Email": "nominee060@example.test",
+      "Notes": "Synthetic contact detail for row 60"
+    },
+    {
+      "Award Category": "Young Christian Entrepreneur Award",
+      "Business Name": "Synthetic Business 061",
+      "Person Name": "Synthetic Person 061",
+      "Country": "",
+      "Contact Number": "+27 00 000 061",
+      "Email": "nominee061@example.test",
+      "Notes": "Synthetic contact detail for row 61"
+    },
+    {
+      "Award Category": "Women in Business Leadership Award",
+      "Business Name": "Synthetic Business 062",
+      "Person Name": "Synthetic Person 062",
+      "Country": "",
+      "Contact Number": "+27 00 000 062",
+      "Email": "nominee062@example.test",
+      "Notes": "Synthetic contact detail for row 62"
+    },
+    {
+      "Award Category": "Best Start-up of the Year",
+      "Business Name": "Synthetic Business 063",
+      "Person Name": "Synthetic Person 063",
+      "Country": "",
+      "Contact Number": "+27 00 000 063",
+      "Email": "nominee063@example.test",
+      "Notes": "Synthetic contact detail for row 63"
+    },
+    {
+      "Award Category": "Business Innovation & Technology Award",
+      "Business Name": "Synthetic Business 064",
+      "Person Name": "Synthetic Person 064",
+      "Country": "",
+      "Contact Number": "+27 00 000 064",
+      "Email": "nominee064@example.test",
+      "Notes": "Synthetic contact detail for row 64"
+    },
+    {
+      "Award Category": "Best Family-Owned Business Award",
+      "Business Name": "Synthetic Business 065",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 065",
+      "Email": "nominee065@example.test",
+      "Notes": "Synthetic contact detail for row 65"
+    },
+    {
+      "Award Category": "Social Impact Award",
+      "Business Name": "Synthetic Business 066",
+      "Person Name": "Synthetic Person 066",
+      "Country": "",
+      "Contact Number": "+27 00 000 066",
+      "Email": "nominee066@example.test",
+      "Notes": "Synthetic contact detail for row 66"
+    },
+    {
+      "Award Category": "Small Basket Business Award",
+      "Business Name": "Synthetic Business 067",
+      "Person Name": "Synthetic Person 067",
+      "Country": "",
+      "Contact Number": "+27 00 000 067",
+      "Email": "nominee067@example.test",
+      "Notes": "Synthetic contact detail for row 67"
+    },
+    {
+      "Award Category": "Excellence in Agriculture & Mining",
+      "Business Name": "Synthetic Business 068",
+      "Person Name": "Synthetic Person 068",
+      "Country": "",
+      "Contact Number": "+27 00 000 068",
+      "Email": "nominee068@example.test",
+      "Notes": "Synthetic contact detail for row 68"
+    },
+    {
+      "Award Category": "Excellence in Education",
+      "Business Name": "Synthetic Business 069",
+      "Person Name": "Synthetic Person 069",
+      "Country": "Zambia",
+      "Contact Number": "+27 00 000 069",
+      "Email": "nominee069@example.test",
+      "Notes": "Synthetic contact detail for row 69"
+    },
+    {
+      "Award Category": "Excellence in Music & Arts",
+      "Business Name": "Synthetic Business 070",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 070",
+      "Email": "nominee070@example.test",
+      "Notes": "Synthetic contact detail for row 70"
+    },
+    {
+      "Award Category": "Excellence in Financial Services",
+      "Business Name": "Synthetic Business 071",
+      "Person Name": "Synthetic Person 071",
+      "Country": "",
+      "Contact Number": "+27 00 000 071",
+      "Email": "nominee071@example.test",
+      "Notes": "Synthetic contact detail for row 71"
+    },
+    {
+      "Award Category": "Excellence in Healthcare",
+      "Business Name": "Synthetic Business 072",
+      "Person Name": "Synthetic Person 072",
+      "Country": "",
+      "Contact Number": "+27 00 000 072",
+      "Email": "nominee072@example.test",
+      "Notes": "Synthetic contact detail for row 72"
+    },
+    {
+      "Award Category": "Excellence in Logistics",
+      "Business Name": "Synthetic Business 073",
+      "Person Name": "Synthetic Person 073",
+      "Country": "",
+      "Contact Number": "+27 00 000 073",
+      "Email": "nominee073@example.test",
+      "Notes": "Synthetic contact detail for row 73"
+    },
+    {
+      "Award Category": "Excellence in Beauty & Fashion",
+      "Business Name": "Synthetic Business 074",
+      "Person Name": "Synthetic Person 074",
+      "Country": "",
+      "Contact Number": "+27 00 000 074",
+      "Email": "nominee074@example.test",
+      "Notes": "Synthetic contact detail for row 74"
+    },
+    {
+      "Award Category": "Excellence in Construction & Real Estate",
+      "Business Name": "Synthetic Business 075",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 075",
+      "Email": "nominee075@example.test",
+      "Notes": "Synthetic contact detail for row 75"
+    },
+    {
+      "Award Category": "Excellence in Food Industry",
+      "Business Name": "Synthetic Business 076",
+      "Person Name": "Synthetic Person 076",
+      "Country": "",
+      "Contact Number": "+27 00 000 076",
+      "Email": "nominee076@example.test",
+      "Notes": "Synthetic contact detail for row 76"
+    },
+    {
+      "Award Category": "Excellence in Media & Entertainment",
+      "Business Name": "Synthetic Business 077",
+      "Person Name": "Synthetic Person 077",
+      "Country": "",
+      "Contact Number": "+27 00 000 077",
+      "Email": "nominee077@example.test",
+      "Notes": "Synthetic contact detail for row 77"
+    },
+    {
+      "Award Category": "Excellence in Manufacturing",
+      "Business Name": "Synthetic Business 078",
+      "Person Name": "Synthetic Person 078",
+      "Country": "",
+      "Contact Number": "+27 00 000 078",
+      "Email": "nominee078@example.test",
+      "Notes": "Synthetic contact detail for row 78"
+    },
+    {
+      "Award Category": "Excellence in Furniture & Interiors",
+      "Business Name": "Synthetic Business 079",
+      "Person Name": "Synthetic Person 079",
+      "Country": "",
+      "Contact Number": "+27 00 000 079",
+      "Email": "nominee079@example.test",
+      "Notes": "Synthetic contact detail for row 79"
+    },
+    {
+      "Award Category": "Excellence in Tourism & Events",
+      "Business Name": "Synthetic Business 080",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 080",
+      "Email": "nominee080@example.test",
+      "Notes": "Synthetic contact detail for row 80"
+    },
+    {
+      "Award Category": "Excellence in Built Environment Consulting",
+      "Business Name": "Synthetic Business 081",
+      "Person Name": "Synthetic Person 081",
+      "Country": "",
+      "Contact Number": "+27 00 000 081",
+      "Email": "nominee081@example.test",
+      "Notes": "Synthetic contact detail for row 81"
+    },
+    {
+      "Award Category": "Excellence in Information Technology",
+      "Business Name": "Synthetic Business 082",
+      "Person Name": "Synthetic Person 082",
+      "Country": "",
+      "Contact Number": "+27 00 000 082",
+      "Email": "nominee082@example.test",
+      "Notes": "Synthetic contact detail for row 82"
+    },
+    {
+      "Award Category": "Excellence in Services",
+      "Business Name": "Synthetic Business 083",
+      "Person Name": "Synthetic Person 083",
+      "Country": "",
+      "Contact Number": "+27 00 000 083",
+      "Email": "nominee083@example.test",
+      "Notes": "Synthetic contact detail for row 83"
+    },
+    {
+      "Award Category": "Excellence in Cleaning & Detergents",
+      "Business Name": "Synthetic Business 084",
+      "Person Name": "Synthetic Person 084",
+      "Country": "",
+      "Contact Number": "+27 00 000 084",
+      "Email": "nominee084@example.test",
+      "Notes": "Synthetic contact detail for row 84"
+    },
+    {
+      "Award Category": "Lifetime Achievement Award",
+      "Business Name": "Synthetic Business 085",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 085",
+      "Email": "nominee085@example.test",
+      "Notes": "Synthetic contact detail for row 85"
+    },
+    {
+      "Award Category": "Chief Executive Officer",
+      "Business Name": "Synthetic Business 086",
+      "Person Name": "Synthetic Person 086",
+      "Country": "Kenya",
+      "Contact Number": "+27 00 000 086",
+      "Email": "nominee086@example.test",
+      "Notes": "Synthetic contact detail for row 86"
+    },
+    {
+      "Award Category": "Corporate Leader of the Year",
+      "Business Name": "Synthetic Business 087",
+      "Person Name": "Synthetic Person 087",
+      "Country": "",
+      "Contact Number": "+27 00 000 087",
+      "Email": "nominee087@example.test",
+      "Notes": "Synthetic contact detail for row 87"
+    },
+    {
+      "Award Category": "Entrepreneur of the Year",
+      "Business Name": "Synthetic Business 088",
+      "Person Name": "Synthetic Person 088",
+      "Country": "",
+      "Contact Number": "+27 00 000 088",
+      "Email": "nominee088@example.test",
+      "Notes": "Synthetic contact detail for row 88"
+    },
+    {
+      "Award Category": "Young Christian Entrepreneur Award",
+      "Business Name": "Synthetic Business 089",
+      "Person Name": "Synthetic Person 089",
+      "Country": "",
+      "Contact Number": "+27 00 000 089",
+      "Email": "nominee089@example.test",
+      "Notes": "Synthetic contact detail for row 89"
+    },
+    {
+      "Award Category": "Women in Business Leadership Award",
+      "Business Name": "Synthetic Business 090",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 090",
+      "Email": "nominee090@example.test",
+      "Notes": "Synthetic contact detail for row 90"
+    },
+    {
+      "Award Category": "Best Start-up of the Year",
+      "Business Name": "Synthetic Business 091",
+      "Person Name": "Synthetic Person 091",
+      "Country": "",
+      "Contact Number": "+27 00 000 091",
+      "Email": "nominee091@example.test",
+      "Notes": "Synthetic contact detail for row 91"
+    },
+    {
+      "Award Category": "Business Innovation & Technology Award",
+      "Business Name": "",
+      "Person Name": "Synthetic Person 092",
+      "Country": "",
+      "Contact Number": "+27 00 000 092",
+      "Email": "nominee092@example.test",
+      "Notes": "Synthetic contact detail for row 92"
+    },
+    {
+      "Award Category": "Best Family-Owned Business Award",
+      "Business Name": "Synthetic Business 093",
+      "Person Name": "Synthetic Person 093",
+      "Country": "",
+      "Contact Number": "+27 00 000 093",
+      "Email": "nominee093@example.test",
+      "Notes": "Synthetic contact detail for row 93"
+    },
+    {
+      "Award Category": "Social Impact Award",
+      "Business Name": "Synthetic Business 094",
+      "Person Name": "Synthetic Person 094",
+      "Country": "",
+      "Contact Number": "+27 00 000 094",
+      "Email": "nominee094@example.test",
+      "Notes": "Synthetic contact detail for row 94"
+    },
+    {
+      "Award Category": "Small Basket Business Award",
+      "Business Name": "Synthetic Business 095",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 095",
+      "Email": "nominee095@example.test",
+      "Notes": "Synthetic contact detail for row 95"
+    },
+    {
+      "Award Category": "Excellence in Agriculture & Mining",
+      "Business Name": "Synthetic Business 096",
+      "Person Name": "Synthetic Person 096",
+      "Country": "",
+      "Contact Number": "+27 00 000 096",
+      "Email": "nominee096@example.test",
+      "Notes": "Synthetic contact detail for row 96"
+    },
+    {
+      "Award Category": "",
+      "Business Name": "",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "",
+      "Email": "",
+      "Notes": ""
+    },
+    {
+      "Award Category": "Excellence in Education",
+      "Business Name": "Synthetic Business 097",
+      "Person Name": "Synthetic Person 097",
+      "Country": "",
+      "Contact Number": "+27 00 000 097",
+      "Email": "nominee097@example.test",
+      "Notes": "Synthetic contact detail for row 97"
+    },
+    {
+      "Award Category": "Excellence in Music & Arts",
+      "Business Name": "Synthetic Business 098",
+      "Person Name": "Synthetic Person 098",
+      "Country": "",
+      "Contact Number": "+27 00 000 098",
+      "Email": "nominee098@example.test",
+      "Notes": "Synthetic contact detail for row 98"
+    },
+    {
+      "Award Category": "Excellence in Financial Services",
+      "Business Name": "Synthetic Business 099",
+      "Person Name": "Synthetic Person 099",
+      "Country": "",
+      "Contact Number": "+27 00 000 099",
+      "Email": "nominee099@example.test",
+      "Notes": "Synthetic contact detail for row 99"
+    },
+    {
+      "Award Category": "Excellence in Healthcare",
+      "Business Name": "Synthetic Business 100",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 100",
+      "Email": "nominee100@example.test",
+      "Notes": "Synthetic contact detail for row 100"
+    },
+    {
+      "Award Category": "Excellence in Logistics",
+      "Business Name": "Synthetic Business 101",
+      "Person Name": "Synthetic Person 101",
+      "Country": "",
+      "Contact Number": "+27 00 000 101",
+      "Email": "nominee101@example.test",
+      "Notes": "Synthetic contact detail for row 101"
+    },
+    {
+      "Award Category": "Excellence in Beauty & Fashion",
+      "Business Name": "Synthetic Business 102",
+      "Person Name": "Synthetic Person 102",
+      "Country": "",
+      "Contact Number": "+27 00 000 102",
+      "Email": "nominee102@example.test",
+      "Notes": "Synthetic contact detail for row 102"
+    },
+    {
+      "Award Category": "Excellence in Construction & Real Estate",
+      "Business Name": "Synthetic Business 103",
+      "Person Name": "Synthetic Person 103",
+      "Country": "Nigeria",
+      "Contact Number": "+27 00 000 103",
+      "Email": "nominee103@example.test",
+      "Notes": "Synthetic contact detail for row 103"
+    },
+    {
+      "Award Category": "Excellence in Food Industry",
+      "Business Name": "Synthetic Business 104",
+      "Person Name": "Synthetic Person 104",
+      "Country": "",
+      "Contact Number": "+27 00 000 104",
+      "Email": "nominee104@example.test",
+      "Notes": "Synthetic contact detail for row 104"
+    },
+    {
+      "Award Category": "Excellence in Media & Entertainment",
+      "Business Name": "Synthetic Business 105",
+      "Person Name": "",
+      "Country": "",
+      "Contact Number": "+27 00 000 105",
+      "Email": "nominee105@example.test",
+      "Notes": "Synthetic contact detail for row 105"
+    },
+    {
+      "Award Category": "Excellence in Manufacturing",
+      "Business Name": "Synthetic Business 106",
+      "Person Name": "Synthetic Person 106",
+      "Country": "",
+      "Contact Number": "+27 00 000 106",
+      "Email": "nominee106@example.test",
+      "Notes": "Synthetic contact detail for row 106"
+    },
+    {
+      "Award Category": "Excellence in Furniture & Interiors",
+      "Business Name": "Synthetic Business 107",
+      "Person Name": "Synthetic Person 107",
+      "Country": "",
+      "Contact Number": "+27 00 000 107",
+      "Email": "nominee107@example.test",
+      "Notes": "Synthetic contact detail for row 107"
+    },
+    {
+      "Award Category": "Excellence in Tourism & Events",
+      "Business Name": "Synthetic Business 108",
+      "Person Name": "Synthetic Person 108",
+      "Country": "",
+      "Contact Number": "+27 00 000 108",
+      "Email": "nominee108@example.test",
+      "Notes": "Synthetic contact detail for row 108"
+    },
+    {
+      "Award Category": "Excellence in Built Environment Consulting",
+      "Business Name": "Synthetic Business 109",
+      "Person Name": "Synthetic Person 109",
+      "Country": "",
+      "Contact Number": "+27 00 000 109",
+      "Email": "nominee109@example.test",
+      "Notes": "Synthetic contact detail for row 109"
+    },
+    {
+      "Award Category": "Excellence in Information Technology",
+      "Business Name": "Synthetic Business 110",
+      "Person Name": "Synthetic Person 110",
+      "Country": "",
+      "Contact Number": "+27 00 000 110",
+      "Email": "nominee110@example.test",
+      "Notes": "Synthetic contact detail for row 110"
+    },
+    {
+      "Award Category": "Excellence in Services",
+      "Business Name": "Synthetic Business 111",
+      "Person Name": "Synthetic Person 111",
+      "Country": "",
+      "Contact Number": "+27 00 000 111",
+      "Email": "nominee111@example.test",
+      "Notes": "Synthetic contact detail for row 111"
+    },
+    {
+      "Award Category": "Excellence in Cleaning & Detergents",
+      "Business Name": "Synthetic Business 112",
+      "Person Name": "Synthetic Person 112",
+      "Country": "",
+      "Contact Number": "+27 00 000 112",
+      "Email": "nominee112@example.test",
+      "Notes": "Synthetic contact detail for row 112"
+    },
+    {
+      "Award Category": "Lifetime Achievement Award",
+      "Business Name": "Synthetic Business 113",
+      "Person Name": "Synthetic Person 113",
+      "Country": "",
+      "Contact Number": "+27 00 000 113",
+      "Email": "nominee113@example.test",
+      "Notes": "Synthetic contact detail for row 113"
+    },
+    {
+      "Award Category": "Chief Executive Officer",
+      "Business Name": "Synthetic Business 114",
+      "Person Name": "Synthetic Person 114",
+      "Country": "",
+      "Contact Number": "+27 00 000 114",
+      "Email": "nominee114@example.test",
+      "Notes": "Synthetic contact detail for row 114"
+    },
+    {
+      "Award Category": "Corporate Leader of the Year",
+      "Business Name": "Synthetic Business 115",
+      "Person Name": "Synthetic Person 115",
+      "Country": "",
+      "Contact Number": "+27 00 000 115",
+      "Email": "nominee115@example.test",
+      "Notes": "Synthetic contact detail for row 115"
+    },
+    {
+      "Award Category": "Entrepreneur of the Year",
+      "Business Name": "Synthetic Business 116",
+      "Person Name": "Synthetic Person 116",
+      "Country": "",
+      "Contact Number": "+27 00 000 116",
+      "Email": "nominee116@example.test",
+      "Notes": "Synthetic contact detail for row 116"
+    },
+    {
+      "Award Category": "Young Christian Entrepreneur Award",
+      "Business Name": "Synthetic Business 117",
+      "Person Name": "Synthetic Person 117",
+      "Country": "",
+      "Contact Number": "+27 00 000 117",
+      "Email": "nominee117@example.test",
+      "Notes": "Synthetic contact detail for row 117"
+    },
+    {
+      "Award Category": "Women in Business Leadership Award",
+      "Business Name": "Synthetic Business 118",
+      "Person Name": "Synthetic Person 118",
+      "Country": "",
+      "Contact Number": "+27 00 000 118",
+      "Email": "nominee118@example.test",
+      "Notes": "Synthetic contact detail for row 118"
+    },
+    {
+      "Award Category": "Best Start-up of the Year",
+      "Business Name": "Synthetic Business 119",
+      "Person Name": "Synthetic Person 119",
+      "Country": "",
+      "Contact Number": "+27 00 000 119",
+      "Email": "nominee119@example.test",
+      "Notes": "Synthetic contact detail for row 119"
+    },
+    {
+      "Award Category": "Business Innovation & Technology Award",
+      "Business Name": "Synthetic Business 120",
+      "Person Name": "Synthetic Person 120",
+      "Country": "Ghana",
+      "Contact Number": "+27 00 000 120",
+      "Email": "nominee120@example.test",
+      "Notes": "Synthetic contact detail for row 120"
+    },
+    {
+      "Award Category": "Best Family-Owned Business Award",
+      "Business Name": "Synthetic Business 121",
+      "Person Name": "Synthetic Person 121",
+      "Country": "",
+      "Contact Number": "+27 00 000 121",
+      "Email": "nominee121@example.test",
+      "Notes": "Synthetic contact detail for row 121"
+    },
+    {
+      "Award Category": "Social Impact Award",
+      "Business Name": "Synthetic Business 122",
+      "Person Name": "Synthetic Person 122",
+      "Country": "",
+      "Contact Number": "+27 00 000 122",
+      "Email": "nominee122@example.test",
+      "Notes": "Synthetic contact detail for row 122"
+    },
+    {
+      "Award Category": "Small Basket Business Award",
+      "Business Name": "Synthetic Business 123",
+      "Person Name": "Synthetic Person 123",
+      "Country": "",
+      "Contact Number": "+27 00 000 123",
+      "Email": "nominee123@example.test",
+      "Notes": "Synthetic contact detail for row 123"
+    },
+    {
+      "Award Category": "Excellence in Agriculture & Mining",
+      "Business Name": "Synthetic Business 124",
+      "Person Name": "Synthetic Person 124",
+      "Country": "",
+      "Contact Number": "+27 00 000 124",
+      "Email": "nominee124@example.test",
+      "Notes": "Synthetic contact detail for row 124"
+    },
+    {
+      "Award Category": "Excellence in Education",
+      "Business Name": "Synthetic Business 125",
+      "Person Name": "Synthetic Person 125",
+      "Country": "",
+      "Contact Number": "+27 00 000 125",
+      "Email": "nominee125@example.test",
+      "Notes": "Synthetic contact detail for row 125"
+    },
+    {
+      "Award Category": "Excellence in Music & Arts",
+      "Business Name": "Synthetic Business 126",
+      "Person Name": "Synthetic Person 126",
+      "Country": "",
+      "Contact Number": "+27 00 000 126",
+      "Email": "nominee126@example.test",
+      "Notes": "Synthetic contact detail for row 126"
+    },
+    {
+      "Award Category": "Excellence in Financial Services",
+      "Business Name": "Synthetic Business 127",
+      "Person Name": "Synthetic Person 127",
+      "Country": "",
+      "Contact Number": "+27 00 000 127",
+      "Email": "nominee127@example.test",
+      "Notes": "Synthetic contact detail for row 127"
+    },
+    {
+      "Award Category": "Excellence in Healthcare",
+      "Business Name": "Synthetic Business 128",
+      "Person Name": "Synthetic Person 128",
+      "Country": "",
+      "Contact Number": "+27 00 000 128",
+      "Email": "nominee128@example.test",
+      "Notes": "Synthetic contact detail for row 128"
+    },
+    {
+      "Award Category": "Excellence in Logistics",
+      "Business Name": "Synthetic Business 129",
+      "Person Name": "Synthetic Person 129",
+      "Country": "",
+      "Contact Number": "+27 00 000 129",
+      "Email": "nominee129@example.test",
+      "Notes": "Synthetic contact detail for row 129"
+    },
+    {
+      "Award Category": "Excellence in Beauty & Fashion",
+      "Business Name": "Synthetic Business 130",
+      "Person Name": "Synthetic Person 130",
+      "Country": "",
+      "Contact Number": "+27 00 000 130",
+      "Email": "nominee130@example.test",
+      "Notes": "Synthetic contact detail for row 130"
+    },
+    {
+      "Award Category": "Excellence in Construction & Real Estate",
+      "Business Name": "Synthetic Business 131",
+      "Person Name": "Synthetic Person 131",
+      "Country": "",
+      "Contact Number": "+27 00 000 131",
+      "Email": "nominee131@example.test",
+      "Notes": "Synthetic contact detail for row 131"
+    },
+    {
+      "Award Category": "Excellence in Food Industry",
+      "Business Name": "Synthetic Business 132",
+      "Person Name": "Synthetic Person 132",
+      "Country": "",
+      "Contact Number": "+27 00 000 132",
+      "Email": "nominee132@example.test",
+      "Notes": "Synthetic contact detail for row 132"
+    },
+    {
+      "Award Category": "Excellence in Media & Entertainment",
+      "Business Name": "Synthetic Business 133",
+      "Person Name": "Synthetic Person 133",
+      "Country": "",
+      "Contact Number": "+27 00 000 133",
+      "Email": "nominee133@example.test",
+      "Notes": "Synthetic contact detail for row 133"
+    },
+    {
+      "Award Category": "Excellence in Manufacturing",
+      "Business Name": "Synthetic Business 134",
+      "Person Name": "Synthetic Person 134",
+      "Country": "",
+      "Contact Number": "+27 00 000 134",
+      "Email": "nominee134@example.test",
+      "Notes": "Synthetic contact detail for row 134"
+    },
+    {
+      "Award Category": "Excellence in Furniture & Interiors",
+      "Business Name": "Synthetic Business 135",
+      "Person Name": "Synthetic Person 135",
+      "Country": "",
+      "Contact Number": "+27 00 000 135",
+      "Email": "nominee135@example.test",
+      "Notes": "Synthetic contact detail for row 135"
+    },
+    {
+      "Award Category": "Excellence in Tourism & Events",
+      "Business Name": "Synthetic Business 136",
+      "Person Name": "Synthetic Person 136",
+      "Country": "",
+      "Contact Number": "+27 00 000 136",
+      "Email": "nominee136@example.test",
+      "Notes": "Synthetic contact detail for row 136"
+    },
+    {
+      "Award Category": "Excellence in Built Environment Consulting",
+      "Business Name": "Synthetic Business 137",
+      "Person Name": "Synthetic Person 137",
+      "Country": "Eswatini",
+      "Contact Number": "+27 00 000 137",
+      "Email": "nominee137@example.test",
+      "Notes": "Synthetic contact detail for row 137"
+    },
+    {
+      "Award Category": "Excellence in Information Technology",
+      "Business Name": "",
+      "Person Name": "Synthetic Person 138",
+      "Country": "",
+      "Contact Number": "+27 00 000 138",
+      "Email": "nominee138@example.test",
+      "Notes": "Synthetic contact detail for row 138"
+    },
+    {
+      "Award Category": "Excellence in Services",
+      "Business Name": "Synthetic Business 139",
+      "Person Name": "Synthetic Person 139",
+      "Country": "",
+      "Contact Number": "+27 00 000 139",
+      "Email": "nominee139@example.test",
+      "Notes": "Synthetic contact detail for row 139"
+    }
+  ]
+}

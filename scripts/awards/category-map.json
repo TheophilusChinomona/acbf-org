@@ -1,0 +1,249 @@
+{
+  "$comment": "Reviewed mapping of spreadsheet category labels to ballot categories. Anything not listed here is reported as an unmapped-category error and blocks the import, so no two source labels are ever merged by guesswork. Matching ignores case, punctuation and whitespace.",
+  "version": 1,
+  "reviewedAt": null,
+  "categories": [
+    {
+      "id": "lifetime-achievement",
+      "name": "Lifetime Achievement Award",
+      "aliases": [
+        "Lifetime Achievement Award",
+        "Lifetime Achievement"
+      ]
+    },
+    {
+      "id": "ceo-award",
+      "name": "Chief Executive Officer",
+      "aliases": [
+        "Chief Executive Officer",
+        "Chief Executive Officer Award"
+      ]
+    },
+    {
+      "id": "corporate-leader",
+      "name": "Corporate Leader of the Year",
+      "aliases": [
+        "Corporate Leader of the Year",
+        "Corporate Leader of the Year Award"
+      ]
+    },
+    {
+      "id": "entrepreneur",
+      "name": "Entrepreneur of the Year",
+      "aliases": [
+        "Entrepreneur of the Year",
+        "Entrepreneur of the Year Award"
+      ]
+    },
+    {
+      "id": "young-christian-entrepreneur",
+      "name": "Young Christian Entrepreneur Award",
+      "aliases": [
+        "Young Christian Entrepreneur Award",
+        "Young Christian Entrepreneur"
+      ]
+    },
+    {
+      "id": "women-leadership",
+      "name": "Women in Business Leadership Award",
+      "aliases": [
+        "Women in Business Leadership Award",
+        "Women in Business Leadership"
+      ]
+    },
+    {
+      "id": "best-startup",
+      "name": "Best Start-up of the Year",
+      "aliases": [
+        "Best Start-up of the Year",
+        "Best Start-up of the Year Award"
+      ]
+    },
+    {
+      "id": "innovation-technology",
+      "name": "Business Innovation & Technology Award",
+      "aliases": [
+        "Business Innovation & Technology Award",
+        "Business Innovation & Technology"
+      ]
+    },
+    {
+      "id": "family-business",
+      "name": "Best Family-Owned Business Award",
+      "aliases": [
+        "Best Family-Owned Business Award",
+        "Best Family-Owned Business"
+      ]
+    },
+    {
+      "id": "social-impact",
+      "name": "Social Impact Award",
+      "aliases": [
+        "Social Impact Award",
+        "Social Impact"
+      ]
+    },
+    {
+      "id": "small-basket-business",
+      "name": "Small Basket Business Award",
+      "aliases": [
+        "Small Basket Business Award",
+        "Small Basket Business"
+      ]
+    },
+    {
+      "id": "agriculture-mining",
+      "name": "Excellence in Agriculture & Mining",
+      "aliases": [
+        "Excellence in Agriculture & Mining",
+        "Excellence in Agriculture & Mining Award"
+      ]
+    },
+    {
+      "id": "education",
+      "name": "Excellence in Education",
+      "aliases": [
+        "Excellence in Education",
+        "Excellence in Education Award"
+      ]
+    },
+    {
+      "id": "music-arts",
+      "name": "Excellence in Music & Arts",
+      "aliases": [
+        "Excellence in Music & Arts",
+        "Excellence in Music & Arts Award"
+      ]
+    },
+    {
+      "id": "financial-services",
+      "name": "Excellence in Financial Services",
+      "aliases": [
+        "Excellence in Financial Services",
+        "Excellence in Financial Services Award"
+      ]
+    },
+    {
+      "id": "healthcare",
+      "name": "Excellence in Healthcare",
+      "aliases": [
+        "Excellence in Healthcare",
+        "Excellence in Healthcare Award"
+      ]
+    },
+    {
+      "id": "logistics",
+      "name": "Excellence in Logistics",
+      "aliases": [
+        "Excellence in Logistics",
+        "Excellence in Logistics Award"
+      ]
+    },
+    {
+      "id": "beauty-fashion",
+      "name": "Excellence in Beauty & Fashion",
+      "aliases": [
+        "Excellence in Beauty & Fashion",
+        "Excellence in Beauty & Fashion Award"
+      ]
+    },
+    {
+      "id": "construction-realestate",
+      "name": "Excellence in Construction & Real Estate",
+      "aliases": [
+        "Excellence in Construction & Real Estate",
+        "Excellence in Construction & Real Estate Award"
+      ]
+    },
+    {
+      "id": "food-industry",
+      "name": "Excellence in Food Industry",
+      "aliases": [
+        "Excellence in Food Industry",
+        "Excellence in Food Industry Award"
+      ]
+    },
+    {
+      "id": "media-entertainment",
+      "name": "Excellence in Media & Entertainment",
+      "aliases": [
+        "Excellence in Media & Entertainment",
+        "Excellence in Media & Entertainment Award"
+      ]
+    },
+    {
+      "id": "manufacturing",
+      "name": "Excellence in Manufacturing",
+      "aliases": [
+        "Excellence in Manufacturing",
+        "Excellence in Manufacturing Award"
+      ]
+    },
+    {
+      "id": "furniture-interiors",
+      "name": "Excellence in Furniture & Interiors",
+      "aliases": [
+        "Excellence in Furniture & Interiors",
+        "Excellence in Furniture & Interiors Award"
+      ]
+    },
+    {
+      "id": "tourism-events",
+      "name": "Excellence in Tourism & Events",
+      "aliases": [
+        "Excellence in Tourism & Events",
+        "Excellence in Tourism & Events Award"
+      ]
+    },
+    {
+      "id": "built-environment",
+      "name": "Excellence in Built Environment Consulting",
+      "aliases": [
+        "Excellence in Built Environment Consulting",
+        "Excellence in Built Environment Consulting Award"
+      ]
+    },
+    {
+      "id": "information-technology",
+      "name": "Excellence in Information Technology",
+      "aliases": [
+        "Excellence in Information Technology",
+        "Excellence in Information Technology Award"
+      ]
+    },
+    {
+      "id": "services",
+      "name": "Excellence in Services",
+      "aliases": [
+        "Excellence in Services",
+        "Excellence in Services Award"
+      ]
+    },
+    {
+      "id": "cleaning-detergents",
+      "name": "Excellence in Cleaning & Detergents",
+      "aliases": [
+        "Excellence in Cleaning & Detergents",
+        "Excellence in Cleaning & Detergents Award"
+      ]
+    }
+  ],
+  "ambiguousAliases": [
+    {
+      "alias": "Legal Services",
+      "reason": "The design spec calls out legal services titles with and without \"Excellence\" as semantically different; confirm which ballot category each belongs to."
+    },
+    {
+      "alias": "Excellence in Legal Services",
+      "reason": "The design spec calls out legal services titles with and without \"Excellence\" as semantically different; confirm which ballot category each belongs to."
+    },
+    {
+      "alias": "Legal Services Excellence",
+      "reason": "The design spec calls out legal services titles with and without \"Excellence\" as semantically different; confirm which ballot category each belongs to."
+    },
+    {
+      "alias": "Professional Services",
+      "reason": "Overlaps both \"Excellence in Services\" and legal/consulting categories; confirm the intended ballot category."
+    }
+  ]
+}
