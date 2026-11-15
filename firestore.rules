@@ -1,0 +1,192 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------------------
+    // Admin authority
+    //
+    // Admin access is decided by the approved_admins collection only (plus the
+    // hard-coded super admin, matching src/hooks/useAdminManagement.js). The
+    // `role` field on a user profile is display metadata and grants nothing by
+    // itself, so a profile edit can never widen access.
+    // ---------------------------------------------------------------------
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email is string;
+    }
+
+    function callerEmail() {
+      return request.auth.token.email;
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && callerEmail() == 'chinomonatinotenda19@gmail.com';
+    }
+
+    function approvedAdminDoc(email) {
+      return /databases/$(database)/documents/approved_admins/$(email);
+    }
+
+    function isApprovedAdmin() {
+      return isSignedIn()
+        && exists(approvedAdminDoc(callerEmail()))
+        && get(approvedAdminDoc(callerEmail())).data.status == 'approved';
+    }
+
+    function canReadAdminData() {
+      return isSuperAdmin() || isApprovedAdmin();
+    }
+
+    // ---------------------------------------------------------------------
+    // Awards voting
+    //
+    // The catalogue and competition settings are public so visitors can load the
+    // ballot without signing in. Votes, totals and rate-limit buckets are private
+    // admin data and are written only by the castAwardVote Cloud Function (which
+    // uses the Admin SDK and therefore bypasses these rules).
+    // ---------------------------------------------------------------------
+
+    match /award_competitions/{competitionId} {
+      allow read: if true;
+      allow write: if false;
+
+      match /categories/{categoryId} {
+        allow read: if true;
+        allow write: if false;
+      }
+
+      match /nominees/{nomineeId} {
+        allow read: if true;
+        allow write: if false;
+      }
+
+      match /votes/{voteId} {
+        allow read: if canReadAdminData();
+        allow write: if false;
+      }
+
+      match /totals/{nomineeId} {
+        allow read: if canReadAdminData();
+        allow write: if false;
+      }
+
+      match /rate_limits/{bucketId} {
+        allow read, write: if false;
+      }
+    }
+
+    // ---------------------------------------------------------------------
+    // Nomination archive
+    //
+    // Public nominations are closed: creation is denied, existing records stay
+    // readable and archivable by admins, and nothing can be deleted.
+    // ---------------------------------------------------------------------
+
+    match /awards_nominations/{nominationId} {
+      allow read: if canReadAdminData();
+      allow create: if false;
+      allow update: if canReadAdminData();
+      allow delete: if false;
+    }
+
+    // ---------------------------------------------------------------------
+    // User profiles
+    // ---------------------------------------------------------------------
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || canReadAdminData());
+
+      // Registration may only create a pending member profile. Admin profiles are
+      // created by the acceptAdminInvitation Cloud Function, not by the client.
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasAll(['email', 'name', 'role', 'status'])
+        && request.resource.data.email == callerEmail()
+        && request.resource.data.role == 'member'
+        && request.resource.data.status == 'pending';
+
+      // A member can edit their own profile but never their role or status.
+      allow update: if isSignedIn()
+        && request.auth.uid == userId
+        && !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['role', 'status', 'approved_by', 'approved_at', 'rejected_by', 'rejected_at']);
+
+      // Admins approve/reject members; they cannot change roles.
+      allow update: if isApprovedAdmin()
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']);
+
+      // Super admins manage roles, but never grant or modify super_admin.
+      allow update: if isSuperAdmin()
+        && request.resource.data.role != 'super_admin'
+        && resource.data.role != 'super_admin';
+
+      allow delete: if isSuperAdmin();
+    }
+
+    // ---------------------------------------------------------------------
+    // Admin provisioning
+    //
+    // Invitations and approved-admin records are written only by admins or by the
+    // server-side invitation callables.
+    // ---------------------------------------------------------------------
+
+    match /approved_admins/{email} {
+      allow read: if isSignedIn() && (callerEmail() == email || canReadAdminData());
+      allow create, update, delete: if canReadAdminData();
+    }
+
+    match /admin_invitations/{invitationId} {
+      allow read: if canReadAdminData();
+      allow create, update, delete: if canReadAdminData();
+    }
+
+    match /admin_applications/{applicationId} {
+      allow read: if isSignedIn()
+        && (resource.data.email == callerEmail() || isSuperAdmin());
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasAll(['email', 'name', 'reason', 'created_at', 'status'])
+        && request.resource.data.email == callerEmail()
+        && request.resource.data.status == 'pending';
+      allow update, delete: if isSuperAdmin();
+    }
+
+    // ---------------------------------------------------------------------
+    // Contact and membership submissions (unchanged behaviour)
+    // ---------------------------------------------------------------------
+
+    match /contact_submissions/{submissionId} {
+      allow create: if request.resource.data.keys()
+        .hasAll(['name', 'email', 'subject', 'message', 'created_at', 'status'])
+        && request.resource.data.status == 'new';
+      allow read, update, delete: if canReadAdminData();
+    }
+
+    match /membership_applications/{applicationId} {
+      allow create: if request.resource.data.keys()
+        .hasAll(['name', 'email', 'phone', 'business_type', 'created_at', 'status'])
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.phone is string
+        && request.resource.data.business_type is string
+        && request.resource.data.status == 'pending';
+
+      // Preserve the deployed privacy boundary: only the applicant's signed-in
+      // email or an approved admin may read application personal details.
+      allow read: if canReadAdminData()
+        || (isSignedIn() && resource.data.email == callerEmail());
+
+      // The newly created account links only its own email-matched application.
+      allow update: if isSignedIn()
+        && resource.data.email == callerEmail()
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['user_id', 'account_created', 'account_created_at'])
+        && request.resource.data.user_id == request.auth.uid;
+
+      allow update, delete: if canReadAdminData();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -19,11 +19,114 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "npm"
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
         run: npm ci
+
+      - name: Install function dependencies
+        # The voting/API modules load the separately packaged Cloud Functions
+        # dependencies. No credentials or production services are used here.
+        run: npm ci --prefix functions
+
+      - name: Test awards pipeline, voting policy and transports
+        run: |
+          npm run test:awards
+          npm run test:api
+
+      - name: Lint changed areas
+        # Changed files only, so unrelated pre-existing lint findings (for example
+        # in useAdminManagement.js or the email templates) do not mask this work.
+        run: >-
+          npx eslint
+          src/lib
+          src/hooks/useAwardsVoting.js
+          src/hooks/useAdminInvitations.js
+          functions/index.js
+          functions/src/api
+          functions/src/awards
+          functions/src/admin
+          functions/src/errors.js
+          functions/test
+
+      - name: Run Firestore emulator suites
+        # Vote transactions, invitation acceptance, the HTTP concurrency check and
+        # the private-results security rules.
+        run: npm run test:emulator
+
+      - name: Validate Compose configuration
+        run: docker compose config --quiet
+        env:
+          VITE_FIREBASE_API_KEY: ci-placeholder
+          VITE_FIREBASE_AUTH_DOMAIN: ci-placeholder.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID: ci-placeholder
+          VITE_FIREBASE_STORAGE_BUCKET: ci-placeholder.appspot.com
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ci-placeholder
+          VITE_FIREBASE_APP_ID: ci-placeholder
+          FIREBASE_PROJECT_ID: ci-placeholder
+          PUBLIC_ORIGIN: https://ci.invalid
+          FIREBASE_ADMIN_CREDENTIALS_BASE64: ci-placeholder-not-a-real-secret
+          ACBF_TRUSTED_PROXY_CIDR: 172.16.0.0/12
+
+      - name: Build API image
+        run: docker build --file Dockerfile.api --tag acbf-voting-api:ci .
+
+      - name: API image must fail safely without credentials
+        run: |
+          set +e
+          docker run --rm acbf-voting-api:ci
+          status=$?
+          set -e
+          test "$status" -ne 0
+
+      - name: Build frontend image
+        run: |
+          docker build \
+            --tag acbf-frontend:ci \
+            --build-arg VITE_FIREBASE_API_KEY="$VITE_FIREBASE_API_KEY" \
+            --build-arg VITE_FIREBASE_AUTH_DOMAIN="$VITE_FIREBASE_AUTH_DOMAIN" \
+            --build-arg VITE_FIREBASE_PROJECT_ID="$VITE_FIREBASE_PROJECT_ID" \
+            --build-arg VITE_FIREBASE_STORAGE_BUCKET="$VITE_FIREBASE_STORAGE_BUCKET" \
+            --build-arg VITE_FIREBASE_MESSAGING_SENDER_ID="$VITE_FIREBASE_MESSAGING_SENDER_ID" \
+            --build-arg VITE_FIREBASE_APP_ID="$VITE_FIREBASE_APP_ID" \
+            --build-arg VITE_FIREBASE_MEASUREMENT_ID="$VITE_FIREBASE_MEASUREMENT_ID" \
+            .
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
+
+      - name: Proxy contract smoke test
+        # With no API container on the network, /api/ must answer JSON 503 and
+        # never the SPA index.html. This also proves the nginx template rendered.
+        run: |
+          set -euo pipefail
+          docker run --rm -d --name acbf-frontend-ci \
+            -e ACBF_TRUSTED_PROXY_CIDR=172.16.0.0/12 \
+            -p 8080:80 acbf-frontend:ci
+
+          for _ in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/ > /dev/null 2>&1; then break; fi
+            sleep 1
+          done
+
+          root_status=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/)
+          test "$root_status" = "200"
+
+          api_status=$(curl -s -o /tmp/api-health.json -w '%{http_code}' http://127.0.0.1:8080/api/v1/health)
+          test "$api_status" = "503"
+          grep -q '"code":"unavailable"' /tmp/api-health.json
+          if grep -qi '<!doctype html' /tmp/api-health.json; then
+            echo "API path must never return SPA HTML" >&2
+            exit 1
+          fi
+
+          docker rm -f acbf-frontend-ci
 
       - name: Build React app
         run: npm run build:prod

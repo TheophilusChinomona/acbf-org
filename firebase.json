@@ -2,7 +2,7 @@
   "functions": {
     "source": "functions",
     "predeploy": [],
-    "runtime": "nodejs18"
+    "runtime": "nodejs22"
   },
   "firestore": {
     "rules": "firestore.rules"
@@ -20,5 +20,17 @@
         "destination": "/index.html"
       }
     ]
+  },
+  "emulators": {
+    "firestore": {
+      "port": 8787
+    },
+    "functions": {
+      "port": 5101
+    },
+    "ui": {
+      "enabled": false
+    },
+    "singleProjectMode": true
   }
 }

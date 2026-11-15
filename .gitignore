@@ -4,7 +4,6 @@ dist.zip
 node_modules
 ADMIN-BOOTSTRAP-GUIDE.md
 FIRESTORE-RULES-DEPLOYMENT.md
-firestore.rules
 md files/SUPABASE-SETUP-GUIDE.md
 .gitignore
 tasks/admin-dashboard-plan.md
@@ -20,5 +19,18 @@ functions/.env
 functions/lib
 functions/.runtimeconfig.json
 
+# Firebase emulator output
+firestore-debug.log
+ui-debug.log
+
 # PHP API
 api/config.php
+
+# Firebase server credentials never belong in source or Docker context
+**/*firebase-adminsdk*.json
+**/firebase-admin.json
+**/firebase-voting-api.json
+**/*service-account*.json
+
+# Local/private environment variants
+.env.*

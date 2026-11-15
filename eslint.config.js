@@ -40,14 +40,31 @@ export default defineConfig([
       'react/jsx-uses-vars': 'error',
     },
     plugins: {
+      // react-hooks and react-refresh are registered by the extended configs above;
+      // declaring them here again makes the flat config fail to load.
       react: react,
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
     },
     settings: {
       react: {
         version: 'detect',
       },
+    },
+  },
+  {
+    // Node-side tooling and tests: award import scripts, emulator tests, Firebase Functions.
+    files: ['scripts/**/*.{js,mjs}', 'tests/**/*.{js,mjs}'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: globals.node,
+    },
+  },
+  {
+    files: ['functions/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'commonjs',
+      globals: globals.node,
     },
   },
 ])

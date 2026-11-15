@@ -11,6 +11,12 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "generate:sitemap": "node scripts/generate-sitemap.js",
+    "test:awards": "node --test scripts/awards/normalize-nominees.test.mjs src/utils/awardsVoting.test.js functions/test/awards-voting.test.js",
+    "test:api": "node --test src/lib/backendApi.test.js functions/test/api/*.test.js",
+    "test:emulator:voting": "firebase emulators:exec --only firestore --project demo-acbf \"node --test functions/test/awards-voting.test.js functions/test/api/invitations.test.js\"",
+    "test:emulator:api": "firebase emulators:exec --only firestore --project demo-acbf \"node --test functions/test/api/http.emulator.test.js\"",
+    "test:emulator:rules": "firebase emulators:exec --only firestore --project demo-acbf \"node --test tests/firestore/awards.rules.test.mjs\"",
+    "test:emulator": "npm run test:emulator:voting && npm run test:emulator:api && npm run test:emulator:rules",
     "deploy": "bash deploy.sh"
   },
   "dependencies": {
@@ -33,6 +39,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@firebase/rules-unit-testing": "^5.0.2",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.19",
     "@types/react": "^18.3.12",
@@ -40,8 +47,10 @@
     "@vitejs/plugin-react": "^5.1.0",
     "autoprefixer": "^10.4.22",
     "eslint": "^9.39.1",
+    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.24",
+    "firebase-tools": "^15.36.0",
     "globals": "^16.5.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.18",

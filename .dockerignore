@@ -1,0 +1,33 @@
+.git
+node_modules
+functions/node_modules
+dist
+.env
+.env.*
+**/.env
+**/.env.*
+*.xlsx
+**/*.xlsx
+*.log
+**/*debug.log
+firebase-debug.log
+firestore-debug.log
+coverage
+
+# Keep the build context to what the images need: no private workbooks, docs,
+# tests or stray archives.
+*.zip
+**/*.zip
+docs
+tasks
+tests
+functions/test
+.github
+md files
+*.md
+
+# Firebase server credentials never belong in source or Docker context
+**/*firebase-adminsdk*.json
+**/firebase-admin.json
+**/firebase-voting-api.json
+**/*service-account*.json

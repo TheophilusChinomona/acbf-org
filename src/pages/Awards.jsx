@@ -1,16 +1,13 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import SEO from '../components/common/SEO';
 import Container from '../components/common/Container';
-import Modal from '../components/common/Modal';
-import Button from '../components/common/Button';
-import AwardsNominationForm from '../components/forms/AwardsNominationForm';
-import awardCategories from '../data/award-categories.json';
-import * as FiIcons from 'react-icons/fi';
-import { FiAward, FiStar, FiTrendingUp, FiEdit } from 'react-icons/fi';
+import AwardsBallot from '../components/awards/AwardsBallot';
+import { formatVotingDeadline } from '../utils/awardsVoting';
+import { FiAward, FiStar, FiTrendingUp } from 'react-icons/fi';
 
 export default function Awards() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const deadlineLabel = formatVotingDeadline();
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -31,18 +28,12 @@ export default function Awards() {
     },
   };
 
-  // Get icon component dynamically
-  const getIcon = (iconName) => {
-    const Icon = FiIcons[iconName] || FiAward;
-    return Icon;
-  };
-
   return (
     <>
       <SEO
-        title="Awards & Recognition"
-        description="Nominate outstanding business leaders and organizations for ACBF Awards. Recognizing excellence in entrepreneurship, innovation, leadership, and industry achievement."
-        keywords="ACBF awards, business awards, leadership recognition, entrepreneur awards, excellence awards, business recognition"
+        title="Awards Voting & Recognition"
+        description="Vote for the official 2026 ACBF Awards nominees. Recognising excellence in entrepreneurship, innovation, leadership, and industry achievement across nine African countries. Voting closes 19 November 2026, 4:00 pm SAST."
+        keywords="ACBF awards, awards voting, business awards, leadership recognition, entrepreneur awards, excellence awards, business recognition"
         ogType="website"
       />
 
@@ -78,14 +69,18 @@ export default function Awards() {
               Celebrating Excellence in Business Leadership, Innovation, and Achievement
             </p>
             <p className="text-lg text-white/80 max-w-3xl mx-auto">
-              Nominate outstanding individuals and organizations who have demonstrated exceptional contributions
-              to their industries, communities, and the broader business ecosystem.
+              The official 2026 nominees have been announced. Vote for the businesses and leaders
+              who have demonstrated exceptional contributions to their industries, communities, and
+              the broader business ecosystem.
+            </p>
+            <p className="mt-6 inline-flex items-center rounded-full bg-white/15 px-4 py-2 text-white font-medium">
+              Voting closes {deadlineLabel}
             </p>
           </motion.div>
         </Container>
       </section>
 
-      {/* Nomination CTA Section */}
+      {/* Ballot Section */}
       <section className="py-16 bg-white">
         <Container>
           <motion.div
@@ -93,28 +88,14 @@ export default function Awards() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center max-w-3xl mx-auto"
+            className="rounded-xl border border-gray-200 bg-gray-50 p-4 md:p-8"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Ready to Nominate?
-            </h2>
-            <p className="text-lg text-gray-600 mb-8">
-              Know someone deserving of recognition? Submit your nomination today.
-              All submissions are reviewed by our awards committee.
-            </p>
-            <Button
-              size="lg"
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-2"
-            >
-              <FiEdit className="w-5 h-5" />
-              Submit a Nomination
-            </Button>
+            <AwardsBallot />
           </motion.div>
         </Container>
       </section>
 
-      {/* Why Nominate Section */}
+      {/* Why Vote Section */}
       <section className="py-16 bg-gray-50">
         <Container>
           <motion.div
@@ -125,11 +106,11 @@ export default function Awards() {
             className="text-center max-w-3xl mx-auto mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Nominate?
+              Why Vote?
             </h2>
             <p className="text-lg text-gray-600">
-              Recognition drives excellence. By nominating deserving individuals and organizations,
-              you help celebrate achievements and inspire others to reach new heights.
+              Public votes decide the winners. Every vote helps recognise the businesses and leaders
+              raising the standard across the continent.
             </p>
           </motion.div>
 
@@ -143,22 +124,22 @@ export default function Awards() {
             {[
               {
                 icon: FiAward,
-                title: 'Recognize Excellence',
-                description: 'Honor those who have made significant contributions to their industries and communities.',
+                title: 'Recognise Excellence',
+                description: 'Back the nominees who have made significant contributions to their industries and communities.',
               },
               {
                 icon: FiStar,
-                title: 'Inspire Others',
-                description: 'Showcase success stories that motivate and encourage the next generation of leaders.',
+                title: 'Support Your Industry',
+                description: 'Champion the people and businesses you know first-hand, from education to logistics and technology.',
               },
               {
                 icon: FiTrendingUp,
                 title: 'Celebrate Achievement',
-                description: 'Acknowledge hard work, innovation, and dedication that drives business growth.',
+                description: 'Acknowledge the hard work, innovation, and dedication that drives business growth.',
               },
-            ].map((item, index) => (
+            ].map((item) => (
               <motion.div
-                key={index}
+                key={item.title}
                 variants={itemVariants}
                 className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
               >
@@ -169,61 +150,6 @@ export default function Awards() {
                 <p className="text-gray-600">{item.description}</p>
               </motion.div>
             ))}
-          </motion.div>
-        </Container>
-      </section>
-
-      {/* Award Categories Section */}
-      <section className="py-16 bg-white">
-        <Container>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-3xl mx-auto mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Award Categories
-            </h2>
-            <p className="text-lg text-gray-600">
-              We recognize excellence across {awardCategories.length} categories spanning diverse industries and achievements.
-            </p>
-          </motion.div>
-
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-          >
-            {awardCategories.map((category, index) => {
-              const IconComponent = getIcon(category.icon);
-              return (
-                <motion.div
-                  key={category.id}
-                  variants={itemVariants}
-                  className="group bg-gray-50 hover:bg-primary/5 rounded-lg p-4 transition-all hover:shadow-sm border border-gray-200 hover:border-primary/20"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0">
-                      <div className="inline-flex items-center justify-center w-10 h-10 bg-white rounded-lg group-hover:bg-primary/10 transition-colors">
-                        <IconComponent className="w-5 h-5 text-primary" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 mb-1 text-sm leading-tight">
-                        {category.name}
-                      </h3>
-                      <p className="text-xs text-gray-600 leading-relaxed">
-                        {category.description}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
           </motion.div>
         </Container>
       </section>
@@ -252,28 +178,32 @@ export default function Awards() {
           >
             {[
               {
-                question: 'Who can submit a nomination?',
-                answer: 'Anyone can submit a nomination! We welcome submissions from colleagues, clients, business partners, peers, and industry associates. Self-nominations are also accepted for certain categories.',
+                question: 'Who can vote?',
+                answer: 'Everyone. Voting is open to the public with no membership, login, or email verification required. Sharing your name and email is optional, and you can vote anonymously.',
               },
               {
-                question: 'When are nominations reviewed?',
-                answer: 'Nominations are accepted year-round and reviewed on a rolling basis. Our awards committee evaluates submissions quarterly and announces winners at our annual awards ceremony.',
+                question: 'How many times can I vote?',
+                answer: 'You can vote once in each award category. All countries compete on one ballot per category, and every browser is limited to one vote per category.',
               },
               {
-                question: 'Can I nominate the same person for multiple awards?',
-                answer: 'Yes, you can submit separate nominations for the same individual or organization across different categories. Each nomination will be evaluated independently.',
+                question: 'When does voting close?',
+                answer: `Voting closes on ${deadlineLabel}. Votes submitted at or after that time are not counted, even if the page was already open.`,
               },
               {
-                question: 'What happens after I submit a nomination?',
-                answer: 'You will receive a confirmation email upon successful submission. Our awards committee will review all nominations and may contact nominators for additional information. Winners will be notified directly and announced publicly.',
+                question: 'Can I change my vote?',
+                answer: 'No. Votes are final for this launch, so please check your selection before confirming.',
               },
               {
-                question: 'Is there a fee to submit a nomination?',
-                answer: 'No, submitting a nomination is completely free. We believe in recognizing excellence without financial barriers.',
+                question: 'Is there a fee to vote?',
+                answer: 'No, voting is completely free. We believe in recognising excellence without financial barriers.',
               },
-            ].map((faq, index) => (
+              {
+                question: 'When will the results be announced?',
+                answer: 'Vote totals stay private to the awards committee until the results are announced at the ceremony. Public leaderboards are not published.',
+              },
+            ].map((faq) => (
               <motion.div
-                key={index}
+                key={faq.question}
                 variants={itemVariants}
                 className="bg-gray-50 rounded-lg p-6 hover:shadow-sm transition-shadow"
               >
@@ -295,7 +225,7 @@ export default function Awards() {
           '@context': 'https://schema.org',
           '@type': 'Event',
           name: 'ACBF Awards & Recognition Program',
-          description: 'Annual awards recognizing excellence in business leadership, innovation, and achievement across multiple industries.',
+          description: 'Annual awards recognising excellence in business leadership, innovation, and achievement across multiple industries.',
           organizer: {
             '@type': 'Organization',
             name: 'ACBF',
@@ -312,16 +242,6 @@ export default function Awards() {
           },
         })}
       </script>
-
-      {/* Nomination Form Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Submit Your Nomination"
-        size="xl"
-      >
-        <AwardsNominationForm onSuccess={() => setIsModalOpen(false)} />
-      </Modal>
     </>
   );
 }

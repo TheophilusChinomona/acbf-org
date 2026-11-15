@@ -4,14 +4,17 @@
   "version": "1.0.0",
   "main": "index.js",
   "engines": {
-    "node": "18"
+    "node": "22"
   },
   "scripts": {
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
     "start": "npm run shell",
+    "test": "node --test test/*.test.js test/api/*.test.js",
+    "test:emulator": "cd .. && npm run test:emulator:voting",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "start:api": "node src/api/index.js"
   },
   "dependencies": {
     "firebase-admin": "^12.0.0",
