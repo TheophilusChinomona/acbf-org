@@ -230,10 +230,12 @@ export function useAwardsVoting(competitionId = VOTING_COMPETITION_ID) {
         (vote) => !alreadyRecorded[vote.categoryId],
       );
       if (entries.length === 0) {
-        return {
-          status: 'invalid',
-          message: 'Select a nominee in at least one category before submitting.',
-        };
+        // Another tab may have recorded these after this page loaded; refresh
+        // the local state so the stale selections disappear instead of looping.
+        if (mountedRef.current) {
+          setVotedCategoryIds(Object.keys(alreadyRecorded));
+        }
+        return { status: 'accepted', accepted: [], alreadyVoted: [], failed: [] };
       }
 
       let browserToken;
