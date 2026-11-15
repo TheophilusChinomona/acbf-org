@@ -303,3 +303,7 @@ admins 403. API `/health` and `/ready` returned 200. A pre-open vote returned
 409; after opening, a valid category with an unknown nominee returned 400
 "Unknown nominee" (no vote written), a wrong Origin returned 403, and votes and
 totals remained zero. Voting opened at 13:59 UTC with `closesAt` unchanged.
+
+### Post-release ballot change — 15 November 2026
+
+The public ballot now keeps one selection per category and submits the whole slate with a single action (`castVotes`). Each selected category is sent as its own vote request in sequence; accepted votes are recorded immediately, so a partial failure keeps only the unsubmitted selections for a retry. The batch stops when a vote reports the ballot closed or the API is unreachable. The category picker marks `— selected` / `— vote recorded`, and a review list shows every pending selection before submission. No API, rules or data change. Covered by `src/lib/voteBatch.test.js` for all-category submission, closed/unavailable stop, already-voted handling and progress.

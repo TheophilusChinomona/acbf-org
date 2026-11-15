@@ -30,15 +30,14 @@ export default function AwardsBallot() {
     deadlineLabel,
     deadlineReached,
     closesAt,
-    castVote,
-    votingCategoryId,
+    castVotes,
     votedCategoryIds,
     storageAvailable,
     storageMessage,
   } = useAwardsVoting();
 
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
-  const [selectedNomineeId, setSelectedNomineeId] = useState('');
+  const [selections, setSelections] = useState({});
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState('');
   const [voterName, setVoterName] = useState('');
@@ -46,6 +45,7 @@ export default function AwardsBallot() {
   const [anonymous, setAnonymous] = useState(false);
   const [status, setStatus] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [progress, setProgress] = useState(null);
 
   const visibleCategories = useMemo(
     () => categoriesWithCounts(categories, nominees),
@@ -57,6 +57,27 @@ export default function AwardsBallot() {
   const activeCategory =
     visibleCategories.find((category) => category.id === activeCategoryId) ?? null;
   const alreadyVoted = activeCategoryId ? votedCategoryIds.includes(activeCategoryId) : false;
+  const selectedNomineeId = selections[activeCategoryId] ?? '';
+
+  const pendingVotes = useMemo(
+    () =>
+      visibleCategories
+        .map((category) => ({
+          categoryId: category.id,
+          nomineeId: selections[category.id],
+        }))
+        .filter(
+          (vote) => vote.nomineeId && !votedCategoryIds.includes(vote.categoryId),
+        ),
+    [visibleCategories, selections, votedCategoryIds],
+  );
+  const selectedCount = pendingVotes.length;
+
+  const categoryNameById = useMemo(() => {
+    const map = new Map();
+    for (const category of visibleCategories) map.set(category.id, category.name);
+    return map;
+  }, [visibleCategories]);
 
   const categoryNominees = useMemo(
     () => filterNominees(nominees, { categoryId: activeCategoryId, search, country }),
@@ -76,10 +97,18 @@ export default function AwardsBallot() {
 
   const handleCategoryChange = (categoryId) => {
     setSelectedCategoryId(categoryId);
-    setSelectedNomineeId('');
     setSearch('');
     setCountry('');
     setStatus(null);
+  };
+
+  const clearRecordedSelections = (result) => {
+    setSelections((current) => {
+      const next = { ...current };
+      for (const vote of result.accepted) delete next[vote.categoryId];
+      for (const vote of result.alreadyVoted) delete next[vote.categoryId];
+      return next;
+    });
   };
 
   const handleSubmit = async (event) => {
@@ -94,8 +123,11 @@ export default function AwardsBallot() {
       });
       return;
     }
-    if (!activeCategoryId || !selectedNomineeId) {
-      setStatus({ tone: 'warning', message: 'Choose a nominee before confirming your vote.' });
+    if (selectedCount === 0) {
+      setStatus({
+        tone: 'warning',
+        message: 'Select a nominee in at least one category before submitting.',
+      });
       return;
     }
     if (!details.ok) {
@@ -104,34 +136,53 @@ export default function AwardsBallot() {
     }
 
     setSubmitting(true);
-    setStatus({ tone: 'info', message: 'Sending your vote…' });
+    setProgress({ done: 0, total: selectedCount });
+    setStatus({
+      tone: 'info',
+      message: `Submitting ${selectedCount} vote${selectedCount === 1 ? '' : 's'}…`,
+    });
 
-    const chosenNominee = nomineeById.get(selectedNomineeId);
-    const result = await castVote({
-      categoryId: activeCategoryId,
-      nomineeId: selectedNomineeId,
+    const result = await castVotes({
+      votes: pendingVotes,
       name: details.value.name,
       email: details.value.email,
+      onProgress: setProgress,
     });
 
     setSubmitting(false);
+    setProgress(null);
+
+    const recordedCount =
+      (result.accepted?.length ?? 0) + (result.alreadyVoted?.length ?? 0);
+    const recordedLabel = recordedCount === 1 ? '1 vote' : `${recordedCount} votes`;
 
     switch (result.status) {
       case 'accepted':
-        setStatus({
-          tone: 'success',
-          message: `Your vote for ${nomineeDisplayName(chosenNominee)} in ${
-            activeCategory?.name ?? 'this category'
-          } has been recorded.`,
-        });
-        toast.success('Your vote has been recorded.');
-        setSelectedNomineeId('');
+        clearRecordedSelections(result);
+        if (recordedCount === 0) {
+          setStatus({ tone: 'info', message: 'Those categories were already recorded.' });
+        } else if (result.alreadyVoted.length > 0 && result.accepted.length === 0) {
+          setStatus({
+            tone: 'info',
+            message: 'Those categories were already recorded for this browser.',
+          });
+        } else {
+          setStatus({
+            tone: 'success',
+            message: `${recordedLabel} recorded. Thank you for voting.`,
+          });
+          toast.success('Your votes have been recorded.');
+        }
         break;
-      case 'already-voted':
+      case 'partial':
+        clearRecordedSelections(result);
         setStatus({
-          tone: 'info',
-          message: 'This browser has already voted in this category. Each browser can vote once per category.',
+          tone: 'warning',
+          message: result.closed
+            ? `Voting closed before all votes could be sent. ${recordedLabel} recorded.`
+            : `Recorded ${recordedLabel}. ${result.failed.length} could not be submitted — your remaining selections are kept. Submit again to retry.`,
         });
+        toast.error('Some votes could not be submitted. Please retry the remaining categories.');
         break;
       case 'closed':
         setStatus({ tone: 'info', message: result.message });
@@ -173,7 +224,8 @@ export default function AwardsBallot() {
         <div>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Vote for the 2026 ACBF Awards</h2>
           <p className="text-gray-600 mt-1">
-            One vote per category per browser. No account or email verification is required.
+            Choose a nominee in as many categories as you like, then submit once. One vote per
+            category per browser; no account or email verification is required.
           </p>
         </div>
         <p
@@ -224,11 +276,17 @@ export default function AwardsBallot() {
               id="award-category"
               value={activeCategoryId}
               onChange={(event) => handleCategoryChange(event.target.value)}
+              disabled={submitting}
               className="min-h-[44px] w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {visibleCategories.map((category) => (
                 <option key={category.id} value={category.id}>
-                  {category.name} ({category.nomineeCount}){votedCategoryIds.includes(category.id) ? ' — vote recorded' : ''}
+                  {category.name} ({category.nomineeCount})
+                  {votedCategoryIds.includes(category.id)
+                    ? ' — vote recorded'
+                    : selections[category.id]
+                      ? ' — selected'
+                      : ''}
                 </option>
               ))}
             </select>
@@ -287,7 +345,7 @@ export default function AwardsBallot() {
                 <p id="nominee-list-note" className="mt-2 text-sm leading-relaxed text-gray-600">
                   {alreadyVoted
                     ? 'This browser has already voted in this category.'
-                    : 'Select one nominee, then confirm your vote below.'}
+                    : 'Select one nominee. Your choice is saved while you switch categories.'}
                 </p>
               </div>
 
@@ -317,7 +375,12 @@ export default function AwardsBallot() {
                             value={nominee.id}
                             checked={isChecked}
                             disabled={!isOpen || alreadyVoted || submitting}
-                            onChange={() => setSelectedNomineeId(nominee.id)}
+                            onChange={() =>
+                              setSelections((current) => ({
+                                ...current,
+                                [activeCategoryId]: nominee.id,
+                              }))
+                            }
                             className="mt-1 h-4 w-4 border-gray-300 text-primary focus:ring-primary"
                           />
                           <span className="min-w-0 space-y-1 break-words">
@@ -360,6 +423,7 @@ export default function AwardsBallot() {
                     setVoterEmail('');
                   }
                 }}
+                disabled={submitting}
                 className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
               />
               <span>Vote anonymously — do not include my name or email.</span>
@@ -375,7 +439,7 @@ export default function AwardsBallot() {
                   type="text"
                   value={voterName}
                   onChange={(event) => setVoterName(event.target.value)}
-                  disabled={anonymous}
+                  disabled={anonymous || submitting}
                   maxLength={120}
                   autoComplete="name"
                   className="w-full rounded-lg border border-gray-300 py-2 px-3 disabled:bg-gray-100 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
@@ -393,7 +457,7 @@ export default function AwardsBallot() {
                   type="email"
                   value={voterEmail}
                   onChange={(event) => setVoterEmail(event.target.value)}
-                  disabled={anonymous}
+                  disabled={anonymous || submitting}
                   maxLength={254}
                   autoComplete="email"
                   className="w-full rounded-lg border border-gray-300 py-2 px-3 disabled:bg-gray-100 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
@@ -405,18 +469,65 @@ export default function AwardsBallot() {
             </div>
           </section>
 
+          {selectedCount > 0 && (
+            <section
+              aria-labelledby="selections-heading"
+              className="space-y-3 rounded-lg border border-gray-200 bg-white p-4"
+            >
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h3 id="selections-heading" className="text-lg font-semibold text-gray-900">
+                  Your selections ({selectedCount})
+                </h3>
+                <p className="text-sm text-gray-600">Submit once when you are ready.</p>
+              </div>
+              <ul className="divide-y divide-gray-100">
+                {pendingVotes.map((vote) => (
+                  <li
+                    key={vote.categoryId}
+                    className="flex items-start justify-between gap-3 py-2"
+                  >
+                    <span className="min-w-0 text-sm">
+                      <span className="block font-medium text-gray-900">
+                        {categoryNameById.get(vote.categoryId) ?? 'Category'}
+                      </span>
+                      <span className="block text-gray-600">
+                        {nomineeDisplayName(nomineeById.get(vote.nomineeId))}
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelections((current) => {
+                          const next = { ...current };
+                          delete next[vote.categoryId];
+                          return next;
+                        })
+                      }
+                      disabled={submitting}
+                      className="text-sm font-medium text-primary hover:underline disabled:opacity-50"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Button
               type="submit"
               size="lg"
-              disabled={!isOpen || !selectedNomineeId || submitting || alreadyVoted}
+              disabled={!isOpen || selectedCount === 0 || submitting}
               className="gap-2"
             >
               <FiCheckCircle aria-hidden="true" />
-              {submitting ? 'Submitting…' : 'Confirm my vote'}
+              {submitting
+                ? `Submitting ${Math.min((progress?.done ?? 0) + 1, progress?.total ?? selectedCount)} of ${progress?.total ?? selectedCount}…`
+                : `Submit ${selectedCount} vote${selectedCount === 1 ? '' : 's'}`}
             </Button>
-            {votingCategoryId && (
-              <p className="text-sm text-gray-600">Your vote is being sent…</p>
+            {selectedCount > 0 && !submitting && (
+              <p className="text-sm text-gray-600">Votes are final once submitted.</p>
             )}
           </div>
 

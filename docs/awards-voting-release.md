@@ -285,3 +285,11 @@ while the catalogue returns 200. The API reported ready and voting was opened
 with `isOpen: true`; `closesAt` stayed `2026-11-19T14:00:00Z`. Smoke checks:
 closed vote 409 before opening; post-open unknown nominee 400; wrong Origin 403;
 votes and totals remained zero.
+
+### Ballot submission update — 15 November 2026
+
+The public ballot now accumulates one selection per category and submits them
+together in one action. The browser sends the selected categories sequentially;
+accepted votes are retained if a later request fails, and only unsubmitted
+selections remain for a retry. The batch stops early when the ballot closes or
+the API is unreachable. No API, rules or stored data changed.

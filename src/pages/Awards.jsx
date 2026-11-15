@@ -183,7 +183,7 @@ export default function Awards() {
               },
               {
                 question: 'How many times can I vote?',
-                answer: 'You can vote once in each award category. All countries compete on one ballot per category, and every browser is limited to one vote per category.',
+                answer: 'You can vote once in every category. Select all your choices on this page and submit them together; every browser is limited to one vote per category.',
               },
               {
                 question: 'When does voting close?',
