@@ -47,6 +47,13 @@ services:
       FIREBASE_ADMIN_CREDENTIALS_BASE64: ${FIREBASE_ADMIN_CREDENTIALS_BASE64:?FIREBASE_ADMIN_CREDENTIALS_BASE64 is required (server-only credential)}
     expose:
       - "3001"
+    # `prod` is also attached to the shared dokploy-network, where other stacks
+    # may own the generic `api` alias. Without a unique alias Docker DNS can
+    # resolve `api` to a foreign container and nginx gets connection refused.
+    networks:
+      default:
+        aliases:
+          - acbf-voting-api
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/api/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s
