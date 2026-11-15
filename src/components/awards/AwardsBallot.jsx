@@ -194,12 +194,8 @@ export default function AwardsBallot() {
         setStatus({ tone: 'error', message: result.message });
         break;
       default:
-        if (result.closed) {
-          setStatus({ tone: 'info', message: result.message });
-        } else {
-          setStatus({ tone: 'error', message: result.message });
-          toast.error(result.message);
-        }
+        setStatus({ tone: 'error', message: result.message });
+        toast.error(result.message);
         break;
     }
   };
