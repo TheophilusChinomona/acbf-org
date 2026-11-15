@@ -27,6 +27,11 @@ COPY functions/src/awards ./src/awards
 COPY functions/src/admin ./src/admin
 COPY functions/src/errors.js ./src/errors.js
 
+# The build context may carry restrictive modes (0600/0700); COPY preserves them.
+# The runtime user is unprivileged, so make the sources readable before dropping
+# privileges. Without this the container exits with EACCES on its own entrypoint.
+RUN chmod -R a+rX /app
+
 # Run the API without root privileges; credentials are loaded only at runtime.
 USER node
 

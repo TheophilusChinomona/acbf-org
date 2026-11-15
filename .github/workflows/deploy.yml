@@ -72,13 +72,23 @@ jobs:
       - name: Build API image
         run: docker build --file Dockerfile.api --tag acbf-voting-api:ci .
 
+      - name: API image is readable by its runtime user
+        # COPY preserves build-context modes and the image runs as `node`. A 0600
+        # source tree made the container exit with EACCES on its own entrypoint.
+        run: >-
+          docker run --rm --entrypoint node acbf-voting-api:ci
+          -e "require('fs').readFileSync('src/api/index.js')"
+
       - name: API image must fail safely without credentials
         run: |
           set +e
-          docker run --rm acbf-voting-api:ci
+          output=$(docker run --rm acbf-voting-api:ci 2>&1)
           status=$?
           set -e
+          printf '%s\n' "$output"
           test "$status" -ne 0
+          # Fail for the documented config reason, never for an unreadable image.
+          grep -q 'startup failed: FIREBASE_PROJECT_ID is required' <<< "$output"
 
       - name: Build frontend image
         run: |
