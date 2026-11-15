@@ -143,6 +143,9 @@ new frontend is served; there is no function deployment step.
 
 5. **Smoke checks before opening**
 
+   - On the server, `docker exec <prod container> wget -qO- http://acbf-voting-api:3001/api/v1/health`
+     returns `{"data":{"status":"ok"}}` (proves nginx and the API share the
+     Compose network; the unique alias avoids the shared `dokploy-network`).
    - `/awards` shows "Voting closed …" with the full nominee list browsable.
    - `POST /api/v1/awards/vote` returns `409 failed-precondition` (closed) —
      verify with `docker compose logs api`, not from the browser console alone.

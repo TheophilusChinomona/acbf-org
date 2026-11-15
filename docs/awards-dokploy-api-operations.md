@@ -31,7 +31,7 @@ flowchart LR
 | Component | Composes as | Public? | Notes |
 |---|---|---|---|
 | Frontend | `prod` (nginx, port 80) | yes, via Traefik | Serves the SPA and proxies `/api/` |
-| Voting API | `api` (Node 22, port 3001) | **no published port** | Only reachable from the Compose network |
+| Voting API | `api` (Node 22, port 3001) | **no published port** | Reachable only from the Compose network, via the stack-unique `acbf-voting-api` alias |
 | Data | Firestore + Firebase Auth | n/a | Existing project, existing rules |
 
 Endpoints (all JSON; `{data}` on success, `{error:{code,message}}` on failure):
@@ -238,6 +238,7 @@ merge that ships this code.
 | `/api/v1/health` 503 through nginx | `api` not running or unreachable | `docker compose ps`, `docker compose logs api` |
 | `/api/v1/ready` 503, health 200 | bad/missing credentials, wrong project, Firestore unreachable | logs show `readiness check failed`; verify §2/§3, recreate `api` |
 | `api` restarts immediately | credential/config error | `docker compose logs api` — the message names the variable, never its value |
+| `/api/*` returns JSON 503 while `api` is healthy | nginx resolved the generic `api` alias on the shared `dokploy-network` to another stack's container | proxy must use `acbf-voting-api`; verify with `docker exec <prod> getent hosts acbf-voting-api` |
 | Mutations return `403` | `Origin` ≠ `PUBLIC_ORIGIN` | fix the variable (bare origin), recreate `api` |
 | Votes return `503` but health is fine | nginx is not setting `X-ACBF-Client-IP` | check the `prod` config and §4 |
 | Everything returns 502/503 after a redeploy | nginx cached an old `api` address | the config resolves `api` per request via Docker DNS; reload `prod` if it persists |
