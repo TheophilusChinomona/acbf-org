@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { collection, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { API_PATHS, parseVoteResult, postBackendApi } from '../lib/backendApi';
+import { submitVoteBatch } from '../lib/voteBatch';
 import {
   AwardsStorageError,
   VOTING_COMPETITION_ID,
@@ -44,9 +45,11 @@ function messageFor(error) {
  * Subscribes only to the public catalogue (competition settings, categories and
  * nominee display fields). Votes go through the same-origin internal API
  * (`/api/v1/awards/vote`), which owns the deadline, deduplication and rate limits;
- * no Firebase function is involved. The local deadline timer only drives the UI;
- * `failed-precondition` from the server closes the ballot regardless of the
- * device clock.
+ * no Firebase function is involved. `castVotes` sends one request per selected
+ * category in sequence, so a partial failure leaves accepted votes recorded and
+ * the remaining selections can be retried. The local deadline timer only drives
+ * the UI; `failed-precondition` from the server closes the ballot regardless of
+ * the device clock.
  *
  * @param {string} [competitionId]
  */
@@ -65,7 +68,6 @@ export function useAwardsVoting(competitionId = VOTING_COMPETITION_ID) {
   const [votedCategoryIds, setVotedCategoryIds] = useState(
     () => Object.keys(readVotedCategories()),
   );
-  const [votingCategoryId, setVotingCategoryId] = useState(null);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -183,20 +185,14 @@ export function useAwardsVoting(competitionId = VOTING_COMPETITION_ID) {
 
   const deadlineLabel = useMemo(() => formatVotingDeadline(closesAt), [closesAt]);
 
-  const castVote = useCallback(
-    async ({ categoryId, nomineeId, name, email } = {}) => {
+  const castVotes = useCallback(
+    async ({ votes = [], name, email, onProgress } = {}) => {
       if (!isOpen) {
         return {
           status: 'closed',
           message: deadlineReached
             ? `Voting closed on ${deadlineLabel}.`
             : 'Voting is not open yet. You can browse the nominees.',
-        };
-      }
-      if (votedCategoryIds.includes(categoryId)) {
-        return {
-          status: 'already-voted',
-          message: 'This browser has already voted in this category.',
         };
       }
       if (!storageAvailable) {
@@ -217,6 +213,29 @@ export function useAwardsVoting(competitionId = VOTING_COMPETITION_ID) {
         };
       }
 
+      // One entry per category. The server is authoritative, but dropping
+      // categories that are already recorded locally avoids pointless calls.
+      const unique = new Map();
+      for (const vote of Array.isArray(votes) ? votes : []) {
+        if (
+          vote &&
+          typeof vote.categoryId === 'string' &&
+          typeof vote.nomineeId === 'string'
+        ) {
+          unique.set(vote.categoryId, vote);
+        }
+      }
+      const alreadyRecorded = readVotedCategories();
+      const entries = [...unique.values()].filter(
+        (vote) => !alreadyRecorded[vote.categoryId],
+      );
+      if (entries.length === 0) {
+        return {
+          status: 'invalid',
+          message: 'Select a nominee in at least one category before submitting.',
+        };
+      }
+
       let browserToken;
       try {
         browserToken = ensureBrowserToken();
@@ -228,45 +247,31 @@ export function useAwardsVoting(competitionId = VOTING_COMPETITION_ID) {
         return { status: 'storage-unavailable', message: storageError.message };
       }
 
-      setVotingCategoryId(categoryId);
-      try {
-        const payload = { competitionId, categoryId, nomineeId, browserToken };
-        // Anonymous mode sends no optional identity fields at all.
-        if (details.value.name !== null) payload.name = details.value.name;
-        if (details.value.email !== null) payload.email = details.value.email;
+      const batch = await submitVoteBatch({
+        entries,
+        sendVote: async ({ categoryId, nomineeId }) => {
+          const payload = { competitionId, categoryId, nomineeId, browserToken };
+          // Anonymous mode sends no optional identity fields at all.
+          if (details.value.name !== null) payload.name = details.value.name;
+          if (details.value.email !== null) payload.email = details.value.email;
 
-        const response = await postBackendApi(API_PATHS.vote, payload);
-        const result = parseVoteResult(response?.data);
+          const response = await postBackendApi(API_PATHS.vote, payload);
+          return parseVoteResult(response?.data);
+        },
+        recordVote: (entry) => recordVotedCategory(undefined, entry),
+        describeError: (error) => ({
+          errorCode: normalizeErrorCode(error),
+          message: messageFor(error),
+        }),
+        onProgress,
+      });
 
-        // Only a recorded outcome may lock the category locally. A duplicate is
-        // already recorded server-side, so the attempt is remembered without
-        // claiming a nominee the response never discloses.
-        const nextVotes = recordVotedCategory(
-          undefined,
-          result.status === 'accepted' ? { categoryId, nomineeId } : { categoryId },
-        );
-        if (mountedRef.current) setVotedCategoryIds(Object.keys(nextVotes));
-
-        if (result.status === 'already-voted') {
-          return {
-            status: 'already-voted',
-            message: 'This browser has already voted in this category.',
-          };
-        }
-
-        return { status: 'accepted', nomineeId };
-      } catch (callError) {
-        const code = normalizeErrorCode(callError);
-        if (code === 'failed-precondition' && mountedRef.current) setServerClosed(true);
-
-        return {
-          status: 'error',
-          errorCode: code,
-          message: messageFor(callError),
-        };
-      } finally {
-        if (mountedRef.current) setVotingCategoryId(null);
+      if (batch.closed && mountedRef.current) setServerClosed(true);
+      if (mountedRef.current) {
+        setVotedCategoryIds(Object.keys(readVotedCategories()));
       }
+
+      return batch;
     },
     [
       competitionId,
@@ -275,7 +280,6 @@ export function useAwardsVoting(competitionId = VOTING_COMPETITION_ID) {
       isOpen,
       storageAvailable,
       storageMessage,
-      votedCategoryIds,
     ],
   );
 
@@ -289,8 +293,7 @@ export function useAwardsVoting(competitionId = VOTING_COMPETITION_ID) {
     closesAt,
     deadlineLabel,
     deadlineReached,
-    castVote,
-    votingCategoryId,
+    castVotes,
     votedCategoryIds,
     storageAvailable,
     storageMessage,

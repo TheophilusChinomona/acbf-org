@@ -11,7 +11,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "generate:sitemap": "node scripts/generate-sitemap.js",
-    "test:awards": "node --test scripts/awards/normalize-nominees.test.mjs src/utils/awardsVoting.test.js functions/test/awards-voting.test.js",
+    "test:awards": "node --test scripts/awards/normalize-nominees.test.mjs src/utils/awardsVoting.test.js src/lib/voteBatch.test.js functions/test/awards-voting.test.js",
     "test:api": "node --test src/lib/backendApi.test.js functions/test/api/*.test.js",
     "test:emulator:voting": "firebase emulators:exec --only firestore --project demo-acbf \"node --test functions/test/awards-voting.test.js functions/test/api/invitations.test.js\"",
     "test:emulator:api": "firebase emulators:exec --only firestore --project demo-acbf \"node --test functions/test/api/http.emulator.test.js\"",
