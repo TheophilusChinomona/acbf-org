@@ -30,12 +30,14 @@ public and become a read-only archive.
 - [x] Tests: nominee pipeline, ballot utilities, vote transactions and rules
       against the Firestore emulator; lint and production build.
 
-## Owner actions (not executed by the implementing agent)
+## Owner actions
 
-- [ ] Theo reviews the branch and the rules diff against the live console rules.
-- [ ] Run the importer against the supplied workbook (`docs/awards-voting-release.md`).
-- [ ] Deploy functions, rules and frontend in the documented order.
-- [ ] Open voting in the console only after launch approval.
+- [x] Theo reviewed and approved the release (15 November 2026).
+- [x] Ran the importer against the supplied workbook (139 nominees, closed).
+- [x] Published rules and deployed frontend + API through Dokploy. Cloud
+      Functions were not deployed (the Dokploy API replaces them).
+- [x] Opened voting at 13:59 UTC on 15 November 2026; it closes at
+      `2026-11-19T14:00:00Z`.
 
 ## Acceptance Criteria
 
@@ -281,3 +283,23 @@ Remote environment copy, real proxy CIDR/forged-header verification, approved
 merge/deployment, final rules hardening and opening voting remain owner actions.
 The original supplied key was moved out of the repository; no credentials were
 committed. No Cloud Functions or billing changes were made.
+
+### Production release — 15 November 2026
+
+Theo authorized the release. PR #12 (staging → main) merged as `bdedf016` and
+Dokploy deployed automatically. Two deployment defects surfaced and were fixed
+before opening:
+
+1. `7d945abd` — `Dockerfile.api` copied restrictive build-context modes and then
+   dropped to `USER node`; the API exited with EACCES and nginx returned 503.
+2. `e5678007` — `prod` is also attached to the shared `dokploy-network`, where
+   another stack owns the generic `api` alias. Docker DNS returned the foreign
+   address. The API now carries the unique `acbf-voting-api` alias and nginx
+   proxies to it.
+
+Rules were published (`ruleset/5b54fa29…`, hash `c77e485c…`). Anonymous checks:
+catalogue 200; votes, totals, nominations, invitations, users and approved
+admins 403. API `/health` and `/ready` returned 200. A pre-open vote returned
+409; after opening, a valid category with an unknown nominee returned 400
+"Unknown nominee" (no vote written), a wrong Origin returned 403, and votes and
+totals remained zero. Voting opened at 13:59 UTC with `closesAt` unchanged.

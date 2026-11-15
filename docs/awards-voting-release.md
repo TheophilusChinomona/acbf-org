@@ -265,3 +265,23 @@ The private local `.env` now includes server-only runtime credentials for copyin
 to the remote Dokploy Environment editor. No remote filesystem mount is needed.
 `ACBF_TRUSTED_PROXY_CIDR` remains blank until the real proxy network is identified.
 Neither main nor Dokploy settings have been changed; voting has not been opened.
+
+## Release record — 15 November 2026
+
+Theo approved the release. PR #12 (`bdedf016`) merged to main and Dokploy
+deployed automatically. Two deployment defects were found and fixed before
+opening:
+
+- `7d945abd`: the API image copied restrictive build-context modes and then
+  dropped to `USER node`, exiting with EACCES. Added `chmod -R a+rX /app` and CI
+  checks for runtime readability and the documented no-credentials failure.
+- `e5678007`: prod is also attached to the shared `dokploy-network`, where
+  another stack owns the generic `api` alias, so DNS returned a foreign address.
+  The API now carries the unique `acbf-voting-api` alias and nginx proxies to it.
+
+Rules were published (release `5b54fa29…`, hash `c77e485c…`); anonymous reads of
+votes, totals, nominations, invitations, users and approved admins return 403
+while the catalogue returns 200. The API reported ready and voting was opened
+with `isOpen: true`; `closesAt` stayed `2026-11-19T14:00:00Z`. Smoke checks:
+closed vote 409 before opening; post-open unknown nominee 400; wrong Origin 403;
+votes and totals remained zero.

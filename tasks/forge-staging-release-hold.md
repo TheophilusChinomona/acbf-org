@@ -42,3 +42,12 @@ subnet 10.0.1.0/24, existing dedicated runtime credential, all excluded from Git
 CI is triggered through PR #12; require it green before requesting release review.
 The remote branch/domain/environment settings must still be saved by the operator.
 Production remains held until payment plus Theo's explicit release approval.
+
+### Release — 15 November 2026
+
+Theo approved the release. PR #12 merged (`bdedf016`) and Dokploy deployed
+automatically to acbf.org.za. PR #13 (`7d945abd`) fixed the API image permission
+failure (EACCES under `USER node`) and PR #14 (`e5678007`) fixed the shared-network
+`api` alias collision. Rules were published, the API reported ready, and voting
+opened at 13:59 UTC with the original deadline. Staging and main now point at the
+same tree; staging was fast-forwarded to the release commit.
