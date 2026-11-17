@@ -48,6 +48,8 @@ services:
       # Votes are stored in SQLite on the volume below, not in Firestore.
       AWARDS_STORE_PATH: /data/awards.sqlite
       AWARDS_CATALOGUE_PATH: /data/catalogue.json
+      # Comma-separated admin login emails allowed to view private vote totals.
+      AWARDS_ADMIN_EMAILS: ${AWARDS_ADMIN_EMAILS:-}
     volumes:
       - awards-data:/data
     expose:

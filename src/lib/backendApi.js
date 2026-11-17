@@ -20,6 +20,7 @@
 export const API_PATHS = Object.freeze({
   vote: '/api/v1/awards/vote',
   catalogue: '/api/v1/awards/catalogue',
+  adminResults: '/api/v1/admin/awards/results',
   lookupInvitation: '/api/v1/admin/invitations/lookup',
   acceptInvitation: '/api/v1/admin/invitations/accept',
 });
@@ -68,13 +69,13 @@ export function postBackendApi(path, payload, options) {
  * GET one allowed API path (used for the public awards catalogue).
  *
  * @param {string} path - One of {@link API_PATHS}.
- * @param {{fetchImpl?: typeof fetch, timeoutMs?: number}} [options]
+ * @param {{fetchImpl?: typeof fetch, timeoutMs?: number, headers?: Record<string, string>}} [options]
  */
 export function getBackendApi(path, options) {
   return requestBackendApi('GET', path, undefined, options);
 }
 
-async function requestBackendApi(method, path, payload, { fetchImpl, timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
+async function requestBackendApi(method, path, payload, { fetchImpl, timeoutMs = DEFAULT_TIMEOUT_MS, headers: extraHeaders } = {}) {
   if (!ALLOWED_PATHS.has(path)) {
     throw new BackendApiError('invalid-argument', MESSAGES.unsupportedPath);
   }
@@ -91,10 +92,12 @@ async function requestBackendApi(method, path, payload, { fetchImpl, timeoutMs =
   try {
     response = await doFetch(path, {
       method,
-      headers:
-        method === 'POST'
+      headers: {
+        ...(method === 'POST'
           ? { 'content-type': 'application/json', accept: 'application/json' }
-          : { accept: 'application/json' },
+          : { accept: 'application/json' }),
+        ...(extraHeaders ?? {}),
+      },
       ...(method === 'POST' ? { body: JSON.stringify(payload ?? {}) } : {}),
       signal: controller ? controller.signal : undefined,
     });

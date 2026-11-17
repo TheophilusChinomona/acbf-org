@@ -1,23 +1,22 @@
 import { useEffect, useMemo, useState } from 'react';
-import { collection, doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { auth } from '../lib/firebase';
+import { API_PATHS, getBackendApi } from '../lib/backendApi';
 import { VOTING_COMPETITION_ID } from '../utils/awardsVoting';
 
-const COMPETITION_COLLECTION = 'award_competitions';
+const REFRESH_MS = 15_000;
 
 /**
  * Live private result totals for the admin voting panel.
  *
- * Subscribes to the nominee catalogue and the private `totals` collection only
- * while the panel is mounted. Access is authorised by Firestore rules: a caller
- * without an approved admin record receives permission errors, which surface
- * through `error` rather than as a silent zero.
+ * Totals are read from the voting API (`/api/v1/admin/awards/results`), which
+ * counts the votes it recorded and authorises the caller from their Firebase
+ * sign-in token. An unauthorised account receives an explicit error rather than
+ * a silent zero. Individual vote records and voter details are never returned.
  *
- * Individual vote records (and any optional voter details on them) are never
- * fetched here — totals are enough to report results.
- *
- * @param {string} [competitionId]
+ * @param {string} [competitionId] - Kept for call compatibility; the API serves
+ * the single configured competition.
  */
+// eslint-disable-next-line no-unused-vars
 export function useAwardsResults(competitionId = VOTING_COMPETITION_ID) {
   const [categories, setCategories] = useState([]);
   const [nominees, setNominees] = useState([]);
@@ -27,88 +26,41 @@ export function useAwardsResults(competitionId = VOTING_COMPETITION_ID) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    let loaded = 0;
-    const markLoaded = () => {
-      loaded += 1;
-      if (loaded >= 3) setLoading(false);
-    };
+    let cancelled = false;
 
-    const base = [COMPETITION_COLLECTION, competitionId];
+    const load = async () => {
+      try {
+        const user = auth.currentUser;
+        if (!user) throw Object.assign(new Error('Sign in to view award results.'), { code: 'unauthenticated' });
+        const token = await user.getIdToken();
+        const { data } = await getBackendApi(API_PATHS.adminResults, {
+          headers: { authorization: `Bearer ${token}` },
+        });
+        if (cancelled) return;
 
-    const unsubscribeCompetition = onSnapshot(
-      doc(db, ...base),
-      (snapshot) => {
-        setCompetition(snapshot.exists() ? snapshot.data() : null);
-        markLoaded();
-      },
-      (snapshotError) => {
-        console.error('Failed to load the awards competition:', snapshotError);
-        setError(snapshotError.message || 'Failed to load awards competition settings.');
-        markLoaded();
-      },
-    );
-
-    const unsubscribeCategories = onSnapshot(
-      collection(db, ...base, 'categories'),
-      (snapshot) => {
+        setCompetition(data.competition ?? null);
         setCategories(
-          snapshot.docs
-            .map((categoryDoc) => ({ id: categoryDoc.id, ...categoryDoc.data() }))
-            .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '')),
+          [...(data.categories ?? [])].sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '')),
         );
-        markLoaded();
-      },
-      (snapshotError) => {
-        console.error('Failed to load award categories:', snapshotError);
-        setError(snapshotError.message || 'Failed to load award categories.');
-        markLoaded();
-      },
-    );
-
-    const unsubscribeNominees = onSnapshot(
-      collection(db, ...base, 'nominees'),
-      (snapshot) => {
-        setNominees(
-          snapshot.docs.map((nomineeDoc) => ({ id: nomineeDoc.id, ...nomineeDoc.data() })),
-        );
-        markLoaded();
-      },
-      (snapshotError) => {
-        console.error('Failed to load award nominees:', snapshotError);
-        setError(snapshotError.message || 'Failed to load award nominees.');
-        markLoaded();
-      },
-    );
-
-    const unsubscribeTotals = onSnapshot(
-      collection(db, ...base, 'totals'),
-      (snapshot) => {
-        const next = {};
-        for (const totalDoc of snapshot.docs) {
-          const count = Number(totalDoc.get('count') ?? 0);
-          next[totalDoc.id] = Number.isFinite(count) ? count : 0;
-        }
-        setTotals(next);
-        markLoaded();
-      },
-      (snapshotError) => {
-        console.error('Failed to load award vote totals:', snapshotError);
-        setError(
-          snapshotError.code === 'permission-denied'
-            ? 'Your account is not authorised to view award results.'
-            : snapshotError.message || 'Failed to load award vote totals.',
-        );
-        markLoaded();
-      },
-    );
-
-    return () => {
-      unsubscribeCompetition();
-      unsubscribeCategories();
-      unsubscribeNominees();
-      unsubscribeTotals();
+        setNominees(data.nominees ?? []);
+        setTotals(data.totals ?? {});
+        setError(null);
+      } catch (loadError) {
+        if (cancelled) return;
+        console.error('Failed to load award vote totals:', loadError);
+        setError(loadError.message || 'Failed to load award vote totals.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     };
-  }, [competitionId]);
+
+    load();
+    const timer = setInterval(load, REFRESH_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, []);
 
   const acceptedVoteCount = useMemo(
     () => Object.values(totals).reduce((sum, count) => sum + count, 0),
