@@ -135,8 +135,11 @@ proxy_set_header X-ACBF-Client-IP $remote_addr;   # overwrites browser input
 ```
 
 The API ignores `X-Forwarded-For`, `Forwarded` and every other forwarding header.
-`$remote_addr` is the browser only if nginx trusts the platform proxy's
-`X-Forwarded-For` (`set_real_ip_from $ACBF_TRUSTED_PROXY_CIDR`).
+`$remote_addr` is the browser only if nginx trusts the platform proxy and reads
+Cloudflare's `CF-Connecting-IP` (`set_real_ip_from $ACBF_TRUSTED_PROXY_CIDR;
+real_ip_header CF-Connecting-IP`). `X-Forwarded-For` is not used: Docker rewrites
+inbound connections to the proxy bridge gateway, so it never holds the visitor.
+This assumes public traffic arrives through Cloudflare.
 
 Verify before opening voting, from a network whose public IP you know:
 
