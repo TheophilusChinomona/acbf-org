@@ -193,14 +193,20 @@ export default function AwardsBallot() {
       case 'invalid':
         setStatus({ tone: 'error', message: result.message });
         break;
-      default:
+      default: {
+        // A batch failure reports its reason on the failed entry, not on the result.
+        const failureMessage =
+          result.message ||
+          result.failed?.[0]?.message ||
+          'Your vote could not be submitted. Please try again.';
         if (result.closed) {
-          setStatus({ tone: 'info', message: result.message });
+          setStatus({ tone: 'info', message: failureMessage });
         } else {
-          setStatus({ tone: 'error', message: result.message });
-          toast.error(result.message);
+          setStatus({ tone: 'error', message: failureMessage });
+          toast.error(failureMessage);
         }
         break;
+      }
     }
   };
 
