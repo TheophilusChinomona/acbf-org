@@ -277,13 +277,36 @@ function createSqliteVoteStore({ path: dbPath, catalogue, now = Date.now } = {})
       .map((row) => ({ ...row, count: Number(row.count) }));
   }
 
+  /**
+   * Everything the admin results panel shows, in the shape it already uses.
+   * Totals come from the votes table; individual votes and voter details are
+   * never included.
+   */
+  function results() {
+    const loaded = catalogue.get();
+    if (!loaded) throw new Error('catalogue snapshot is not available');
+    const totalsByNominee = {};
+    let acceptedVoteCount = 0;
+    for (const row of totals()) {
+      totalsByNominee[row.nomineeId] = row.count;
+      acceptedVoteCount += row.count;
+    }
+    return {
+      competition: loaded.snapshot.competition,
+      categories: loaded.snapshot.categories,
+      nominees: loaded.snapshot.nominees,
+      totals: totalsByNominee,
+      acceptedVoteCount,
+    };
+  }
+
   /** Throws unless the database answers and a catalogue snapshot is loaded. */
   function readiness() {
     db.prepare('SELECT 1').get();
     if (!catalogue.get()) throw new Error('catalogue snapshot is not available');
   }
 
-  return { castAwardVote, importVotes, totals, readiness, close: () => db.close() };
+  return { castAwardVote, importVotes, totals, results, readiness, close: () => db.close() };
 }
 
 module.exports = { createSqliteVoteStore, createCatalogueSource };

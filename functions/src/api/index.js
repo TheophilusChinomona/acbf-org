@@ -22,6 +22,7 @@ const { createApiServer, withTimeout } = require('./app');
 const { createCastAwardVote } = require('../awards/voting');
 const { createGetAdminInvitation, createAcceptAdminInvitation } = require('../admin/invitations');
 const policy = require('../awards/policy');
+const { DomainError, ERROR_CODES } = require('../errors');
 const { createSqliteVoteStore, createCatalogueSource } = require('../awards/sqliteStore');
 
 const READINESS_TIMEOUT_MS = 3_000;
@@ -101,6 +102,7 @@ async function main({ env = process.env, logger = console } = {}) {
   let castVote = createCastAwardVote({ db, now: Date.now });
   let readiness = createReadinessProbe({ db, projectId: config.projectId });
   let readCatalogue;
+  let readAdminResults;
   const storePath = (env.AWARDS_STORE_PATH || '').trim();
   if (storePath !== '') {
     const cataloguePath =
@@ -110,6 +112,30 @@ async function main({ env = process.env, logger = console } = {}) {
       const store = createSqliteVoteStore({ path: storePath, catalogue });
       castVote = store.castAwardVote;
       readiness = async () => store.readiness();
+      // Admins are identified by a verified Firebase sign-in token and an email
+      // allow-list, so this works even when Firestore is unavailable.
+      const adminEmails = new Set(
+        (env.AWARDS_ADMIN_EMAILS || '')
+          .split(',')
+          .map((email) => email.trim().toLowerCase())
+          .filter(Boolean),
+      );
+      readAdminResults = async (idToken) => {
+        let decoded;
+        try {
+          decoded = await auth.verifyIdToken(idToken);
+        } catch {
+          throw new DomainError(ERROR_CODES.UNAUTHENTICATED, 'Your session has expired. Sign in again.');
+        }
+        const email = String(decoded.email || '').trim().toLowerCase();
+        if (email === '' || !adminEmails.has(email)) {
+          throw new DomainError(
+            ERROR_CODES.PERMISSION_DENIED,
+            'Your account is not authorised to view award results.',
+          );
+        }
+        return store.results();
+      };
       readCatalogue = () => {
         const loaded = catalogue.get();
         if (!loaded) throw new Error('catalogue snapshot is not available');
@@ -124,6 +150,7 @@ async function main({ env = process.env, logger = console } = {}) {
   const server = createApiServer({
     castVote,
     readCatalogue,
+    readAdminResults,
     lookupInvitation: createGetAdminInvitation({ db, now: Date.now }),
     acceptInvitation: createAcceptAdminInvitation({ db, auth, now: Date.now }),
     readiness,

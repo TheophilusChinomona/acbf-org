@@ -318,3 +318,23 @@ docker exec <api-container> node -e "const {createSqliteVoteStore,createCatalogu
 The admin results panel still reads Firestore totals and will not show votes
 recorded in SQLite. **Back up** `/data/awards.sqlite` (e.g. `docker cp`) and never
 delete the `awards-data` volume while voting is open.
+
+### Admin results from SQLite
+
+The admin results panel reads `GET /api/v1/admin/awards/results`, which returns
+per-nominee totals (never voter details) from the SQLite store. The caller's
+Firebase sign-in token is verified in the API, and the email must appear in
+`AWARDS_ADMIN_EMAILS` (comma-separated, set in Dokploy). This does not read
+Firestore, so it works while Firestore is unavailable. If the variable is empty,
+every caller gets `403`. After changing it, redeploy `api`.
+
+### Rebuilding the catalogue from the workbook
+
+```bash
+node scripts/awards/build-catalogue.mjs "Awards Nominees 5.xlsx" catalogue.json --open
+```
+
+The script re-applies the committee's edits (Theo.docx) and the 14 November
+correction, keyed by stable nominee id. Load the result with `docker exec -i
+<api> sh -c 'cat > /data/catalogue.json'`. Do not run `exportFromFirestore.js`
+for the catalogue unless the same edits exist in Firestore: it overwrites the file.

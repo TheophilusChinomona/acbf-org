@@ -170,3 +170,18 @@ test('is unavailable (not a crash) while no catalogue exists, then recovers', as
   assert.equal((await store.castAwardVote(vote(), {})).status, 'accepted');
   assert.doesNotThrow(() => store.readiness());
 });
+
+test('results() reports totals per nominee without any voter details', async () => {
+  const { store } = fixture();
+  await store.castAwardVote(vote({ name: 'Ada', email: 'ada@example.com' }), { clientIp: '41.0.0.1' });
+  await store.castAwardVote(vote({ browserToken: TOKEN(2) }), { clientIp: '41.0.0.2' });
+  await store.castAwardVote(vote({ browserToken: TOKEN(3), nomineeId: 'n-2' }), { clientIp: '41.0.0.3' });
+
+  const results = store.results();
+  assert.deepEqual(results.totals, { 'n-1': 2, 'n-2': 1 });
+  assert.equal(results.acceptedVoteCount, 3);
+  assert.equal(results.categories.length, 2);
+  assert.equal(results.nominees.length, 4);
+  assert.ok(!JSON.stringify(results).includes('ada@example.com'));
+  assert.ok(!JSON.stringify(results).includes('Ada'));
+});

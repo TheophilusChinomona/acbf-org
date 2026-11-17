@@ -56,6 +56,7 @@ const ROUTES = Object.freeze([
   { method: 'GET', path: '/api/v1/health', kind: 'health' },
   { method: 'GET', path: '/api/v1/ready', kind: 'ready' },
   { method: 'GET', path: '/api/v1/awards/catalogue', kind: 'catalogue' },
+  { method: 'GET', path: '/api/v1/admin/awards/results', kind: 'adminResults' },
 ]);
 
 const ROUTES_BY_KEY = new Map(ROUTES.map((route) => [`${route.method} ${route.path}`, route]));
@@ -226,6 +227,31 @@ async function handleRequest(req, res, settings) {
     return;
   }
 
+  if (route.kind === 'adminResults') {
+    // Private totals: a Firebase ID token in the Authorization header is required
+    // and checked by `readAdminResults`. A bearer token is not sent automatically
+    // by browsers, so there is no cross-site request exposure.
+    if (typeof settings.readAdminResults !== 'function') {
+      sendError(res, 404, ERROR_CODES.NOT_FOUND, MESSAGES.notFound);
+      return;
+    }
+    const bearer = /^Bearer\s+(\S+)$/i.exec(String(req.headers.authorization || ''));
+    if (!bearer) {
+      sendError(res, 401, ERROR_CODES.UNAUTHENTICATED, 'Sign in is required for this request.');
+      return;
+    }
+    try {
+      const results = await withTimeout(
+        Promise.resolve(settings.readAdminResults(bearer[1])),
+        settings.handlerTimeoutMs,
+      );
+      sendData(res, 200, results);
+    } catch (error) {
+      sendServiceError(res, error, { context: 'admin results' });
+    }
+    return;
+  }
+
   if (req.headers.origin !== settings.allowedOrigin) {
     sendError(res, 403, ERROR_CODES.PERMISSION_DENIED, MESSAGES.originDenied);
     return;
@@ -314,6 +340,7 @@ function createApiServer(options = {}) {
     acceptInvitation,
     readiness,
     readCatalogue,
+    readAdminResults,
     allowedOrigin,
     maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
     requestTimeoutMs = DEFAULT_REQUEST_TIMEOUT_MS,
@@ -342,6 +369,7 @@ function createApiServer(options = {}) {
     acceptInvitation,
     readiness,
     readCatalogue,
+    readAdminResults,
     allowedOrigin,
     maxBodyBytes,
     handlerTimeoutMs,
