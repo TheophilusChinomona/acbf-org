@@ -34,3 +34,6 @@ api/config.php
 
 # Local/private environment variants
 .env.*
+
+# Build output: built by Dokploy/CI, never committed
+dist/
