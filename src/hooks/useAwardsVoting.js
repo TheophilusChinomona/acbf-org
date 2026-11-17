@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { collection, doc, onSnapshot } from 'firebase/firestore';
-import { db } from '../lib/firebase';
-import { API_PATHS, parseVoteResult, postBackendApi } from '../lib/backendApi';
+import { API_PATHS, getBackendApi, parseVoteResult, postBackendApi } from '../lib/backendApi';
 import { submitVoteBatch } from '../lib/voteBatch';
 import {
   AwardsStorageError,
@@ -15,7 +13,7 @@ import {
   validateVoterDetails,
 } from '../utils/awardsVoting';
 
-const COMPETITION_COLLECTION = 'award_competitions';
+const CATALOGUE_REFRESH_MS = 120_000;
 const PAYLOAD_DEADLINE_POLL_MS = 30_000;
 const DEFAULT_ERROR = 'Your vote could not be submitted. Please try again.';
 
@@ -93,68 +91,43 @@ export function useAwardsVoting(competitionId = VOTING_COMPETITION_ID) {
     }
   }, []);
 
-  // Public catalogue subscriptions.
+  // Public catalogue, served by the API from a snapshot (no Firestore reads).
   useEffect(() => {
-    let loaded = 0;
-    const markLoaded = () => {
-      loaded += 1;
-      if (loaded >= 3) setLoading(false);
+    let cancelled = false;
+    let hasLoaded = false;
+
+    const load = async () => {
+      try {
+        const { data } = await getBackendApi(API_PATHS.catalogue);
+        if (cancelled) return;
+        setCompetition(data.competition ?? null);
+        setCategories(
+          [...(data.categories ?? [])].sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '')),
+        );
+        setNominees(
+          (data.nominees ?? [])
+            .filter((nominee) => nominee.disabled !== true)
+            .sort((a, b) =>
+              (a.personName ?? a.businessName ?? '').localeCompare(b.personName ?? b.businessName ?? ''),
+            ),
+        );
+        hasLoaded = true;
+        setError(null);
+      } catch (loadError) {
+        if (cancelled) return;
+        console.error('Failed to load the awards catalogue:', loadError);
+        // Keep showing an already-loaded ballot; only surface the error if empty.
+        if (!hasLoaded) setError(loadError.message || 'Failed to load awards voting.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     };
 
-    const competitionRef = doc(db, COMPETITION_COLLECTION, competitionId);
-    const unsubscribeCompetition = onSnapshot(
-      competitionRef,
-      (snapshot) => {
-        setCompetition(snapshot.exists() ? snapshot.data() : null);
-        setError(null);
-        markLoaded();
-      },
-      (snapshotError) => {
-        console.error('Failed to load the awards competition:', snapshotError);
-        setError(snapshotError.message || 'Failed to load awards voting.');
-        markLoaded();
-      },
-    );
-
-    const unsubscribeCategories = onSnapshot(
-      collection(db, COMPETITION_COLLECTION, competitionId, 'categories'),
-      (snapshot) => {
-        setCategories(
-          snapshot.docs
-            .map((categoryDoc) => ({ id: categoryDoc.id, ...categoryDoc.data() }))
-            .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '')),
-        );
-        markLoaded();
-      },
-      (snapshotError) => {
-        console.error('Failed to load award categories:', snapshotError);
-        setError(snapshotError.message || 'Failed to load award categories.');
-        markLoaded();
-      },
-    );
-
-    const unsubscribeNominees = onSnapshot(
-      collection(db, COMPETITION_COLLECTION, competitionId, 'nominees'),
-      (snapshot) => {
-        setNominees(
-          snapshot.docs
-            .map((nomineeDoc) => ({ id: nomineeDoc.id, ...nomineeDoc.data() }))
-            .filter((nominee) => nominee.disabled !== true)
-            .sort((a, b) => (a.personName ?? a.businessName ?? '').localeCompare(b.personName ?? b.businessName ?? '')),
-        );
-        markLoaded();
-      },
-      (snapshotError) => {
-        console.error('Failed to load award nominees:', snapshotError);
-        setError(snapshotError.message || 'Failed to load award nominees.');
-        markLoaded();
-      },
-    );
-
+    load();
+    const timer = setInterval(load, CATALOGUE_REFRESH_MS);
     return () => {
-      unsubscribeCompetition();
-      unsubscribeCategories();
-      unsubscribeNominees();
+      cancelled = true;
+      clearInterval(timer);
     };
   }, [competitionId]);
 

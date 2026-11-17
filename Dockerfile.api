@@ -32,6 +32,9 @@ COPY functions/src/errors.js ./src/errors.js
 # privileges. Without this the container exits with EACCES on its own entrypoint.
 RUN chmod -R a+rX /app
 
+# Persistent SQLite vote store and catalogue snapshot (mounted as a volume).
+RUN mkdir -p /data && chown node:node /data
+
 # Run the API without root privileges; credentials are loaded only at runtime.
 USER node
 

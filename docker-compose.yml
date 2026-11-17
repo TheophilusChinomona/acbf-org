@@ -45,6 +45,11 @@ services:
       PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?PUBLIC_ORIGIN is required}
       # Server-only runtime secret. Never pass this to prod or to build args.
       FIREBASE_ADMIN_CREDENTIALS_BASE64: ${FIREBASE_ADMIN_CREDENTIALS_BASE64:?FIREBASE_ADMIN_CREDENTIALS_BASE64 is required (server-only credential)}
+      # Votes are stored in SQLite on the volume below, not in Firestore.
+      AWARDS_STORE_PATH: /data/awards.sqlite
+      AWARDS_CATALOGUE_PATH: /data/catalogue.json
+    volumes:
+      - awards-data:/data
     expose:
       - "3001"
     # `prod` is also attached to the shared dokploy-network, where other stacks
@@ -60,3 +65,7 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+
+volumes:
+  # Durable vote store. Never delete this volume while voting is open.
+  awards-data:

@@ -290,3 +290,31 @@ not a data restore.
 - Public vote totals, leaderboards, paid voting, vote editing.
 - PostgreSQL or any new datastore.
 - Brand assets, legacy PHP endpoints and `src/lib/firebase.js` credentials.
+
+## SQLite vote store (replaces Firestore for voting)
+
+When `AWARDS_STORE_PATH` is set (Compose sets `/data/awards.sqlite`), votes,
+deduplication and hourly rate limits live in SQLite on the `awards-data` volume,
+so voting no longer depends on Firestore quota. The ballot reads its catalogue
+from `GET /api/v1/awards/catalogue`, served from `/data/catalogue.json`.
+
+**One-time load (needs Firestore to answer, so after a quota reset or on Blaze):**
+
+```bash
+docker exec <api-container> node src/awards/exportFromFirestore.js
+```
+
+It writes the catalogue snapshot and imports votes already recorded in Firestore
+(idempotent: re-running never double counts). Until the snapshot exists the API
+answers `503` for votes and the catalogue, and `/api/v1/ready` reports not ready.
+Re-run it after any admin change to categories or nominees.
+
+**Totals** are derived from the votes table:
+
+```bash
+docker exec <api-container> node -e "const {createSqliteVoteStore,createCatalogueSource}=require('./src/awards/sqliteStore');const s=createSqliteVoteStore({path:process.env.AWARDS_STORE_PATH,catalogue:createCatalogueSource(process.env.AWARDS_CATALOGUE_PATH)});console.table(s.totals())"
+```
+
+The admin results panel still reads Firestore totals and will not show votes
+recorded in SQLite. **Back up** `/data/awards.sqlite` (e.g. `docker cp`) and never
+delete the `awards-data` volume while voting is open.
