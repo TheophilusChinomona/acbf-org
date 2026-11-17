@@ -5,10 +5,13 @@
  *
  *   docker exec <api-container> node src/awards/exportFromFirestore.js
  *
- * 1. Writes the public catalogue (competition settings, categories, nominees) to
- *    AWARDS_CATALOGUE_PATH. The API picks the file up within seconds.
- * 2. Imports votes already recorded in Firestore into the SQLite store, keyed by
- *    their existing vote key, so re-running never double counts.
+ * By default this ONLY imports votes already recorded in Firestore into the
+ * SQLite store, keyed by their existing vote key, so re-running never double
+ * counts. A vote made in both stores for the same browser and category counts
+ * once (the SQLite record is kept).
+ *
+ * The catalogue file is left untouched, because it may carry edits that Firestore
+ * does not have. Pass `--catalogue` to also overwrite it from Firestore.
  *
  * Reads Firestore only; nothing is written or deleted there. Credentials come
  * from the same environment variables the API uses and are never printed.
@@ -63,10 +66,13 @@ async function main(env = process.env) {
     nominees: nominees.docs.map((d) => ({ id: d.id, ...plain(d.data()) })),
   };
 
-  fs.mkdirSync(path.dirname(cataloguePath), { recursive: true });
-  const tmp = `${cataloguePath}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(snapshot));
-  fs.renameSync(tmp, cataloguePath);
+  const writeCatalogue = process.argv.includes('--catalogue');
+  if (writeCatalogue) {
+    fs.mkdirSync(path.dirname(cataloguePath), { recursive: true });
+    const tmp = `${cataloguePath}.tmp`;
+    fs.writeFileSync(tmp, JSON.stringify(snapshot));
+    fs.renameSync(tmp, cataloguePath);
+  }
 
   const store = createSqliteVoteStore({
     path: storePath,
@@ -88,7 +94,9 @@ async function main(env = process.env) {
   store.close();
 
   console.log(
-    `catalogue: ${snapshot.categories.length} categories, ${snapshot.nominees.length} nominees -> ${cataloguePath}`,
+    writeCatalogue
+      ? `catalogue: ${snapshot.categories.length} categories, ${snapshot.nominees.length} nominees -> ${cataloguePath}`
+      : 'catalogue: left unchanged (pass --catalogue to overwrite it from Firestore)',
   );
   console.log(`votes: ${result.imported} imported, ${result.skipped} already present`);
 }

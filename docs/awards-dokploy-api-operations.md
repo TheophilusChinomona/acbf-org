@@ -304,10 +304,11 @@ from `GET /api/v1/awards/catalogue`, served from `/data/catalogue.json`.
 docker exec <api-container> node src/awards/exportFromFirestore.js
 ```
 
-It writes the catalogue snapshot and imports votes already recorded in Firestore
-(idempotent: re-running never double counts). Until the snapshot exists the API
+By default it imports only the votes already recorded in Firestore (idempotent:
+re-running never double counts) and leaves the catalogue file alone. Add
+`--catalogue` to overwrite the catalogue from Firestore. Until the snapshot exists the API
 answers `503` for votes and the catalogue, and `/api/v1/ready` reports not ready.
-Re-run it after any admin change to categories or nominees.
+
 
 **Totals** are derived from the votes table:
 
@@ -316,8 +317,9 @@ docker exec <api-container> node -e "const {createSqliteVoteStore,createCatalogu
 ```
 
 The admin results panel still reads Firestore totals and will not show votes
-recorded in SQLite. **Back up** `/data/awards.sqlite` (e.g. `docker cp`) and never
-delete the `awards-data` volume while voting is open.
+recorded in SQLite. **Back up** with `VACUUM INTO` (a plain `docker cp` of `awards.sqlite` misses
+votes still in the `-wal` file and produces an empty backup) and never delete the
+`awards-data` volume while voting is open.
 
 ### Admin results from SQLite
 
