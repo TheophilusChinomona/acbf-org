@@ -8,8 +8,38 @@
     "featuredImage": null,
     "author": "ACBF RSA",
     "date": "2025-11-28",
-    "categories": ["Events", "Announcements"],
-    "tags": ["Gala Dinner", "Awards", "Networking", "Fellowship", "2025"]
+    "categories": [
+      "Events",
+      "Announcements"
+    ],
+    "tags": [
+      "Gala Dinner",
+      "Awards",
+      "Networking",
+      "Fellowship",
+      "2025"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Sandton summit targets investment and global partnerships for African businesses",
+    "slug": "sandton-summit-targets-investment-global-partnerships",
+    "content": "<p><strong>JOHANNESBURG</strong> — Access to investment and opportunities for cross-border business partnerships will be central to the ACBF International Investment Summit, scheduled for 26–28 November 2026 at The Maslow Hotel in Sandton.</p><p>Convened by the Africa Christian Business Fellowship (ACBF), the three-day event is being organised to connect entrepreneurs with investors and business leaders. The planned programme includes investment presentations, investor matching and closed-door investment meetings, alongside an Awards Night recognising business achievement.</p><p>The organisers aim to help entrepreneurs present business opportunities to potential funders and commercial partners. The summit’s focus on African enterprise and diaspora connections places market access and business relationships alongside the search for capital.</p><p>The international reach is reflected in the current awards nomination list, which contains 139 entries across 31 categories. Nominees are listed in nine countries: South Africa, Zimbabwe, Namibia, Botswana, Lesotho, Zambia, Australia, the United Kingdom and the United States.</p><p>Award categories cover manufacturing and industrial development, financial services, healthcare, construction, agriculture, and transport and logistics. Separate categories recognise business leadership, women in business, youth entrepreneurship, job creation and skills development, community impact, and lifetime achievement.</p><p>Among the businesses listed are Namibia’s Integris Financial Services, nominated for Financial Services Excellence; Afri Expo Textiles in Lesotho, nominated for Job Creation and Skills Development; and Australia’s PNM Designs, nominated for Built Environment Excellence. South Africa’s Megashift Logistics is among the nominees for Transport &amp; Logistics Excellence.</p><p>ACBF’s regional activity earlier this year included the launch of its Zambia chapter in Lusaka. Forward In Faith Ministries International reported that the launch took place alongside investment engagements from 1–4 July 2026, involving discussions with government officials and other stakeholders.</p><p>Alongside its commercial focus, ACBF’s summit communications highlight the fellowship’s Christian identity and the place of ethical leadership and community responsibility in business.</p><p>The event’s advertised registration fees are US$300 for Standard, US$500 for VIP and US$1,000 for VVIP, or the equivalent in local currency.</p><p>Event and media enquiries can be directed to <a href=\"mailto:info@acbf.org.za\">info@acbf.org.za</a> or +27 76 775 0044. The advertised event website is <a href=\"https://www.acbf.org.za\">www.acbf.org.za</a>.</p>",
+    "excerpt": "The ACBF International Investment Summit, 26–28 November 2026 at The Maslow Hotel in Sandton, will pair an investment programme with awards across 31 categories.",
+    "featuredImage": null,
+    "author": "ACBF RSA",
+    "date": "2026-11-17",
+    "categories": [
+      "Events",
+      "Announcements"
+    ],
+    "tags": [
+      "Investment Summit",
+      "Awards",
+      "Sandton",
+      "Investment",
+      "Partnerships",
+      "2026"
+    ]
   }
 ]
-
