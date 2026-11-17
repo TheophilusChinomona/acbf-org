@@ -43,7 +43,7 @@ jobs:
           src/lib
           src/hooks/useAwardsVoting.js
           src/hooks/useAdminInvitations.js
-          functions/index.js
+          functions/src/notifications
           functions/src/api
           functions/src/awards
           functions/src/admin

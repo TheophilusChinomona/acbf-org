@@ -21,6 +21,8 @@ export const API_PATHS = Object.freeze({
   vote: '/api/v1/awards/vote',
   catalogue: '/api/v1/awards/catalogue',
   adminResults: '/api/v1/admin/awards/results',
+  notifyContact: '/api/v1/notify/contact',
+  notifyMembership: '/api/v1/notify/membership',
   lookupInvitation: '/api/v1/admin/invitations/lookup',
   acceptInvitation: '/api/v1/admin/invitations/accept',
 });

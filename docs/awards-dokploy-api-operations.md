@@ -340,3 +340,12 @@ The script re-applies the committee's edits (Theo.docx) and the 14 November
 correction, keyed by stable nominee id. Load the result with `docker exec -i
 <api> sh -c 'cat > /data/catalogue.json'`. Do not run `exportFromFirestore.js`
 for the catalogue unless the same edits exist in Firestore: it overwrites the file.
+
+### Form notification emails (Resend)
+
+The contact and membership forms save to Firestore, then call
+`POST /api/v1/notify/contact` and `/api/v1/notify/membership`, which email the
+admin through Resend. Set `RESEND_API_KEY`, `RESEND_FROM` (a sender on a domain
+verified in Resend) and `NOTIFY_TO` in Dokploy. Without them the endpoints answer
+`503` and log `email notifications disabled` at startup. The recipient is fixed
+server-side; each network is limited to 5 messages an hour per form.

@@ -1,4 +1,5 @@
 import { db } from '../../lib/firebase'
+import { API_PATHS, postBackendApi } from '../../lib/backendApi';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -37,25 +38,17 @@ export default function ContactForm() {
       });
 
       if (docRef.id) {
-        // Also send email notification via PHP API
+        // Also notify the admin by email. The message is already saved, so a failed
+        // notification must not block the visitor; the API logs the failure.
         try {
-          const response = await fetch('/api/contact-email.php', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
+          await postBackendApi(API_PATHS.notifyContact, {
+            name: data.name,
+            email: data.email,
+            subject: data.subject,
+            message: data.message,
           });
-
-          const result = await response.json();
-
-          if (!result.success) {
-            console.error('Email notification failed:', result.error);
-            // Don't show error to user since Firestore save succeeded
-          }
         } catch (emailError) {
-          console.error('Email API error:', emailError);
-          // Don't show error to user since Firestore save succeeded
+          console.error('Email notification failed:', emailError);
         }
 
         setSubmitStatus('success');

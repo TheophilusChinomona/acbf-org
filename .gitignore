@@ -23,8 +23,6 @@ functions/.runtimeconfig.json
 firestore-debug.log
 ui-debug.log
 
-# PHP API
-api/config.php
 
 # Firebase server credentials never belong in source or Docker context
 **/*firebase-adminsdk*.json
@@ -34,3 +32,6 @@ api/config.php
 
 # Local/private environment variants
 .env.*
+
+# Build output: built by Dokploy/CI, never committed
+dist/
