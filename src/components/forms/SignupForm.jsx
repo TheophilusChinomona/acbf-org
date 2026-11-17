@@ -1,4 +1,5 @@
 import { db } from '../../lib/firebase'
+import { API_PATHS, postBackendApi } from '../../lib/backendApi';
 import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore'
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -102,32 +103,20 @@ export default function SignupForm() {
         member_application_id: docRef.id,
       });
 
-      // Step 5: Send email notification (non-blocking)
+      // Step 5: Notify the admin by email (non-blocking). The application is
+      // already saved, so a failed notification must not block the applicant;
+      // the API logs the failure.
       try {
-        const response = await fetch('/api/membership-email.php', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: data.name,
-            email: data.email,
-            phone: data.phone,
-            business_name: data.businessName || '',
-            business_type: data.businessType === 'other' ? data.otherBusinessType : data.businessType,
-            message: data.message || '',
-          }),
+        await postBackendApi(API_PATHS.notifyMembership, {
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          business_name: data.businessName || '',
+          business_type: data.businessType === 'other' ? data.otherBusinessType : data.businessType,
+          message: data.message || '',
         });
-
-        const result = await response.json();
-
-        if (!result.success) {
-          console.error('Email notification failed:', result.error);
-          // Don't show error to user since critical operations succeeded
-        }
       } catch (emailError) {
-        console.error('Email API error:', emailError);
-        // Don't show error to user since critical operations succeeded
+        console.error('Email notification failed:', emailError);
       }
 
       setSubmitStatus('success');

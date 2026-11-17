@@ -1,32 +1,10 @@
 {
-  "functions": {
-    "source": "functions",
-    "predeploy": [],
-    "runtime": "nodejs22"
-  },
   "firestore": {
     "rules": "firestore.rules"
-  },
-  "hosting": {
-    "public": "dist",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
   },
   "emulators": {
     "firestore": {
       "port": 8787
-    },
-    "functions": {
-      "port": 5101
     },
     "ui": {
       "enabled": false

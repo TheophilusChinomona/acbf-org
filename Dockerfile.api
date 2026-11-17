@@ -25,6 +25,7 @@ COPY functions/package.json ./
 COPY functions/src/api ./src/api
 COPY functions/src/awards ./src/awards
 COPY functions/src/admin ./src/admin
+COPY functions/src/notifications ./src/notifications
 COPY functions/src/errors.js ./src/errors.js
 
 # The build context may carry restrictive modes (0600/0700); COPY preserves them.

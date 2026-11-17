@@ -50,6 +50,11 @@ services:
       AWARDS_CATALOGUE_PATH: /data/catalogue.json
       # Comma-separated admin login emails allowed to view private vote totals.
       AWARDS_ADMIN_EMAILS: ${AWARDS_ADMIN_EMAILS:-}
+      # Admin email notifications for the contact and membership forms (Resend).
+      # RESEND_FROM must be on a domain verified in Resend, e.g. "ACBF <noreply@acbf.org.za>".
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
+      NOTIFY_TO: ${NOTIFY_TO:-}
     volumes:
       - awards-data:/data
     expose:

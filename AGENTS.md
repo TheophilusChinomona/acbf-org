@@ -15,8 +15,8 @@ Organization website and member management platform for the African Community Bu
 |-------|------|---------|
 | **Zach** | Orchestrator | Plans work, creates task files, dispatches agents, reviews PRs |
 | **pixel** | Frontend | React pages/components, Tailwind styling, Framer Motion animations, routing |
-| **backend (Atlas)** | Backend | Firebase Functions, Firestore queries, email triggers, PHP API, auth logic |
-| **forge** | Infrastructure | GitHub Actions, FTP deployment, Firebase config, env vars, build pipeline |
+| **backend (Atlas)** | Backend | Voting/notification API (`functions/src`), Firestore rules and queries, auth logic |
+| **forge** | Infrastructure | Dockerfiles, Compose, nginx, GitHub Actions CI, Dokploy env vars |
 
 ---
 
@@ -62,37 +62,24 @@ All work is tracked in `tasks/`. Agents read their task file on session start an
 ```
 acbf-org/
 ├── tasks/                          # Task board — read on session start
-├── .github/workflows/              # auto-deploy.yml (push to main) + manual-deploy.yml
-├── api/                            # Legacy PHP API (contact + membership email endpoints)
-├── functions/                      # Firebase Cloud Functions (Node.js 18)
-│   ├── index.js                    # Firestore onCreate triggers
-│   └── src/
-│       ├── sendEmail.js            # Nodemailer wrapper
-│       └── templates/             # HTML email templates
+├── .github/workflows/ci.yml        # CI only: tests, lint, image builds (does not deploy)
+├── Dockerfile, nginx.conf          # Site image: Vite build served by nginx, proxies /api/ to the API
+├── Dockerfile.api                  # API image (copies only the folders it lists — add new ones!)
+├── docker-compose.yml              # prod stack deployed by Dokploy (site + api + awards-data volume)
+├── functions/src/                  # The Node API (Node 22). Not Firebase Cloud Functions.
+│   ├── api/                        # HTTP server and routes (/api/v1/...)
+│   ├── awards/                     # Voting policy, SQLite vote store, Firestore export
+│   ├── admin/                      # Admin invitations
+│   └── notifications/              # Contact + membership admin emails via Resend
+├── firestore.rules, firebase.json  # Firestore rules (used by emulator tests)
 ├── public/                         # Static assets (images, videos, robots.txt, sitemap.xml)
 └── src/
     ├── App.jsx                     # Router setup + lazy-loaded routes
-    ├── main.jsx                    # React entry point
-    ├── index.css                   # Tailwind + global CSS
-    ├── pages/
-    │   ├── Home.jsx, About.jsx, Blog.jsx, BlogPost.jsx
-    │   ├── Portfolio.jsx           # Member directory
-    │   ├── Awards.jsx, Contact.jsx, Search.jsx
-    │   ├── admin/                  # Admin dashboard pages
-    │   ├── auth/                   # Register, Invite pages
-    │   └── member/                 # Member dashboard, PendingApproval
-    ├── components/
-    │   ├── admin/                  # Admin-specific UI
-    │   ├── auth/                   # ProtectedRoute, AdminProtectedRoute
-    │   ├── forms/                  # Form components
-    │   ├── layout/                 # Layout wrapper
-    │   ├── member/                 # Member-specific UI
-    │   └── common/                 # Loading, ErrorBoundary, ScrollToTop
-    ├── context/
-    │   ├── AuthContext.jsx         # Auth state + methods
-    │   └── SiteContext.jsx         # Site-wide data
-    ├── hooks/                      # Custom hooks (useAuth, useMembers, useSubmissions, etc.)
-    ├── lib/firebase.js             # Firebase initialization
+    ├── pages/                      # Home, About, Blog, Portfolio, Awards, Contact, admin/, auth/, member/
+    ├── components/                 # admin/, auth/, forms/, layout/, member/, common/, awards/
+    ├── context/                    # AuthContext, SiteContext
+    ├── hooks/                      # Custom hooks (useAuth, useAwardsVoting, useAwardsResults, ...)
+    ├── lib/                        # firebase.js (init) and backendApi.js (the only way to call /api/v1)
     ├── utils/                      # exportData, formatDate, slugify, userRoles, invitationToken
     └── data/                       # Static constants and data files
 ```
@@ -109,9 +96,10 @@ acbf-org/
 - **State:** React Context (auth + site data) + TanStack React Query
 - **Database:** Firebase Firestore (primary, real-time)
 - **Auth:** Firebase Authentication
-- **Backend:** Firebase Cloud Functions (Node.js 18) — email triggers on Firestore events
-- **Email:** Nodemailer via Mailtrap SMTP (Functions) / PHP SMTP API (legacy)
-- **Deployment:** GitHub Actions → FTP to cPanel (executus-ent.co.za hosting)
+- **Backend:** Node 22 API in Docker (`functions/src/api`), behind nginx at `/api/v1/`
+- **Votes:** SQLite (`node:sqlite`) on the `awards-data` volume — not Firestore. Back up with `VACUUM INTO`, never a plain file copy (WAL).
+- **Email:** Resend (admin notifications for the contact and membership forms)
+- **Deployment:** Dokploy builds `docker-compose.yml` from GitHub on push to `main`
 
 ---
 
@@ -119,7 +107,7 @@ acbf-org/
 
 | Branch | Purpose |
 |--------|---------|
-| `main` | Production — auto-deploys to acbf.org.za on push |
+| `main` | Production — Dokploy rebuilds and redeploys on push. A merge restarts the API (a few seconds). |
 | `pixel/<slug>` | Frontend feature branches |
 | `backend/<slug>` | Backend/Firebase branches |
 | `forge/<slug>` | Infra branches |
@@ -130,13 +118,11 @@ All PRs target `main`. CI (lint + build) must pass before merge.
 
 ## Deployment
 
-Push to `main` → GitHub Actions runs:
-1. `npm ci`
-2. `npm run build:prod` (Vite build → `dist/`)
-3. Sitemap generated
-4. FTP deploy to cPanel via `SamKirkland/FTP-Deploy-Action`
+Push to `main` → Dokploy builds `docker-compose.yml` (site image + API image) and redeploys. There is no FTP, cPanel, `deploy.sh` or Firebase Functions deploy any more.
 
-Firebase Functions are deployed separately via `firebase deploy --only functions`.
+GitHub Actions (`ci.yml`) only runs on push and pull requests: tests, lint, Compose validation and image build checks. It never deploys.
+
+Votes live in SQLite on the `awards-data` volume. Never delete that volume while voting is open. See `docs/awards-dokploy-api-operations.md`.
 
 ---
 
@@ -154,26 +140,20 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
 ```
 
-**Firebase Functions (`functions/.env`):**
+**API runtime (set in Dokploy, never committed):**
 ```
-SMTP_HOST=
-SMTP_PORT=
-SMTP_USER=
-SMTP_PASS=
-ADMIN_EMAIL=
-FROM_EMAIL=
-FROM_NAME=
-ORGANIZATION_NAME=
+FIREBASE_PROJECT_ID=
+FIREBASE_ADMIN_CREDENTIALS_BASE64=   # server-only service account
+PUBLIC_ORIGIN=                       # e.g. https://acbf.org.za
+ACBF_TRUSTED_PROXY_CIDR=             # private proxy network
+AWARDS_ADMIN_EMAILS=                 # comma-separated admin login emails
+RESEND_API_KEY=
+RESEND_FROM=                         # on a domain verified in Resend
+NOTIFY_TO=                           # where form notifications go
 ```
+(`AWARDS_STORE_PATH` and `AWARDS_CATALOGUE_PATH` are set in `docker-compose.yml`.)
 
-**GitHub Actions Secrets (forge manages these):**
-```
-FTP_SERVER=
-FTP_USERNAME=
-FTP_PASSWORD=
-FTP_REMOTE_PATH=
-VITE_FIREBASE_*=   (all VITE_ vars injected at build time)
-```
+**Frontend build args:** the `VITE_FIREBASE_*` keys above are passed to the site image build in Dokploy.
 
 ---
 
@@ -193,6 +173,5 @@ VITE_FIREBASE_*=   (all VITE_ vars injected at build time)
 ## Do NOT touch
 - `public/assets/images/` logos and brand assets — client-approved
 - `src/lib/firebase.js` Firebase config — Theo manages credentials
-- `functions/.env` — Theo manages SMTP credentials
-- PHP files in `api/` — legacy, only modify if explicitly tasked
-- `dist/` — build output, never edit manually
+- Dokploy environment variables and credentials — Theo manages them
+- `dist/` — build output (git-ignored), never edit manually

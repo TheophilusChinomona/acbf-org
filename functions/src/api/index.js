@@ -23,6 +23,8 @@ const { createCastAwardVote } = require('../awards/voting');
 const { createGetAdminInvitation, createAcceptAdminInvitation } = require('../admin/invitations');
 const policy = require('../awards/policy');
 const { DomainError, ERROR_CODES } = require('../errors');
+const { createResendMailer } = require('../notifications/mailer');
+const { createNotifications } = require('../notifications');
 const { createSqliteVoteStore, createCatalogueSource } = require('../awards/sqliteStore');
 
 const READINESS_TIMEOUT_MS = 3_000;
@@ -147,7 +149,29 @@ async function main({ env = process.env, logger = console } = {}) {
     }
   }
 
+  // Admin email notifications for the contact and membership forms (Resend).
+  // Without RESEND_API_KEY the endpoints answer "unavailable" instead of failing silently.
+  let mailer = null;
+  const resendKey = (env.RESEND_API_KEY || '').trim();
+  if (resendKey !== '') {
+    try {
+      mailer = createResendMailer({
+        apiKey: resendKey,
+        from: (env.RESEND_FROM || '').trim(),
+        to: (env.NOTIFY_TO || '').trim(),
+        logger,
+      });
+    } catch {
+      logger.warn('api: email notifications disabled: set RESEND_FROM and NOTIFY_TO');
+    }
+  } else {
+    logger.warn('api: email notifications disabled: RESEND_API_KEY is not set');
+  }
+  const notifications = createNotifications({ mailer });
+
   const server = createApiServer({
+    sendContact: notifications.sendContact,
+    sendMembership: notifications.sendMembership,
     castVote,
     readCatalogue,
     readAdminResults,

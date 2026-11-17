@@ -43,6 +43,20 @@ const ROUTES = Object.freeze([
   },
   {
     method: 'POST',
+    path: '/api/v1/notify/contact',
+    kind: 'contact',
+    fields: Object.freeze(['name', 'email', 'subject', 'message']),
+    requiresClientIp: true,
+  },
+  {
+    method: 'POST',
+    path: '/api/v1/notify/membership',
+    kind: 'membership',
+    fields: Object.freeze(['name', 'email', 'phone', 'business_name', 'business_type', 'message']),
+    requiresClientIp: true,
+  },
+  {
+    method: 'POST',
     path: '/api/v1/admin/invitations/lookup',
     kind: 'lookup',
     fields: Object.freeze(['token']),
@@ -298,6 +312,13 @@ async function handleRequest(req, res, settings) {
         Promise.resolve(settings.castVote(body.value, { clientIp })),
         settings.handlerTimeoutMs,
       );
+    } else if (route.kind === 'contact' || route.kind === 'membership') {
+      const send = route.kind === 'contact' ? settings.sendContact : settings.sendMembership;
+      if (typeof send !== 'function') {
+        sendError(res, 404, ERROR_CODES.NOT_FOUND, MESSAGES.notFound);
+        return;
+      }
+      result = await withTimeout(Promise.resolve(send(body.value, { clientIp })), settings.handlerTimeoutMs);
     } else if (route.kind === 'lookup') {
       result = await withTimeout(
         Promise.resolve(settings.lookupInvitation(body.value)),
@@ -341,6 +362,8 @@ function createApiServer(options = {}) {
     readiness,
     readCatalogue,
     readAdminResults,
+    sendContact,
+    sendMembership,
     allowedOrigin,
     maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
     requestTimeoutMs = DEFAULT_REQUEST_TIMEOUT_MS,
@@ -370,6 +393,8 @@ function createApiServer(options = {}) {
     readiness,
     readCatalogue,
     readAdminResults,
+    sendContact,
+    sendMembership,
     allowedOrigin,
     maxBodyBytes,
     handlerTimeoutMs,
