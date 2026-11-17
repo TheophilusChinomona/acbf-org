@@ -19,6 +19,7 @@
 /** The only endpoints the browser may call. */
 export const API_PATHS = Object.freeze({
   vote: '/api/v1/awards/vote',
+  catalogue: '/api/v1/awards/catalogue',
   lookupInvitation: '/api/v1/admin/invitations/lookup',
   acceptInvitation: '/api/v1/admin/invitations/accept',
 });
@@ -59,7 +60,21 @@ function isPlainObject(value) {
  * @param {{fetchImpl?: typeof fetch, timeoutMs?: number}} [options]
  * @returns {Promise<{data: Record<string, unknown>}>}
  */
-export async function postBackendApi(path, payload, { fetchImpl, timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
+export function postBackendApi(path, payload, options) {
+  return requestBackendApi('POST', path, payload, options);
+}
+
+/**
+ * GET one allowed API path (used for the public awards catalogue).
+ *
+ * @param {string} path - One of {@link API_PATHS}.
+ * @param {{fetchImpl?: typeof fetch, timeoutMs?: number}} [options]
+ */
+export function getBackendApi(path, options) {
+  return requestBackendApi('GET', path, undefined, options);
+}
+
+async function requestBackendApi(method, path, payload, { fetchImpl, timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
   if (!ALLOWED_PATHS.has(path)) {
     throw new BackendApiError('invalid-argument', MESSAGES.unsupportedPath);
   }
@@ -75,12 +90,12 @@ export async function postBackendApi(path, payload, { fetchImpl, timeoutMs = DEF
   let response;
   try {
     response = await doFetch(path, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        accept: 'application/json',
-      },
-      body: JSON.stringify(payload ?? {}),
+      method,
+      headers:
+        method === 'POST'
+          ? { 'content-type': 'application/json', accept: 'application/json' }
+          : { accept: 'application/json' },
+      ...(method === 'POST' ? { body: JSON.stringify(payload ?? {}) } : {}),
       signal: controller ? controller.signal : undefined,
     });
   } catch (error) {

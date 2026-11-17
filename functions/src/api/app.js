@@ -55,6 +55,7 @@ const ROUTES = Object.freeze([
   },
   { method: 'GET', path: '/api/v1/health', kind: 'health' },
   { method: 'GET', path: '/api/v1/ready', kind: 'ready' },
+  { method: 'GET', path: '/api/v1/awards/catalogue', kind: 'catalogue' },
 ]);
 
 const ROUTES_BY_KEY = new Map(ROUTES.map((route) => [`${route.method} ${route.path}`, route]));
@@ -206,6 +207,25 @@ async function handleRequest(req, res, settings) {
     return;
   }
 
+  if (route.kind === 'catalogue') {
+    // Public read-only data (the same fields the Firestore rules already expose).
+    // Same-origin GETs carry no Origin header, so this sits before the origin check.
+    if (typeof settings.readCatalogue !== 'function') {
+      sendError(res, 404, ERROR_CODES.NOT_FOUND, MESSAGES.notFound);
+      return;
+    }
+    try {
+      const catalogue = await withTimeout(
+        Promise.resolve(settings.readCatalogue()),
+        settings.handlerTimeoutMs,
+      );
+      sendData(res, 200, catalogue, { 'cache-control': 'public, max-age=60' });
+    } catch (error) {
+      sendServiceError(res, error, { context: 'catalogue' });
+    }
+    return;
+  }
+
   if (req.headers.origin !== settings.allowedOrigin) {
     sendError(res, 403, ERROR_CODES.PERMISSION_DENIED, MESSAGES.originDenied);
     return;
@@ -293,6 +313,7 @@ function createApiServer(options = {}) {
     lookupInvitation,
     acceptInvitation,
     readiness,
+    readCatalogue,
     allowedOrigin,
     maxBodyBytes = DEFAULT_MAX_BODY_BYTES,
     requestTimeoutMs = DEFAULT_REQUEST_TIMEOUT_MS,
@@ -320,6 +341,7 @@ function createApiServer(options = {}) {
     lookupInvitation,
     acceptInvitation,
     readiness,
+    readCatalogue,
     allowedOrigin,
     maxBodyBytes,
     handlerTimeoutMs,

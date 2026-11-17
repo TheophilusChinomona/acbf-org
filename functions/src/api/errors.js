@@ -57,8 +57,8 @@ function sendJson(res, status, body, extraHeaders = {}) {
   res.end(JSON.stringify(body));
 }
 
-function sendData(res, status, data) {
-  sendJson(res, status, { data });
+function sendData(res, status, data, extraHeaders = {}) {
+  sendJson(res, status, { data }, extraHeaders);
 }
 
 /**

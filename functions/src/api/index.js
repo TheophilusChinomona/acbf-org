@@ -22,6 +22,7 @@ const { createApiServer, withTimeout } = require('./app');
 const { createCastAwardVote } = require('../awards/voting');
 const { createGetAdminInvitation, createAcceptAdminInvitation } = require('../admin/invitations');
 const policy = require('../awards/policy');
+const { createSqliteVoteStore, createCatalogueSource } = require('../awards/sqliteStore');
 
 const READINESS_TIMEOUT_MS = 3_000;
 const SHUTDOWN_TIMEOUT_MS = 10_000;
@@ -95,11 +96,37 @@ async function main({ env = process.env, logger = console } = {}) {
   const db = admin.firestore();
   const auth = admin.auth();
 
+  // Votes live in SQLite when AWARDS_STORE_PATH is set, so voting never depends
+  // on Firestore quota. The catalogue comes from an exported JSON snapshot.
+  let castVote = createCastAwardVote({ db, now: Date.now });
+  let readiness = createReadinessProbe({ db, projectId: config.projectId });
+  let readCatalogue;
+  const storePath = (env.AWARDS_STORE_PATH || '').trim();
+  if (storePath !== '') {
+    const cataloguePath =
+      (env.AWARDS_CATALOGUE_PATH || '').trim() || `${storePath.replace(/[^/]*$/, '')}catalogue.json`;
+    try {
+      const catalogue = createCatalogueSource(cataloguePath);
+      const store = createSqliteVoteStore({ path: storePath, catalogue });
+      castVote = store.castAwardVote;
+      readiness = async () => store.readiness();
+      readCatalogue = () => {
+        const loaded = catalogue.get();
+        if (!loaded) throw new Error('catalogue snapshot is not available');
+        return loaded.snapshot;
+      };
+    } catch (error) {
+      fail(error, logger);
+      return { server: null };
+    }
+  }
+
   const server = createApiServer({
-    castVote: createCastAwardVote({ db, now: Date.now }),
+    castVote,
+    readCatalogue,
     lookupInvitation: createGetAdminInvitation({ db, now: Date.now }),
     acceptInvitation: createAcceptAdminInvitation({ db, auth, now: Date.now }),
-    readiness: createReadinessProbe({ db, projectId: config.projectId }),
+    readiness,
     allowedOrigin: config.allowedOrigin,
     logger,
   });
