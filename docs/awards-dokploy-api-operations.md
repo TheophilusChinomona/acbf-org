@@ -341,6 +341,61 @@ correction, keyed by stable nominee id. Load the result with `docker exec -i
 <api> sh -c 'cat > /data/catalogue.json'`. Do not run `exportFromFirestore.js`
 for the catalogue unless the same edits exist in Firestore: it overwrites the file.
 
+### Publishing a catalogue correction
+
+Merging a correction to `main` only updates the builder script. Deploys restart
+the API, which reopens the existing `/data/catalogue.json` on the `awards-data`
+volume, so the live ballot does not change until the generated file is published.
+
+1. Find the production stack. On the server, the `prod` container whose Traefik
+   rule contains `acbf.org.za` is production (staging uses `staging.acbf.org.za`):
+
+   ```bash
+   for c in $(docker ps --format '{{.Names}}' | grep acbf | grep -- '-prod-1$'); do
+     echo "== $c"
+     docker inspect --format '{{json .Config.Labels}}' "$c" |
+       jq -r 'to_entries[] | select(.key|test("rule$")) | .value'
+   done
+   ```
+
+   Its API container has the same name with `-api-1`.
+
+2. Build the file and copy it to the server, then check it
+   (`jq '.nominees | length'`).
+
+3. Back up and replace atomically. The file is validated first, and the previous
+   catalogue is kept as `/data/catalogue.json.before-<timestamp>`:
+
+   ```bash
+   api=<production-api-container>
+   docker exec -i -u 0 "$api" sh -ec '
+     catalogue=/data/catalogue.json
+     next=$(mktemp /data/catalogue.XXXXXX)
+     trap "rm -f \"$next\"" EXIT
+     cat > "$next"
+     node -e "JSON.parse(require(\"fs\").readFileSync(process.argv[1]))" "$next"
+     cp -p "$catalogue" "$catalogue.before-$(date -u +%Y%m%dT%H%M%SZ)"
+     chmod 644 "$next"
+     mv "$next" "$catalogue"
+   ' < /path/to/catalogue.json
+   ```
+
+4. Verify the public ballot. Some nominees have a null `personName`, so use
+   `(.personName // "")` in `jq` filters:
+
+   ```bash
+   curl -fsS https://acbf.org.za/api/v1/awards/catalogue |
+     jq -r '.data.nominees[] | select((.personName // "")|test("Name")) | [.personName,.businessName,.country]|@tsv'
+   curl -sS https://acbf.org.za/api/v1/ready
+   ```
+
+   If the old entry still shows, `docker restart <api>`. Votes live in
+   `awards.sqlite` and are not touched.
+
+Roll back by copying a `catalogue.json.before-*` backup over `/data/catalogue.json`.
+Give a corrected person a new nominee id only if votes already cast should stay
+with the old person; otherwise keep the id so existing votes follow the nominee.
+
 ### Form notification emails (Resend)
 
 The contact and membership forms save to Firestore, then call
