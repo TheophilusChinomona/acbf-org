@@ -57,7 +57,6 @@ export default function AwardsBallot() {
   const activeCategory =
     visibleCategories.find((category) => category.id === activeCategoryId) ?? null;
   const alreadyVoted = activeCategoryId ? votedCategoryIds.includes(activeCategoryId) : false;
-  const selectedNomineeId = selections[activeCategoryId] ?? '';
 
   const pendingVotes = useMemo(
     () =>
@@ -79,9 +78,17 @@ export default function AwardsBallot() {
     return map;
   }, [visibleCategories]);
 
+  // A search looks across every category so a person can be found without
+  // choosing a category first; without one, the list is the chosen category.
+  const isSearching = search.trim() !== '';
   const categoryNominees = useMemo(
-    () => filterNominees(nominees, { categoryId: activeCategoryId, search, country }),
-    [nominees, activeCategoryId, search, country],
+    () =>
+      filterNominees(nominees, {
+        categoryId: isSearching ? null : activeCategoryId,
+        search,
+        country,
+      }),
+    [nominees, activeCategoryId, search, country, isSearching],
   );
 
   const nomineeById = useMemo(() => {
@@ -347,27 +354,37 @@ export default function AwardsBallot() {
               className="rounded-lg border border-gray-200 bg-white"
               aria-describedby="nominee-list-note"
             >
-              <legend className="sr-only">{activeCategory?.name ?? 'Nominees'}</legend>
+              <legend className="sr-only">
+                {isSearching ? 'Search results' : (activeCategory?.name ?? 'Nominees')}
+              </legend>
               <div className="px-5 pb-5 pt-6 sm:px-6">
                 <h3 id="nominee-list-heading" className="text-lg font-semibold leading-snug text-gray-900">
-                  {activeCategory?.name ?? 'Nominees'}
+                  {isSearching
+                    ? `Search results (${categoryNominees.length})`
+                    : (activeCategory?.name ?? 'Nominees')}
                 </h3>
                 <p id="nominee-list-note" className="mt-2 text-sm leading-relaxed text-gray-600">
-                  {alreadyVoted
-                    ? 'This browser has already voted in this category.'
-                    : 'Select one nominee. Your choice is saved while you switch categories.'}
+                  {isSearching
+                    ? 'Showing matches from every category. Select one nominee per category; your choices are saved while you search or switch categories.'
+                    : alreadyVoted
+                      ? 'This browser has already voted in this category.'
+                      : 'Select one nominee. Your choice is saved while you switch categories.'}
                 </p>
               </div>
 
               {categoryNominees.length === 0 ? (
                 <p className="px-4 pb-4 text-sm text-gray-600">
-                  No nominees match your search in this category.
+                  {isSearching
+                    ? 'No nominees match your search.'
+                    : 'No nominees match your filters in this category.'}
                 </p>
               ) : (
                 <ul className="grid grid-cols-1 gap-3 px-5 pb-6 md:grid-cols-2 sm:px-6">
                   {categoryNominees.map((nominee) => {
                     const inputId = `nominee-${nominee.id}`;
-                    const isChecked = selectedNomineeId === nominee.id;
+                    const nomineeCategoryId = nominee.categoryId;
+                    const isChecked = selections[nomineeCategoryId] === nominee.id;
+                    const nomineeVoted = votedCategoryIds.includes(nomineeCategoryId);
                     return (
                       <li key={nominee.id}>
                         <label
@@ -375,20 +392,20 @@ export default function AwardsBallot() {
                           className={`flex h-full min-h-[104px] cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors ${
                             isChecked ? 'border-primary bg-primary/5' : 'border-gray-200'
                           } ${
-                            alreadyVoted ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50'
+                            nomineeVoted ? 'cursor-not-allowed opacity-60' : 'hover:bg-gray-50'
                           }`}
                         >
                           <input
                             id={inputId}
                             type="radio"
-                            name="nominee"
+                            name={`nominee-${nomineeCategoryId}`}
                             value={nominee.id}
                             checked={isChecked}
-                            disabled={!isOpen || alreadyVoted || submitting}
+                            disabled={!isOpen || nomineeVoted || submitting}
                             onChange={() =>
                               setSelections((current) => ({
                                 ...current,
-                                [activeCategoryId]: nominee.id,
+                                [nomineeCategoryId]: nominee.id,
                               }))
                             }
                             className="mt-1 h-4 w-4 border-gray-300 text-primary focus:ring-primary"
@@ -401,6 +418,12 @@ export default function AwardsBallot() {
                               <span className="block text-sm text-gray-700">{nominee.businessName}</span>
                             )}
                             <span className="block text-sm text-gray-500">{nominee.country}</span>
+                            {isSearching && (
+                              <span className="block text-xs font-medium text-primary">
+                                {categoryNameById.get(nomineeCategoryId) ?? 'Category'}
+                                {nomineeVoted ? ' — vote recorded' : ''}
+                              </span>
+                            )}
                           </span>
                         </label>
                       </li>
