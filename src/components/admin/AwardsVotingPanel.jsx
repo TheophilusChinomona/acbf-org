@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
-import { FiBarChart2, FiLoader, FiUsers } from 'react-icons/fi';
-import { useAwardsResults } from '../../hooks/useAwardsResults';
+import { FiBarChart2, FiDownload, FiLoader, FiUsers } from 'react-icons/fi';
+import toast from 'react-hot-toast';
+import { fetchAdminVotes, useAwardsResults } from '../../hooks/useAwardsResults';
+import { exportAwardsResults, exportAwardsVotes } from '../../utils/exportData';
 import {
   categoriesWithCounts,
   nomineeDisplayName,
@@ -10,6 +12,31 @@ export default function AwardsVotingPanel() {
   const { categories, nominees, totals, acceptedVoteCount, competition, loading, error } =
     useAwardsResults();
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [confirmingVotesExport, setConfirmingVotesExport] = useState(false);
+  const [exportingVotes, setExportingVotes] = useState(false);
+
+  const handleExportResults = () => {
+    try {
+      exportAwardsResults({ categories, nominees, totals });
+      toast.success('Results exported.');
+    } catch (exportError) {
+      toast.error(exportError.message || 'Could not export results.');
+    }
+  };
+
+  const handleExportVotes = async () => {
+    setExportingVotes(true);
+    try {
+      const data = await fetchAdminVotes();
+      exportAwardsVotes(data);
+      toast.success(`Exported ${data.votes.length} votes.`);
+      setConfirmingVotesExport(false);
+    } catch (exportError) {
+      toast.error(exportError.message || 'Could not export votes.');
+    } finally {
+      setExportingVotes(false);
+    }
+  };
 
   const visibleCategories = useMemo(
     () => categoriesWithCounts(categories, nominees),
@@ -90,7 +117,7 @@ export default function AwardsVotingPanel() {
         <div>
           <h2 className="text-lg md:text-xl font-semibold text-gray-900">Awards Voting Results</h2>
           <p className="text-xs md:text-sm text-gray-600">
-            Live totals per nominee. Individual votes and voter details are never shown here.
+            Live totals per nominee. Voter details are not shown here; they are only in the admin votes export.
           </p>
         </div>
         <span
@@ -102,6 +129,55 @@ export default function AwardsVotingPanel() {
         >
           {statusLabel}
         </span>
+      </div>
+
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={handleExportResults}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            <FiDownload aria-hidden="true" />
+            Export results (Excel)
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirmingVotesExport(true)}
+            disabled={confirmingVotesExport}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
+          >
+            <FiDownload aria-hidden="true" />
+            Export all votes with voter details (Excel)
+          </button>
+        </div>
+        {confirmingVotesExport && (
+          <div role="alert" className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-900">
+            <p className="font-medium">This file contains private voter details.</p>
+            <p className="mt-1">
+              Voters were told their names and emails are kept private and never shown with
+              results. Store the file securely and do not share it publicly.
+            </p>
+            <div className="mt-3 flex gap-3">
+              <button
+                type="button"
+                onClick={handleExportVotes}
+                disabled={exportingVotes}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-white disabled:opacity-60"
+              >
+                {exportingVotes ? 'Preparing…' : 'Download votes'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmingVotesExport(false)}
+                disabled={exportingVotes}
+                className="rounded-lg border border-yellow-300 px-4 py-2 font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

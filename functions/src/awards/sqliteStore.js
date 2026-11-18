@@ -300,13 +300,33 @@ function createSqliteVoteStore({ path: dbPath, catalogue, now = Date.now } = {})
     };
   }
 
+  /**
+   * Every accepted vote, oldest first, for the private admin export. This
+   * includes the optional voter name and email, which voters were told are kept
+   * private, so only the admin-authorised route may return it. The vote key
+   * (a hash of the browser token) is deliberately left out.
+   *
+   * @returns {Array<{categoryId: string, nomineeId: string, name: string|null,
+   *   email: string|null, createdAt: number}>}
+   */
+  function votes() {
+    return db
+      .prepare(
+        `SELECT category_id AS categoryId, nominee_id AS nomineeId, name, email,
+                created_at AS createdAt
+         FROM votes ORDER BY created_at, rowid`,
+      )
+      .all()
+      .map((row) => ({ ...row, createdAt: Number(row.createdAt) }));
+  }
+
   /** Throws unless the database answers and a catalogue snapshot is loaded. */
   function readiness() {
     db.prepare('SELECT 1').get();
     if (!catalogue.get()) throw new Error('catalogue snapshot is not available');
   }
 
-  return { castAwardVote, importVotes, totals, results, readiness, close: () => db.close() };
+  return { castAwardVote, importVotes, totals, results, votes, readiness, close: () => db.close() };
 }
 
 module.exports = { createSqliteVoteStore, createCatalogueSource };

@@ -105,6 +105,7 @@ async function main({ env = process.env, logger = console } = {}) {
   let readiness = createReadinessProbe({ db, projectId: config.projectId });
   let readCatalogue;
   let readAdminResults;
+  let readAdminVotes;
   const storePath = (env.AWARDS_STORE_PATH || '').trim();
   if (storePath !== '') {
     const cataloguePath =
@@ -122,7 +123,7 @@ async function main({ env = process.env, logger = console } = {}) {
           .map((email) => email.trim().toLowerCase())
           .filter(Boolean),
       );
-      readAdminResults = async (idToken) => {
+      const authoriseAdmin = async (idToken) => {
         let decoded;
         try {
           decoded = await auth.verifyIdToken(idToken);
@@ -136,7 +137,14 @@ async function main({ env = process.env, logger = console } = {}) {
             'Your account is not authorised to view award results.',
           );
         }
+      };
+      readAdminResults = async (idToken) => {
+        await authoriseAdmin(idToken);
         return store.results();
+      };
+      readAdminVotes = async (idToken) => {
+        await authoriseAdmin(idToken);
+        return { ...store.results(), votes: store.votes() };
       };
       readCatalogue = () => {
         const loaded = catalogue.get();
@@ -175,6 +183,7 @@ async function main({ env = process.env, logger = console } = {}) {
     castVote,
     readCatalogue,
     readAdminResults,
+    readAdminVotes,
     lookupInvitation: createGetAdminInvitation({ db, now: Date.now }),
     acceptInvitation: createAcceptAdminInvitation({ db, auth, now: Date.now }),
     readiness,
