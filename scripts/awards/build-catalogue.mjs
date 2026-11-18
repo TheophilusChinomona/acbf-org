@@ -26,11 +26,53 @@ const functionsRequire = createRequire(new URL('../../functions/package.json', i
 const policy = functionsRequire('./src/awards/policy.js');
 
 /**
- * Edits applied on top of the workbook: the 14 November Firestore correction
- * (tasks/backend-mandas-nominee-correction.md) and the committee's edit list
- * (Theo.docx). Edits are keyed by stable nominee id so a re-run is repeatable.
+ * Corrections applied on top of the workbook, keyed by original nominee ID
+ * so each rebuild applies them to the same entries.
  */
 const FIELD_EDITS = Object.freeze({
+  // This is a different nominee. Keep votes for Rosheen on the original ID.
+  'financial-services-south-africa-rosheen-ngorima-neeps-consulting-services': {
+    id: 'financial-services-zimbabwe-vimbai-chinguwa-mountfin-finance',
+    personName: 'Vimbai Chinguwa',
+    businessName: 'Mountfin Finance',
+    country: 'Zimbabwe',
+  },
+  'legal-and-compliance-services-award-australia-joseph-and-hildah-nyemba-mwm-mid-west-migration': {
+    personName: 'Joseph Nyemba and Hildah Nyemba',
+    businessName: 'Miracle Worker Migration Solutions Pty Ltd - trading as MW Migration Solutions',
+    country: 'Australia',
+  },
+  'women-leadership-united-kingdom-prieska-chimhini-briska-healthcare-pbc-consulting-emelda-properties': {
+    businessName: 'Brisca Healthcare Ltd, PBC Consulting, Emelda Properties',
+  },
+  'women-leadership-zimbabwe-memory-mugabe-mama-prenuer-women-in-mining': {
+    businessName: 'Founder & President of MamaPreneurs Women Empowerment organization',
+  },
+  'sme-excellence-award-australia-diana-shumbayaonda-amabez-cleaning-services': {
+    personName: 'Diana and Archbold Shumbayaonda',
+    businessName: 'Amabez support services PVT LTD',
+  },
+  'healthcare-united-kingdom-martin-mangaba-potter-s-healthcare': {
+    personName: 'Tinotenda Chikwature, Martin Mangaba and Nyasha Mangaba',
+    businessName: 'Potters Health Care',
+  },
+  'professional-services-award-south-africa-reliable-accountants': {
+    personName: 'Tendai Mapenda',
+  },
+  'information-technology-south-africa-dr-tunjera-digital-solutions-consultancy': {
+    personName: 'Dr Nyarai Blessed Tunjera',
+    businessName: 'ZoomIn Digital Solutions Consultancy',
+  },
+  'food-industry-south-africa-kundai-mbekapi-bakers-well-midlander': {
+    personName: 'Kundai Mubekapi',
+    businessName: 'Bakers well Midrand',
+  },
+  'tourism-events-south-africa-lilly-bee-events': {
+    personName: 'Lilian Banda',
+  },
+  'healthcare-south-africa-panashe-furusa-panashe-furusa-physiotherapy': {
+    personName: 'Panashe Furusa-Mukombachoto',
+  },
   // Former bank affiliation removed (14 Nov).
   'financial-services-zimbabwe-dr-mandas-marikanda-zimbabwe-women-microfinance-bank': { businessName: '' },
   // Media and Entertainment: remove "Tapiwa", keep "Taps Media".
