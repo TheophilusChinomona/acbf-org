@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
+import { prepareAwardsResults, prepareAwardsVotes } from './awardsExport';
 
 /**
  * Format a date value for Excel export
@@ -277,3 +278,28 @@ export function exportAllSubmissions(contactSubmissions, membershipApplications,
   }
 }
 
+
+/**
+ * Export per-nominee vote totals (no voter details) to Excel.
+ *
+ * @param {{categories: Array, nominees: Array, totals: Object}} data
+ * @param {string} [filename]
+ */
+export function exportAwardsResults(data, filename) {
+  const rows = prepareAwardsResults(data);
+  const stamp = format(new Date(), 'yyyy-MM-dd');
+  return exportToExcel(rows, filename ?? `awards-results-${stamp}`, 'Results');
+}
+
+/**
+ * Export every accepted vote, including the optional voter name and email, to
+ * Excel. Admin-only data: callers must warn before offering it.
+ *
+ * @param {{categories: Array, nominees: Array, votes: Array}} data
+ * @param {string} [filename]
+ */
+export function exportAwardsVotes(data, filename) {
+  const rows = prepareAwardsVotes(data);
+  const stamp = format(new Date(), 'yyyy-MM-dd');
+  return exportToExcel(rows, filename ?? `awards-votes-${stamp}`, 'Votes');
+}

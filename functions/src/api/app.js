@@ -71,6 +71,7 @@ const ROUTES = Object.freeze([
   { method: 'GET', path: '/api/v1/ready', kind: 'ready' },
   { method: 'GET', path: '/api/v1/awards/catalogue', kind: 'catalogue' },
   { method: 'GET', path: '/api/v1/admin/awards/results', kind: 'adminResults' },
+  { method: 'GET', path: '/api/v1/admin/awards/votes', kind: 'adminVotes' },
 ]);
 
 const ROUTES_BY_KEY = new Map(ROUTES.map((route) => [`${route.method} ${route.path}`, route]));
@@ -241,11 +242,14 @@ async function handleRequest(req, res, settings) {
     return;
   }
 
-  if (route.kind === 'adminResults') {
-    // Private totals: a Firebase ID token in the Authorization header is required
-    // and checked by `readAdminResults`. A bearer token is not sent automatically
-    // by browsers, so there is no cross-site request exposure.
-    if (typeof settings.readAdminResults !== 'function') {
+  if (route.kind === 'adminResults' || route.kind === 'adminVotes') {
+    // Private totals, and the private per-vote export (which carries voter names
+    // and emails): a Firebase ID token in the Authorization header is required
+    // and checked by the reader. A bearer token is not sent automatically by
+    // browsers, so there is no cross-site request exposure.
+    const reader =
+      route.kind === 'adminVotes' ? settings.readAdminVotes : settings.readAdminResults;
+    if (typeof reader !== 'function') {
       sendError(res, 404, ERROR_CODES.NOT_FOUND, MESSAGES.notFound);
       return;
     }
@@ -256,12 +260,12 @@ async function handleRequest(req, res, settings) {
     }
     try {
       const results = await withTimeout(
-        Promise.resolve(settings.readAdminResults(bearer[1])),
+        Promise.resolve(reader(bearer[1])),
         settings.handlerTimeoutMs,
       );
       sendData(res, 200, results);
     } catch (error) {
-      sendServiceError(res, error, { context: 'admin results' });
+      sendServiceError(res, error, { context: route.kind === 'adminVotes' ? 'admin votes' : 'admin results' });
     }
     return;
   }
@@ -362,6 +366,7 @@ function createApiServer(options = {}) {
     readiness,
     readCatalogue,
     readAdminResults,
+    readAdminVotes,
     sendContact,
     sendMembership,
     allowedOrigin,
@@ -393,6 +398,7 @@ function createApiServer(options = {}) {
     readiness,
     readCatalogue,
     readAdminResults,
+    readAdminVotes,
     sendContact,
     sendMembership,
     allowedOrigin,

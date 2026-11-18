@@ -185,3 +185,19 @@ test('results() reports totals per nominee without any voter details', async () 
   assert.ok(!JSON.stringify(results).includes('ada@example.com'));
   assert.ok(!JSON.stringify(results).includes('Ada'));
 });
+
+test('votes() lists every vote with voter details and no browser identity', async () => {
+  const { store, clock } = fixture();
+  await store.castAwardVote(vote({ name: 'Ada', email: 'ada@example.com' }), { clientIp: '41.0.0.1' });
+  clock.now += 1000;
+  await store.castAwardVote(
+    vote({ categoryId: 'cat-b', nomineeId: 'n-3', browserToken: TOKEN(2) }),
+    { clientIp: '41.0.0.2' },
+  );
+  const rows = store.votes();
+  assert.deepEqual(rows, [
+    { categoryId: 'cat-a', nomineeId: 'n-1', name: 'Ada', email: 'ada@example.com', createdAt: NOW },
+    { categoryId: 'cat-b', nomineeId: 'n-3', name: null, email: null, createdAt: NOW + 1000 },
+  ]);
+  assert.ok(!JSON.stringify(rows).includes(TOKEN(1)));
+});

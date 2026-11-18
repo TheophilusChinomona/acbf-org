@@ -330,6 +330,19 @@ Firebase sign-in token is verified in the API, and the email must appear in
 Firestore, so it works while Firestore is unavailable. If the variable is empty,
 every caller gets `403`. After changing it, redeploy `api`.
 
+### Exporting votes from the admin panel
+
+The Awards Voting Results panel has two Excel exports:
+
+- **Export results**: per-nominee totals ranked within each category, built in the
+  browser from the data the panel already shows. No voter details.
+- **Export all votes with voter details**: one row per accepted vote (time,
+  category, nominee, optional voter name and email). It calls
+  `GET /api/v1/admin/awards/votes`, which uses the same Firebase token and
+  `AWARDS_ADMIN_EMAILS` check as the results route and is never cached. The browser
+  token hash is not included. Voters were told names and emails are kept private,
+  so store the file securely.
+
 ### Rebuilding the catalogue from the workbook
 
 ```bash

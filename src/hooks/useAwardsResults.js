@@ -6,6 +6,25 @@ import { VOTING_COMPETITION_ID } from '../utils/awardsVoting';
 const REFRESH_MS = 15_000;
 
 /**
+ * Fetch every accepted vote, including optional voter names and emails, for the
+ * admin export. Only an account on the API's admin allow-list is served; anyone
+ * else gets an explicit error. Called on demand, never polled.
+ */
+export async function fetchAdminVotes() {
+  const user = auth.currentUser;
+  if (!user) throw Object.assign(new Error('Sign in to export votes.'), { code: 'unauthenticated' });
+  const token = await user.getIdToken();
+  const { data } = await getBackendApi(API_PATHS.adminVotes, {
+    headers: { authorization: `Bearer ${token}` },
+  });
+  return {
+    categories: data.categories ?? [],
+    nominees: data.nominees ?? [],
+    votes: data.votes ?? [],
+  };
+}
+
+/**
  * Live private result totals for the admin voting panel.
  *
  * Totals are read from the voting API (`/api/v1/admin/awards/results`), which
